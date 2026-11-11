@@ -62,6 +62,8 @@ Deno.serve(async (req) => {
   const ev = JSON.parse(body);
   const o = ev.data?.object ?? {};
   const cuando = Number(ev.created) || Math.floor(Date.now() / 1000);
+  // La cuenta de Stripe se comparte con otras apps: solo se atienden los cobros de TORNEAZO.
+  if (o.metadata?.app !== "torneazo") return new Response("otra app", { status: 200 });
   try {
     if (ev.type === "checkout.session.completed") {
       const uid = String(o.client_reference_id ?? "");

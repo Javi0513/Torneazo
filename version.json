@@ -1,6 +1,14 @@
 {
-  "version": "1.3.0",
+  "version": "1.4.0",
   "historial": [
+    {
+      "version": "1.4.0",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Ya puedes hacerte Premium: sin anuncios, hasta 128 participantes y todos los modos de juego.",
+        "Dos opciones: 2,99 € al mes o 19,99 € al año. Puedes cancelar cuando quieras desde «Tu cuenta»."
+      ]
+    },
     {
       "version": "1.3.0",
       "fecha": "11/11/2026",

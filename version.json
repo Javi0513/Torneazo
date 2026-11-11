@@ -1,6 +1,15 @@
 {
-  "version": "1.13.0",
+  "version": "1.14.0",
   "historial": [
+    {
+      "version": "1.14.0",
+      "fecha": "13/11/2026",
+      "cambios": [
+        "Calendario de partidos: pon fecha, hora y campo a cada partido, o deja que la app los programe sola.",
+        "Programar automáticamente: nadie juega dos partidos a la vez, hay descanso entre partidos y la eliminatoria va después de los grupos.",
+        "Añade los partidos a tu calendario del móvil. También se ve en la página pública, con los próximos partidos en el resumen."
+      ]
+    },
     {
       "version": "1.13.0",
       "fecha": "13/11/2026",

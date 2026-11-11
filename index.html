@@ -136,9 +136,16 @@ button:focus-visible,.chip:focus-visible,.tab:focus-visible,a:focus-visible,sele
 .st.live{background:var(--ac);color:var(--ink)}.st.done{background:#E9ECE6;color:var(--ink)}
 .irow{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}.irow>span:last-child{text-align:right;min-width:0;overflow-wrap:anywhere}
 .ro .noro,.ro button,.ro select.mini,.ro .trow>button{display:none!important}
-.ro .regform button{display:inline-block!important}
+.ro .regform button,.ro .keepro button{display:inline-block!important}
+.ro .keepro button.noro{display:none!important}
 .regform input,.regform select{margin-bottom:6px}
 .ro input,.ro select,.ro textarea{opacity:1;color:var(--tx);cursor:default}
+
+.crow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.ctime{min-width:56px;display:flex;flex-direction:column}.ctime small{color:var(--mut);font-size:11px}
+.cmatch{flex:1;min-width:0}.cmatch .tgs{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
+.cres{min-width:36px;text-align:right}.cday h3{margin:0 0 4px;color:var(--ac);text-transform:capitalize}
+.when{margin:2px 0 6px;text-align:center}.seg{margin-bottom:12px}
 .news h3{color:var(--ac);margin:12px 0 4px}.news ul{margin:4px 0 8px}
 .err{color:#ff8a80;font-size:13px;min-height:18px;margin:6px 0 0}
 .ok{color:var(--ac);font-size:13px}

@@ -11,3 +11,5 @@
 - **Marca:** JAVI AI. Negro `#070807`, verde lima `#9BEA1C`, títulos en Exo 2 cursiva. Sin emojis en la interfaz.
 - Hablar con Javi en español sencillo y avisarle de cualquier coste antes de crear recursos de pago.
 - **Antes de abrir cada PR:** comprobar que ningún archivo ha quedado vacío o roto (sobre todo `sw.js`, `version.json` y `config.js`) y que el modo sin conexión sigue funcionando.
+- **Sin código en línea:** el JavaScript está en `app.js` y la política de seguridad (CSP) no permite scripts ni `onclick=` dentro del HTML. Los eventos se escriben como `data-click="funcion(args)"`, `data-change`, `data-input` o `data-focus` y solo admiten llamadas simples a funciones (argumentos: números, textos, `this.value`, `this`). **Toda función nueva que se use así hay que añadirla a la lista `OK_FN` al principio de `app.js`.** Hay que probar siempre en un servidor local (`python3 -m http.server`), no abriendo el archivo directamente, porque la CSP bloquea los archivos locales.
+

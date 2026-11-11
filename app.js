@@ -1,7 +1,7 @@
 /* TORNEAZO · lógica de la app.
    Los eventos se atienden aquí (data-click, data-change, data-input, data-focus) y no con código
    dentro del HTML, así la política de seguridad puede prohibir los scripts en línea. */
-const OK_FN=new Set(["accountHome", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave"]);
+const OK_FN=new Set(["accountHome", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave"]);
 function splitTop(t,sep){
   const out=[];let d=0,q=null,cur='';
   for(let k=0;k<t.length;k++){const c=t[k];
@@ -573,7 +573,9 @@ function share(){
   t+=prizesText();
   (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>alert('Resultados copiados. ¡Pégalos en WhatsApp!'),()=>prompt('Copia los resultados:',t));
 }
-function reset(){if(confirm('¿Empezar un torneo nuevo? Se borra el actual.')){const p=S.premium;S=def();S.premium=p;save();render()}}
+function reset(){
+  if(user&&S.premium&&curId)return tNew();
+  if(confirm('¿Empezar un torneo nuevo? Se borra el actual.')){const p=S.premium;S=def();S.premium=p;save();render()}}
 
 let lastKey=null,firstRender=true;
 function render(){
@@ -616,6 +618,8 @@ function viewSetup(){
   ${infoCard()}
   ${pubCard()}
   ${regCard()}
+  ${newsCard()}
+  ${sponsCard()}
   <div class="card" id="tt-reglas"><h2>Reglas</h2>
   <div class="row"><div><label for="r-w">Puntos por victoria</label><select id="r-w" data-change="setRule('win',+this.value)">${[1,2,3,4,5].map(n=>`<option ${rl().win==n?'selected':''}>${n}</option>`).join('')}</select></div>
   <div><label for="r-d">Puntos por empate</label><select id="r-d" data-change="setRule('draw',+this.value)">${[0,1,2,3].map(n=>`<option ${rl().draw==n?'selected':''}>${n}</option>`).join('')}</select></div></div>
@@ -711,13 +715,17 @@ function viewResumenRO(){
   const row=(k,v)=>v?`<div class="irow"><span class="small">${k}</span><span>${v}</span></div>`:'';
   const link=(u)=>okUrl(u)?`<a href="${esc(u)}" target="_blank" rel="noopener noreferrer" style="color:var(--ac);overflow-wrap:anywhere">${esc(u)}</a>`:'';
   const fm=({grupos:'Grupos + eliminatoria',liguilla:'Liguilla',suizo:'Sistema suizo',eliminacion:'Eliminación directa'})[S.format]||'';
-  return `<div class="card" id="tt-resumen"><h2>${esc(S.name)}</h2><span class="st ${e.c}">${e.t}</span>
+  const cd=countdown(),rr=rg(),dl=/^\d{4}-\d{2}-\d{2}$/.test(rr.deadline||'')&&rr.open?'Inscripciones hasta el '+fmtDate(rr.deadline):'';
+  return `<div class="card" id="tt-resumen" style="background:linear-gradient(135deg,#0F130E,#1d3008);border-color:var(--ac)"><div class="small" style="text-transform:uppercase;letter-spacing:1px">${esc(S.game)}</div><h2 style="font-size:26px;margin:4px 0 8px">${esc(S.name)}</h2><span class="st ${e.c}">${e.t}</span>
+    ${cd||dl?`<p style="margin:10px 0 0;color:var(--ac);font-weight:700">${esc([cd,dl].filter(Boolean).join(' · '))}</p>`:''}
     ${i.desc?`<p style="margin:12px 0 0;white-space:pre-line">${esc(i.desc)}</p>`:''}
     <div style="margin-top:12px">${row('Juego o deporte',esc(S.game))}${row('Fechas',f?esc(f)+(g&&g!==f?' – '+esc(g):''):'')}${row('Participantes',n?String(n)+(+S.size>1?' equipos':''):'')}${row('Formato',esc(fm))}
     ${row('Puntos',`${+r.win||0} por victoria${r.noDraw?', sin empates':`, ${+r.draw||0} por empate`}`)}${row('Organiza',esc(i.org))}${row('Contacto',esc(i.contact))}${row('Discord',link(i.discord))}${row('Web',link(i.web))}</div></div>
+  ${newsPublic()}
   ${nextCard()}
   ${regPublicCard()}
-  ${i.rules?`<div class="card"><h2>Reglas</h2><p style="margin:0;white-space:pre-line">${esc(i.rules)}</p></div>`:''}`;
+  ${i.rules?`<div class="card"><h2>Reglas</h2><p style="margin:0;white-space:pre-line">${esc(i.rules)}</p></div>`:''}
+  ${sponsPublic()}`;
 }
 function nextCard(){
   const N=nextMatches(4);if(!N.length)return '';
@@ -756,6 +764,90 @@ async function initRO(){
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadRO()});
 }
 
+
+
+/* ===== Varios torneos por cuenta (Premium) ===== */
+async function flushT(){clearTimeout(saveT);if(sb&&user&&!RO&&!DIR)await cloudPush().catch(()=>{})}
+async function myTorneos(){
+  if(!sb||!user)return;await flushT();await listT();
+  $('modalBody').innerHTML=`<h2>Mis torneos</h2><p class="small">${S.premium?'Con Premium puedes tener todos los torneos que quieras.':'La versión gratuita guarda 1 torneo. Con Premium, todos los que quieras.'}</p>
+  ${myT.map(t=>`<div class="trow"><div style="min-width:0;flex:1"><b>${esc(t.name)}</b>${t.id==curId?' <span class="small">· abierto</span>':''}<div class="small">${esc(fmtDate(String(t.updated_at).slice(0,10)))}</div></div>
+  ${t.id==curId?'':`<button class="sec sm" data-click="tOpen('${esc(t.id)}')">Abrir</button>`}<button class="sec sm" aria-label="Borrar torneo" data-click="tDel('${esc(t.id)}')">Borrar</button></div>`).join('')||'<p class="small">Aún no tienes torneos guardados.</p>'}
+  <div class="row" style="margin-top:12px"><button data-click="tNew()">Torneo nuevo${S.premium?'':' (Premium)'}</button><button class="sec" data-click="accountHome()">Volver</button></div>`;
+  $('modal').classList.add('on');
+}
+async function tOpen(id){
+  if(!okUuid(id))return;await flushT();
+  if(!(await loadT(id)))return notice('No se pudo abrir el torneo.');
+  S.step=0;closeModal();render();scrollTo(0,0);
+}
+async function tNew(){
+  if(!user)return;
+  if(!S.premium&&myT.length>=1)return paywall('La versión gratuita guarda 1 torneo. Con Premium puedes tener todos los que quieras.');
+  await flushT();const p=S.premium;S=def();S.premium=p;curId=null;
+  try{localStorage.setItem('torneazo',JSON.stringify(S))}catch(e){}
+  await cloudPush().catch(()=>{});await listT();closeModal();render();scrollTo(0,0);
+}
+function tDel(id){
+  if(!okUuid(id))return;const t=myT.find(x=>x.id==id);if(!t)return;
+  $('modalBody').innerHTML=`<h2>Borrar torneo</h2><p>Se borra para siempre «${esc(t.name)}», con sus inscripciones y su enlace público.</p>
+  <div class="row"><button data-click="tDelOk('${esc(id)}')">Borrar</button><button class="sec" data-click="myTorneos()">Cancelar</button></div>`;
+}
+async function tDelOk(id){
+  if(!okUuid(id))return;const r=await sb.from('tournaments').delete().eq('id',id);
+  if(r.error)return notice('No se pudo borrar. Inténtalo de nuevo.');
+  await listT();
+  if(id==curId){curId=null;const n=myT[0];if(n)await loadT(n.id);else{const p=S.premium;S=def();S.premium=p;try{localStorage.setItem('torneazo',JSON.stringify(S))}catch(e){}}render()}
+  myTorneos();
+}
+/* ===== Noticias y patrocinadores ===== */
+const nws=()=>Array.isArray(S.news)?S.news:[];
+const spn=()=>Array.isArray(S.spons)?S.spons:[];
+const nowLocal=()=>fmtLocal(new Date());
+function newsAdd(){
+  const el=$('nw-t'),x=(el.value||'').trim().slice(0,300);if(!x)return;
+  S.news=[{id:uidp(),t:nowLocal(),x},...nws()].slice(0,30);save();render();
+}
+function newsDel(id){S.news=nws().filter(n=>n.id!=id);save();render()}
+function spAdd(){
+  if(!S.premium)return paywall('Los patrocinadores son una función Premium.');
+  const n=($('sp-n').value||'').trim().slice(0,40),u=($('sp-u').value||'').trim().slice(0,200),l=($('sp-l').value||'').trim().slice(0,60),m=$('sp-m');
+  if(!n){m.textContent='Escribe el nombre del patrocinador.';return}
+  if(u&&!okUrl(u)){m.textContent='El enlace debe empezar por https://';return}
+  if(spn().length>=8){m.textContent='Máximo 8 patrocinadores.';return}
+  S.spons=[...spn(),{id:uidp(),n,u,l}];save();render();
+}
+function spDel(id){S.spons=spn().filter(n=>n.id!=id);save();render()}
+function newsCard(){
+  return `<div class="card" id="tt-noticias"><h2>Noticias del torneo</h2>
+  <p class="small">Avisos para los participantes: cambios de hora, resultados, premios… Se ven en la página pública.</p>
+  <textarea id="nw-t" maxlength="300" style="min-height:60px" aria-label="Nueva noticia" placeholder="Ej.: La final se juega el sábado a las 20:00."></textarea>
+  <div class="row" style="margin-top:8px"><button data-click="newsAdd()">Publicar noticia</button></div>
+  ${nws().map(n=>`<div class="irow"><span style="white-space:pre-line;text-align:left">${esc(n.x)}<span class="small" style="display:block">${esc(fmtDate(n.t.slice(0,10)))} ${esc(n.t.slice(11))}</span></span><button class="sec sm" aria-label="Borrar noticia" data-click="newsDel('${esc(n.id)}')">Borrar</button></div>`).join('')}</div>`;
+}
+function sponsCard(){
+  return `<div class="card" id="tt-patroc"><h2>Patrocinadores${S.premium?'':' <span class="small">· Premium</span>'}</h2>
+  <p class="small">Un espacio en la página pública para las marcas que apoyan tu torneo.</p>
+  <div class="row"><div><label for="sp-n">Nombre</label><input id="sp-n" maxlength="40"></div><div><label for="sp-l">Frase corta (opcional)</label><input id="sp-l" maxlength="60"></div></div>
+  <label for="sp-u">Enlace (opcional)</label><input id="sp-u" maxlength="200" placeholder="https://…">
+  <div class="err" id="sp-m" role="alert"></div>
+  <div class="row" style="margin-top:8px"><button data-click="spAdd()">Añadir patrocinador</button></div>
+  ${spn().map(s=>`<div class="irow"><span style="text-align:left"><b>${esc(s.n)}</b>${s.l?`<span class="small" style="display:block">${esc(s.l)}</span>`:''}</span><button class="sec sm" aria-label="Quitar patrocinador" data-click="spDel('${esc(s.id)}')">Quitar</button></div>`).join('')}</div>`;
+}
+function newsPublic(){
+  const L=nws().slice(0,5);if(!L.length)return '';
+  return `<div class="card" id="tt-noti-pub"><h2>Noticias</h2>${L.map(n=>`<div class="irow" style="display:block"><div class="small">${esc(fmtDate(n.t.slice(0,10)))} · ${esc(n.t.slice(11))}</div><div style="white-space:pre-line">${esc(n.x)}</div></div>`).join('')}</div>`;
+}
+function sponsPublic(){
+  const L=spn();if(!L.length)return '';
+  return `<div class="card" id="tt-patroc-pub"><h2>Patrocinadores</h2>${L.map(s=>`<div class="irow"><span style="text-align:left">${okUrl(s.u)?`<a href="${esc(s.u)}" target="_blank" rel="sponsored noopener noreferrer" style="color:var(--ac);font-weight:700">${esc(s.n)}</a>`:`<b>${esc(s.n)}</b>`}${s.l?`<span class="small" style="display:block">${esc(s.l)}</span>`:''}</span></div>`).join('')}</div>`;
+}
+function countdown(){
+  const s=inf().start;if(!/^\d{4}-\d{2}-\d{2}$/.test(s||''))return '';
+  const [y,m,d]=s.split('-').map(Number),t=new Date();t.setHours(0,0,0,0);
+  const n=Math.round((new Date(y,m-1,d)-t)/864e5);
+  return n>1?`Empieza en ${n} días`:n==1?'Empieza mañana':n==0?'Empieza hoy':'';
+}
 
 /* ===== Calendario de partidos ===== */
 let pv='res',calF='all';
@@ -1078,18 +1170,28 @@ async function afterLogin(){
   if(sb&&user){
     const p=await sb.from('profiles').select('display_name,is_premium,avatar,is_admin').eq('id',user.id).maybeSingle();
     profile=p.data;S.premium=!!(profile&&profile.is_premium);
-    const t=await sb.from('tournaments').select('id,data,public_code,listed,hidden').order('updated_at',{ascending:false}).limit(1).maybeSingle();
-    if(!demoBackup&&t.data&&t.data.data){const premium=S.premium;S=Object.assign(def(),t.data.data);S.premium=premium;S.pub=t.data.public_code?{code:t.data.public_code,id:t.data.id,listed:!!t.data.listed,hidden:!!t.data.hidden}:null}
-  }else if(sb){S.premium=false}
+    await listT();
+    const want=lsGet('torneazo_cur_'+user.id),pick=myT.find(x=>x.id==want)||myT[0];
+    if(!demoBackup&&pick)await loadT(pick.id);else if(!pick)curId=null;
+  }else if(sb){S.premium=false;curId=null;myT=[]}
   render();
+}
+let curId=null,myT=[];
+async function listT(){const l=await sb.from('tournaments').select('id,name,updated_at').order('updated_at',{ascending:false});myT=l.data||[]}
+async function loadT(id){
+  const t=await sb.from('tournaments').select('id,data,public_code,listed,hidden').eq('id',id).maybeSingle();
+  if(!t.data||!t.data.data)return false;
+  const premium=S.premium;S=Object.assign(def(),t.data.data);S.premium=premium;S.pub=t.data.public_code?{code:t.data.public_code,id:t.data.id,listed:!!t.data.listed,hidden:!!t.data.hidden}:null;
+  curId=t.data.id;if(user)lsSet('torneazo_cur_'+user.id,curId);try{localStorage.setItem('torneazo',JSON.stringify(S))}catch(e){}return true;
 }
 async function cloudPush(){
   if(!sb||!user||RO||DIR)return;const d=Object.assign({},S);delete d.premium;
   try{d.dir={estado:estado().c,n:(S.teams||[]).length}}catch(e){}
-  const cur=await sb.from('tournaments').select('id,public_code').order('updated_at',{ascending:false}).limit(1).maybeSingle();
+  const cur=curId?await sb.from('tournaments').select('id,public_code').eq('id',curId).maybeSingle():{};
   const row={name:String(S.name).slice(0,80),data:d};
   if(cur.data){await sb.from('tournaments').update(row).eq('id',cur.data.id);return cur.data}
-  const ins=await sb.from('tournaments').insert(row).select('id,public_code').maybeSingle();return ins.data;
+  const ins=await sb.from('tournaments').insert(row).select('id,public_code').maybeSingle();
+  if(ins.data){curId=ins.data.id;lsSet('torneazo_cur_'+user.id,curId)}return ins.data;
 }
 function cloudSave(){
   if(!sb||!user||RO||DIR)return;clearTimeout(saveT);
@@ -1107,8 +1209,7 @@ async function publishLink(){
   S.pub={code,id:row.id,listed:false};save();render();
 }
 async function unpublishLink(){
-  const cur=await sb.from('tournaments').select('id').order('updated_at',{ascending:false}).limit(1).maybeSingle();
-  if(cur.data)await sb.from('tournaments').update({public_code:null,listed:false}).eq('id',cur.data.id);
+  if(curId)await sb.from('tournaments').update({public_code:null,listed:false}).eq('id',curId);
   S.pub=null;save();render();
 }
 async function setListed(v){
@@ -1186,12 +1287,25 @@ async function delAccount(){
 }
 const okEmail=e=>/^[^\s@]{1,64}@[^\s@]+\.[^\s@]{2,}$/.test(e)&&e.length<=254;
 const okPw=p=>p.length>=10&&p.length<=72&&/[a-z]/i.test(p)&&/\d/.test(p);
+async function pwned(p){
+  try{
+    const b=await crypto.subtle.digest('SHA-1',new TextEncoder().encode(p));
+    const h=[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase();
+    const c=new AbortController();setTimeout(()=>c.abort(),4000);
+    const r=await fetch('https://api.pwnedpasswords.com/range/'+h.slice(0,5),{signal:c.signal,headers:{'Add-Padding':'true'}});
+    if(!r.ok)return false;
+    const t=await r.text(),s=h.slice(5);
+    return t.split('\n').some(l=>{const[x,n]=l.trim().split(':');return x===s&&+n>0});
+  }catch(_){return false}
+}
+const PW_LEAK='Esa contraseña aparece en filtraciones de datos conocidas. Elige otra distinta.';
 async function doAuth(){
   const m=$('au-m'),e=$('au-e').value.trim().toLowerCase(),p=$('au-p').value,reg=authMode=='register';
   if(Date.now()<authLock){m.textContent='Espera unos segundos antes de reintentar.';return}
   if(!okEmail(e)){m.textContent='Escribe un email válido.';return}
   if(reg&&!okPw(p)){m.textContent='La contraseña necesita 10 o más caracteres, con letras y números.';return}
   if(reg&&!$('au-t').checked){m.textContent='Para crear la cuenta debes aceptar los términos y la política de privacidad.';return}
+  if(reg&&await pwned(p)){m.textContent=PW_LEAK;return}
   authLock=Date.now()+3000;
   try{
     if(reg){const n=($('au-n').value||'').trim().slice(0,24)||e.split('@')[0];
@@ -1218,7 +1332,8 @@ function accountHome(){
   $('modalBody').innerHTML=`<div style="display:flex;gap:12px;align-items:center;margin-bottom:10px">${avImg(profile&&profile.avatar,56)}
     <div style="min-width:0"><h2 style="margin:0">${nm}</h2><div class="small" style="overflow-wrap:anywhere">${esc(user.email)}</div></div></div>
   <p class="small">${S.premium?'Plan Premium activo.':'Plan gratuito.'} Tus torneos se guardan en tu cuenta.</p>
-  <div class="row" style="margin-bottom:8px"><button data-click="profForm()">Editar perfil</button><button class="sec" data-click="pwForm()">Contraseña</button></div>
+  <div class="row" style="margin-bottom:8px"><button data-click="myTorneos()">Mis torneos (${myT.length})</button></div>
+  <div class="row" style="margin-bottom:8px"><button class="sec" data-click="profForm()">Editar perfil</button><button class="sec" data-click="pwForm()">Contraseña</button></div>
   <div class="row" style="margin-bottom:8px"><button class="sec" data-click="mailForm()">Cambiar email</button><button class="sec" data-click="exportData()">Descargar mis datos</button></div>
   ${S.premium&&CFG.portal?'<div class="row" style="margin-bottom:8px"><button class="sec" data-click="openPortal()">Gestionar suscripción</button></div>':''}
   <div class="row"><button class="sec" data-click="logout()">Cerrar sesión</button><button class="sec" data-click="logout(true)">Salir en todos los dispositivos</button></div>
@@ -1267,6 +1382,7 @@ async function savePw(){
   const a=$('pw1').value,b=$('pw2').value,m=$('pw-m');
   if(!okPw(a)){m.textContent='La contraseña necesita 10 o más caracteres, con letras y números.';return}
   if(a!==b){m.textContent='Las dos contraseñas no coinciden.';return}
+  if(await pwned(a)){m.textContent=PW_LEAK;return}
   const r=await sb.auth.updateUser({password:a});
   if(r.error){m.textContent='No se pudo cambiar. Si hace tiempo que entraste, cierra sesión, vuelve a entrar e inténtalo otra vez.';return}
   done('Tu contraseña se ha cambiado.');
@@ -1304,7 +1420,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.15.0';
+const APP_VERSION='1.16.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

@@ -1,6 +1,24 @@
 {
-  "version": "1.15.0",
+  "version": "1.16.0",
   "historial": [
+    {
+      "version": "1.16.0",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Varios torneos: con Premium puedes tener todos los que quieras y cambiar entre ellos desde Mi cuenta. La cuenta gratuita guarda 1.",
+        "Noticias del torneo: publica avisos que se ven en la página pública.",
+        "Patrocinadores (Premium): un espacio con las marcas que apoyan tu torneo.",
+        "Portada nueva en la página pública, con cuenta atrás hasta el inicio y fecha límite de inscripción."
+      ]
+    },
+    {
+      "version": "1.15.1",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Más seguridad: al crear o cambiar tu contraseña, avisamos si ha aparecido en filtraciones de datos.",
+        "Solo se envían 5 caracteres de una huella; tu contraseña nunca sale del móvil."
+      ]
+    },
     {
       "version": "1.15.0",
       "fecha": "14/11/2026",

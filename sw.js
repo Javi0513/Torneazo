@@ -3,7 +3,7 @@
      si no hay conexión, usa la copia guardada (la app abre sin internet).
    - Letras, iconos y librería: primero la copia guardada (no cambian).
    - Las llamadas a Supabase NO se tocan nunca. */
-const VERSION = "1.24.0";
+const VERSION = "1.25.0";
 const CACHE = "torneazo-" + VERSION;
 const SHELL = [
   "./",
@@ -18,6 +18,8 @@ const SHELL = [
   "icon-192.png",
   "icon-512.png",
   "icon-maskable-512.png",
+  "fondo.webp",
+  "fondo-movil.webp",
 ];
 const NETWORK_FIRST = /\.(html|js|css|json)$|\/$/;
 

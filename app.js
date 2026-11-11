@@ -603,6 +603,7 @@ function reset(){
 
 let lastKey=null,firstRender=true;
 function render(){
+  try{document.body.classList.toggle('is-home',!!(HOME&&!RO&&!DIR))}catch(e){}
   const tabs=RO?['Resumen','Participantes','Partidos','Fase final','Premios']:['1. Configurar','2. Sorteo','3. Partidos','4. Fase final','5. Premios'];
   const steps=RO?[10,11,2,3,4]:[0,1,2,3,4];
   const has=RO?[true,(S.teams||[]).length>0,(S.matches||[]).length>0||!!S.ko||!!S.de,!!S.ko||!!S.liga||!!S.de,true]:[true,S.teams.length>0&&S.format!='eliminacion'&&S.format!='doble',S.matches.length>0||!!S.ko||!!S.de,!!S.ko||!!S.liga||!!S.de,true];
@@ -1798,7 +1799,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.24.0';
+const APP_VERSION='1.25.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

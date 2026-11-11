@@ -24,6 +24,14 @@ Ninguna app tiene "seguridad máxima" absoluta. Esto es lo que ya está hecho y 
 - Los datos del jugador (nombre y, si se piden, contacto y nivel) se tratan como no fiables: se escapan al mostrarlos y se limpian los símbolos especiales al pasarlos a la lista de participantes.
 - Revisado en una transacción de prueba (sin dejar datos): éxito, duplicado, cupo lleno, enlace inválido, cerradas, plazo vencido, aprobación automática, nombre vacío o demasiado largo y datos de configuración raros.
 
+## Directorio de torneos públicos y moderación
+- Un torneo solo sale en el directorio si **su dueño lo pide** («Mostrar mi torneo») y tiene página pública. Se puede quitar en cualquier momento.
+- El directorio solo devuelve datos básicos (nombre, juego, estado, fecha, organizador, descripción corta y plazas). Todo se trata como no fiable: se escapa al mostrarlo y los enlaces se construyen solo con códigos válidos.
+- **Denuncias:** cualquiera puede denunciar desde la página de un torneo (5 por hora y dispositivo, una por torneo y dispositivo). Con **3 personas distintas** el torneo se **oculta solo**: desaparece del directorio, de su página pública y de las inscripciones, hasta que lo revise un administrador.
+- **Administrador:** solo las cuentas con `profiles.is_admin = true` (se cambia únicamente desde el servidor) ven el botón «Moderación» en «Tu cuenta» y pueden ocultar o volver a mostrar torneos. Para darte el permiso: `update public.profiles set is_admin = true where id = '<tu id de usuario>';`
+- El dueño ya **no puede modificar** `hidden` ni `report_count` (permisos por columna), así que no puede volver a mostrar un torneo oculto.
+- Límite conocido: sin captcha, tres personas coordinadas pueden ocultar un torneo ajeno; el administrador puede devolverlo con un clic. Si se abusa, se puede subir el umbral o añadir captcha.
+
 ## Falta antes de publicar (en este orden)
 1. Proyecto Supabase `torneazo` creado (UE, plan gratuito, 0 €) y primera migración aplicada. Falta aplicar `20261111_torneazo_pagos_y_cuenta.sql`.
 2. `config.js` ya tiene la URL y la clave pública del proyecto.

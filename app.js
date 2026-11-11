@@ -1,7 +1,7 @@
 /* TORNEAZO · lógica de la app.
    Los eventos se atienden aquí (data-click, data-change, data-input, data-focus) y no con código
    dentro del HTML, así la política de seguridad puede prohibir los scripts en línea. */
-const OK_FN=new Set(["accountHome", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave"]);
+const OK_FN=new Set(["accountHome", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave"]);
 function splitTop(t,sep){
   const out=[];let d=0,q=null,cur='';
   for(let k=0;k<t.length;k++){const c=t[k];
@@ -152,7 +152,9 @@ function gameBanner(){
     <div class="small">Niveles: ${lvList().map(esc).join(' · ')}</div>
     <button class="sec sm" data-click="clearPreset()">Quitar ajustes</button></div>`;
 }
-function plist(){
+const absSet=()=>new Set((Array.isArray(S.absent)?S.absent:[]).map(x=>String(x).toLowerCase()));
+function plist(){const A=absSet();return allP().filter(p=>!A.has(p.n.toLowerCase()))}
+function allP(){
   return rawNames().map(r=>{
     const seed=/\*$/.test(r);let t=r.replace(/\*+$/,'').trim(),lv=0;
     const m=t.match(/^(.*?)[:=]\s*([^:=]+)$/);
@@ -163,7 +165,7 @@ function plist(){
     return {n:t,seed,lv}}).filter(p=>p.n);
 }
 function lvlForm(){
-  const ps=plist(),L=lvList();
+  const ps=allP(),L=lvList();
   $('modalBody').innerHTML=`<h2>Niveles de los participantes</h2>
   <p class="small">Nivel según ${esc(S.game||'el juego')}. Sirve para equilibrar los equipos y repartir a los mejores. Quien no tiene nivel cuenta como nivel medio.</p>
   <label for="lv-all">Poner el mismo nivel a todos</label><select id="lv-all" data-change="lvAll(this.value)"><option value="">Elegir…</option>${L.map((x,i)=>`<option value="${i+1}">${esc(x)}</option>`).join('')}</select>
@@ -206,7 +208,8 @@ function buyPremium(k){
 }
 function setPremium(v){if(CFG.url)return;S.premium=v;closeModal();save();render()}
 function set(k,v){S[k]=v;save();render()}
-function setText(v){S.players=v;save();$('count').textContent=names().length+' participantes'}
+function setText(v){S.players=v;save();$('count').textContent=countText()}
+const countText=()=>{const t=allP().length,p=names().length;return t===p?p+' participantes':`${p} presentes de ${t} · ${t-p} no ${t-p==1?'ha':'han'} venido`};
 function pickMode(n){if(!S.premium&&!FREE.modes.includes(n))return paywall('Este modo de juego es de la versión Premium.');set('size',n)}
 
 function mkTeam(id,m,size,seed,lvs,old){
@@ -646,7 +649,8 @@ function viewSetup(){
   <p class="small">${S.manual?'Los equipos se forman siguiendo el orden de tu lista y los grupos se reparten en orden. Después puedes mover cada equipo de grupo.':S.balance?'Reparte a los mejores y a los menos expertos para que todos los equipos y grupos queden parejos. Asigna los niveles abajo.':'Pon un * al final de un nombre para marcarlo como cabeza de serie: el sorteo no los junta en el mismo grupo ni equipo.'}</p>
   <div class="row" style="margin-bottom:6px"><button class="sec" id="tt-niveles" data-click="lvlForm()">Asignar niveles (${plist().filter(p=>p.lv).length} de ${names().length})</button></div><p class="small">Uno por línea (o separados por comas). ${S.premium?'Hasta 256.':`Gratis: hasta ${FREE.maxPlayers}.`} ${S.size>1?`Con ${modeName(S.size)} se forman equipos de ${S.size}.`:''}</p>
   <textarea data-input="setText(this.value)" placeholder="Baruc&#10;Javi&#10;Willy&#10;...">${esc(S.players)}</textarea>
-  <p class="small" id="count">${names().length} participantes</p>
+  <p class="small" id="count">${countText()}</p>
+  <div class="row" style="margin-bottom:6px"><button class="sec" id="tt-lista" data-click="listaForm()">Pasar lista${allP().length?` (${names().length} de ${allP().length})`:''}</button></div>
   <div class="row" id="tt-sorteo"><button data-click="draw()">Hacer sorteo</button><button class="sec" data-click="reset()">Nuevo torneo</button></div></div>`;
 }
 function viewDraw(){
@@ -1087,6 +1091,25 @@ function viewDE(){
   return h+shareBtns();
 }
 
+
+/* ===== Pasar lista el día del torneo ===== */
+function listaForm(){
+  const ps=allP(),A=absSet(),pres=ps.filter(p=>!A.has(p.n.toLowerCase())).length;
+  $('modalBody').innerHTML=`<h2>Pasar lista</h2>
+  <p class="small">Toca a quien no ha venido y no entrará en el sorteo. No se borra de la lista: si llega tarde, vuelve a tocarlo.</p>
+  <p><b>${pres} presentes</b> de ${ps.length}</p>
+  <div class="lvlist">${ps.length?ps.map((p,i)=>{const no=A.has(p.n.toLowerCase());return `<div class="trow"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis${no?';text-decoration:line-through;opacity:.55':''}">${esc(p.n)}</span>
+    <div class="chips" style="margin:0"><div class="chip ${no?'':'on'}" data-click="listaTog(${i},true)">Está</div><div class="chip ${no?'on':''}" data-click="listaTog(${i},false)">No ha venido</div></div></div>`}).join(''):'<p class="small">Primero escribe los participantes.</p>'}</div>
+  <div class="row" style="margin-top:12px"><button data-click="closeModal()">Listo</button><button class="sec" data-click="listaAll()">Todos presentes</button></div>`;
+  $('modal').classList.add('on');
+}
+function listaTog(i,here){
+  const p=allP()[+i];if(!p)return;const k=p.n.toLowerCase(),A=absSet();
+  if(here)A.delete(k);else A.add(k);
+  S.absent=[...A].slice(0,300);save();render();listaForm();
+}
+function listaAll(){S.absent=[];save();render();listaForm()}
+
 /* ===== Calendario de partidos ===== */
 let pv='res',calF='all';
 const DAYS=['dom','lun','mar','mié','jue','vie','sáb'],MONTHS=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
@@ -1256,7 +1279,7 @@ async function regDel(id){if(!okUuid(id))return;await sb.from('registrations').d
 async function regImport(){
   const todo=regs.filter(r=>r.status=='approved'&&!r.imported);
   if(!todo.length)return notice('No hay inscripciones aprobadas nuevas.');
-  const have=new Set(names().map(n=>n.toLowerCase())),lines=rawNames();let add=0;
+  const have=new Set(allP().map(p=>p.n.toLowerCase())),lines=rawNames();let add=0;
   const marcados=[];
   todo.forEach(r=>{const n=String(r.name).replace(/[:=*]/g,'').trim();if(!n)return;
     if(!have.has(n.toLowerCase())){lines.push(n);have.add(n.toLowerCase());add++}
@@ -1674,7 +1697,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.20.1';
+const APP_VERSION='1.21.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

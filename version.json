@@ -1,6 +1,14 @@
 {
-  "version": "1.20.1",
+  "version": "1.21.0",
   "historial": [
+    {
+      "version": "1.21.0",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Pasar lista: el día del torneo marca quién no ha venido y no entra en el sorteo.",
+        "No se borra de la lista: si alguien llega tarde, lo vuelves a marcar como presente."
+      ]
+    },
     {
       "version": "1.20.1",
       "fecha": "11/11/2026",

@@ -1,6 +1,13 @@
 {
-  "version": "1.17.1",
+  "version": "1.17.2",
   "historial": [
+    {
+      "version": "1.17.2",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "La ventana de Premium muestra solo los planes que se pueden contratar: mensual y anual."
+      ]
+    },
     {
       "version": "1.17.1",
       "fecha": "11/11/2026",

@@ -462,6 +462,12 @@ function estado(){
 }
 function statusBar(){
   const e=estado(),i=inf(),f=fmtDate(i.start),g=fmtDate(i.end);
+  const gm=findGame(S.game)||{k:'x',n:S.game||'',cat:'',al:[]},L=allMatches().filter(x=>x.m.a!=null&&x.m.b!=null&&x.m.a!==-1&&x.m.b!==-1),pj=L.filter(x=>played(x.m)).length,tot=L.length,pc=tot?Math.round(pj*100/tot):0;
+  return `<div class="sbar"><div class="sbar-art">${gArt(gm,'s')}</div><div class="sbar-tx"><span class="kicker">${esc(S.game||'')}${f?` · ${esc(f)}${g&&g!==f?' – '+esc(g):''}`:''}</span><b class="sbar-n">${esc(S.name)}</b>
+  ${tot?`<div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax="${tot}" aria-valuenow="${pj}" aria-label="Partidos jugados"><i style="width:${pc}%"></i></div><span class="small">${pj} de ${tot} partidos jugados</span>`:`<span class="small">${(S.teams||[]).length} participantes</span>`}</div><span class="st ${e.c}">${e.t}</span></div>`;
+}
+function statusBarOld(){
+  const e=estado(),i=inf(),f=fmtDate(i.start),g=fmtDate(i.end);
   return `<div class="statusbar"><div style="min-width:0"><b>${esc(S.name)}</b> <span class="small">· ${esc(S.game)}${f?` · ${esc(f)}${g&&g!==f?' – '+esc(g):''}`:''}</span></div><span class="st ${e.c}">${e.t}</span></div>`;
 }
 function infoCard(){
@@ -562,7 +568,7 @@ function prizeCard(p,k){
     ${+S.size>1?`<optgroup label="Jugadores">${S.teams.flatMap(t=>t.members).map(m=>`<option value="p:${esc(m)}" ${p.who=='p:'+m?'selected':''}>${esc(m)}</option>`).join('')}</optgroup>`:''}</select>
     <label for="px-${p.id}">…o escribe otro ganador</label><input id="px-${p.id}" maxlength="40" value="${p.who&&p.who.indexOf('x:')==0?esc(p.who.slice(2)):''}" data-change="setPrize('${p.id}','who','x:'+this.value)">`
     :(libre?'<p class="small">Después del sorteo podrás elegir quién lo gana.</p>':'');
-  return `<div class="pz card"${k==0?' id="tt-premios"':''}><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><h3 style="margin:0;color:var(--ac)">${esc(prizeTitle(p))}</h3>
+  return `<div class="pz card${p.kind=='pos'&&p.n<=3?' pz'+p.n:''}"${k==0?' id="tt-premios"':''}><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><h3 style="margin:0;color:var(--ac)">${esc(prizeTitle(p))}</h3>
     <button class="sec sm" aria-label="Quitar premio" data-click="delPrize('${p.id}')">Quitar</button></div>
     <label for="pt-${p.id}">Premio</label><input id="pt-${p.id}" maxlength="80" placeholder="Ej.: trofeo y 50 €" value="${esc(p.text||'')}" data-change="setPrize('${p.id}','text',this.value)">
     ${opts}<div style="margin-top:10px">${p.kind=='libre'?(prizeWho(p).done?whoHtml(p):''):whoHtml(p)}</div></div>`;
@@ -718,13 +724,15 @@ function viewKO(){
   const fin=winner(R[n-1][0]);
   const p1=prz().find(p=>p.kind=='pos'&&p.n==1&&p.text);
   let h=fin!=null?`<div class="champ">Campeón: <b>${tag(fin)}</b>${p1?`<div class="small" style="font-style:normal;margin-top:6px">Premio: ${esc(p1.text)}</div>`:''}</div><br>`:'';
-  R.forEach((r,ri)=>{h+=`<div class="card round"${ri==0?' id="tt-ko"':''}><h2>${roundName(ri,n)}</h2>`+r.map((m,i)=>m.bye?`<div class="ko">${nm(m.a??m.b)} <span class="small">· pasa directo</span></div>`:
+  h+='<div class="bracket">';
+  R.forEach((r,ri)=>{h+=`<div class="card round"${ri==0?' id="tt-ko"':''}><h2>${roundName(ri,n)}</h2><div class="rms">`+r.map((m,i)=>m.bye?`<div class="ko">${nm(m.a??m.b)} <span class="small">· pasa directo</span></div>`:
     `<div class="ko">${whenLine(m)}<div class="match"><span class="a">${nm(m.a)}</span>
     <input type="number" min="0" ${m.a==null||m.b==null?'disabled':''} value="${m.sa??''}" data-change="setKO(${ri},${i},'sa',this.value)"><span>-</span>
     <input type="number" min="0" ${m.a==null||m.b==null?'disabled':''} value="${m.sb??''}" data-change="setKO(${ri},${i},'sb',this.value)"><span>${nm(m.b)}</span></div>
     ${m.sa!=null&&m.sa===m.sb?(rl().pen?`<div class="match pen"><span class="a small">Penaltis</span>
       <input type="number" min="0" aria-label="Penaltis ${esc(team(m.a).name)}" value="${m.pa??''}" data-change="setKO(${ri},${i},'pa',this.value)"><span>-</span>
-      <input type="number" min="0" aria-label="Penaltis ${esc(team(m.b).name)}" value="${m.pb??''}" data-change="setKO(${ri},${i},'pb',this.value)"><span></span></div>${m.pa!=null&&m.pa===m.pb?'<div class="small" style="color:var(--ac)">Los penaltis no pueden acabar en empate.</div>':''}`:'<div class="small" style="color:var(--ac)">Empate: en esta eliminatoria no se permite. Cambia el marcador.</div>'):''}</div>`).join('')+`</div>`});
+      <input type="number" min="0" aria-label="Penaltis ${esc(team(m.b).name)}" value="${m.pb??''}" data-change="setKO(${ri},${i},'pb',this.value)"><span></span></div>${m.pa!=null&&m.pa===m.pb?'<div class="small" style="color:var(--ac)">Los penaltis no pueden acabar en empate.</div>':''}`:'<div class="small" style="color:var(--ac)">Empate: en esta eliminatoria no se permite. Cambia el marcador.</div>'):''}</div>`).join('')+`</div></div>`});
+  h+='</div>';
   if(n>=2){
     h+=`<div class="card noro"><label>Partido por el tercer puesto</label><div class="chips"><div class="chip ${S.third?'on':''}" data-click="setThird(true)">Sí</div><div class="chip ${!S.third?'on':''}" data-click="setThird(false)">No</div></div><p class="small">Lo juegan los dos que pierden las semifinales.</p></div>`;
     if(S.third&&S.k3){const m=S.k3,dis=m.a==null||m.b==null?'disabled':'';
@@ -769,7 +777,7 @@ function viewTeamsRO(){
 }
 function viewPrizesRO(){
   const L=prz();
-  return L.length?L.map(p=>`<div class="pz card"><h3 style="margin:0 0 6px;color:var(--ac)">${esc(prizeTitle(p))}</h3>${p.text?`<div style="margin-bottom:8px"><b>${esc(p.text)}</b></div>`:''}${p.kind=='libre'?(prizeWho(p).done?whoHtml(p):'<span class="small">Pendiente.</span>'):whoHtml(p)}</div>`).join(''):'<div class="card"><p class="small">Este torneo no tiene premios.</p></div>';
+  return L.length?L.map(p=>`<div class="pz card${p.kind=='pos'&&p.n<=3?' pz'+p.n:''}"><h3 style="margin:0 0 6px;color:var(--ac)">${esc(prizeTitle(p))}</h3>${p.text?`<div style="margin-bottom:8px"><b>${esc(p.text)}</b></div>`:''}${p.kind=='libre'?(prizeWho(p).done?whoHtml(p):'<span class="small">Pendiente.</span>'):whoHtml(p)}</div>`).join(''):'<div class="card"><p class="small">Este torneo no tiene premios.</p></div>';
 }
 function viewRO(){
   if(roState=='load')return '<div class="card"><p>Cargando el torneo…</p></div>';
@@ -884,7 +892,7 @@ function countdown(){
 
 
 /* ===== Compartir como imagen, estadísticas y logos de patrocinadores ===== */
-function shareBtns(){return `<div class="card noro"><div class="row"><button class="gold" data-click="share()">Copiar resultados${S.premium?'':' (Premium)'}</button><button class="gold" data-click="shareImg()">Descargar imagen${S.premium?'':' (Premium)'}</button></div></div>`}
+function shareBtns(){return `<div class="card noro sharecard"><div class="row"><button class="gold" data-click="share()">Copiar resultados${S.premium?'':' (Premium)'}</button><button class="gold" data-click="shareImg()">Descargar imagen${S.premium?'':' (Premium)'}</button></div></div>`}
 function shareImg(){
   if(!S.premium)return paywall('Compartir resultados es una función Premium.');
   const W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
@@ -912,10 +920,10 @@ function statsCard(){
   const best=(k,dir)=>{const v=dir>0?Math.max(...arr.map(t=>t[k])):Math.min(...arr.map(t=>t[k]));return {v,n:arr.filter(t=>t[k]==v).map(t=>esc(team(t.id).name)).join(', ')}};
   const at=best('gf',1),df=best('gc',-1),wn=best('w',1);
   const big=ms.reduce((b,m)=>Math.abs(m.sa-m.sb)>Math.abs(b.sa-b.sb)?m:b,ms[0]);
-  const row=(k,v)=>`<div class="irow"><span class="small">${k}</span><span>${v}</span></div>`;
-  return `<div class="card" id="tt-stats"><h2>Estadísticas</h2>${row('Partidos jugados',ms.length)}${row('Total de '+esc(u),tot)}${row('Media por partido',(tot/ms.length).toFixed(1))}
+  const row=(k,v)=>v===''||v==null?'':`<div class="stile${String(v).length>10?' txt':''}"><b>${v}</b><span>${k}</span></div>`;
+  return `<div class="card" id="tt-stats"><h2>Estadísticas</h2><div class="stiles">${row('Partidos jugados',ms.length)}${row('Total de '+esc(u),tot)}${row('Media por partido',(tot/ms.length).toFixed(1))}
   ${row('Mejor ataque',at.v>0?`${at.n} (${at.v})`:'')}${row('Mejor defensa',`${df.n} (${df.v})`)}${row('Más victorias',wn.v>0?`${wn.n} (${wn.v})`:'')}
-  ${row('Mayor goleada',big.sa==big.sb?'':`${esc(team(big.a).name)} ${big.sa}-${big.sb} ${esc(team(big.b).name)}`)}</div>`;
+  ${row('Mayor goleada',big.sa==big.sb?'':`${esc(team(big.a).name)} ${big.sa}-${big.sb} ${esc(team(big.b).name)}`)}</div></div>`;
 }
 let tmpSp='';
 function spLogo(inp){
@@ -1078,11 +1086,11 @@ function viewDE(){
     ${m.sa!=null&&m.sa===m.sb&&!dis?(rl().pen?`<div class="match pen"><span class="a small">Penaltis</span>
       <input type="number" min="0" aria-label="Penaltis ${esc(tnm(m.a))}" value="${m.pa??''}" data-change="setDE(${i},'pa',this.value)"><span>-</span>
       <input type="number" min="0" aria-label="Penaltis ${esc(tnm(m.b))}" value="${m.pb??''}" data-change="setDE(${i},'pb',this.value)"><span></span></div>`:'<div class="small bad">En eliminatoria no puede haber empate: cambia el marcador.</div>'):''}</div>`};
-  const block=(title,ids,first)=>{const body=ids.map(row).join('');return body?`<div class="card round"${first?' id="tt-ko"':''}><h2>${title}</h2>${body}</div>`:''};
-  h+=`<div class="card"><h2 style="margin:0">Cuadro de ganadores</h2><p class="small" style="margin:6px 0 0">Quien pierde aquí baja al cuadro de perdedores. Quien pierde dos veces, queda eliminado.</p></div>`;
-  de.wb.forEach((r,ri)=>{h+=block(deName(M[r[0]]),r,ri==0)});
-  h+=`<div class="card"><h2 style="margin:0">Cuadro de perdedores</h2><p class="small" style="margin:6px 0 0">Segunda oportunidad: el ganador llega a la gran final.</p></div>`;
-  de.lb.forEach(r=>{h+=block(deName(M[r[0]]),r,false)});
+  const block=(title,ids,first)=>{const body=ids.map(row).join('');return body?`<div class="card round"${first?' id="tt-ko"':''}><h2>${title}</h2><div class="rms">${body}</div></div>`:''};
+  h+=`<div class="card dehead"><h2 style="margin:0">Cuadro de ganadores</h2><p class="small" style="margin:6px 0 0">Quien pierde aquí baja al cuadro de perdedores. Quien pierde dos veces, queda eliminado.</p></div>`;
+  h+='<div class="bracket">';de.wb.forEach((r,ri)=>{h+=block(deName(M[r[0]]),r,ri==0)});h+='</div>';
+  h+=`<div class="card dehead"><h2 style="margin:0">Cuadro de perdedores</h2><p class="small" style="margin:6px 0 0">Segunda oportunidad: el ganador llega a la gran final.</p></div>`;
+  h+='<div class="bracket">';de.lb.forEach(r=>{h+=block(deName(M[r[0]]),r,false)});h+='</div>';
   h+=block('Gran final',[de.gf],false);
   const g2=M[de.gf2];
   if(g2.a!=null&&g2.a!==-1)h+=`<div class="card"><p class="small" style="margin:0">El que venía del cuadro de perdedores ha ganado la gran final: los dos tienen una derrota y se juega un desempate.</p></div>`+block('Gran final (desempate)',[de.gf2],false);
@@ -1790,7 +1798,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.23.0';
+const APP_VERSION='1.24.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

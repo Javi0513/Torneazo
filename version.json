@@ -1,6 +1,15 @@
 {
-  "version": "1.23.0",
+  "version": "1.24.0",
   "historial": [
+    {
+      "version": "1.24.0",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Nuevo diseño en todas las pantallas: cabecera con barra de progreso de partidos jugados.",
+        "La eliminatoria se ve como un cuadro de verdad en el ordenador, con las rondas en columnas.",
+        "Estadísticas en tarjetas, premios con colores de oro, plata y bronce, y grupos del sorteo más claros."
+      ]
+    },
     {
       "version": "1.23.0",
       "fecha": "11/11/2026",

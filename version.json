@@ -1,6 +1,15 @@
 {
-  "version": "1.6.0",
+  "version": "1.7.0",
   "historial": [
+    {
+      "version": "1.7.0",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "La cabecera ya no se pega al borde de arriba en el móvil y se ve completa.",
+        "La app se adapta a tablet y ordenador, con las pantallas en columnas.",
+        "Mejor navegación con teclado."
+      ]
+    },
     {
       "version": "1.6.0",
       "fecha": "11/11/2026",

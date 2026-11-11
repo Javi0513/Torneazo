@@ -1,6 +1,14 @@
 {
-  "version": "1.15.0",
+  "version": "1.15.1",
   "historial": [
+    {
+      "version": "1.15.1",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Más seguridad: al crear o cambiar tu contraseña, avisamos si ha aparecido en filtraciones de datos.",
+        "Solo se envían 5 caracteres de una huella; tu contraseña nunca sale del móvil."
+      ]
+    },
     {
       "version": "1.15.0",
       "fecha": "14/11/2026",

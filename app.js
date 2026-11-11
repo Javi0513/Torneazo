@@ -1186,12 +1186,25 @@ async function delAccount(){
 }
 const okEmail=e=>/^[^\s@]{1,64}@[^\s@]+\.[^\s@]{2,}$/.test(e)&&e.length<=254;
 const okPw=p=>p.length>=10&&p.length<=72&&/[a-z]/i.test(p)&&/\d/.test(p);
+async function pwned(p){
+  try{
+    const b=await crypto.subtle.digest('SHA-1',new TextEncoder().encode(p));
+    const h=[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase();
+    const c=new AbortController();setTimeout(()=>c.abort(),4000);
+    const r=await fetch('https://api.pwnedpasswords.com/range/'+h.slice(0,5),{signal:c.signal,headers:{'Add-Padding':'true'}});
+    if(!r.ok)return false;
+    const t=await r.text(),s=h.slice(5);
+    return t.split('\n').some(l=>{const[x,n]=l.trim().split(':');return x===s&&+n>0});
+  }catch(_){return false}
+}
+const PW_LEAK='Esa contraseña aparece en filtraciones de datos conocidas. Elige otra distinta.';
 async function doAuth(){
   const m=$('au-m'),e=$('au-e').value.trim().toLowerCase(),p=$('au-p').value,reg=authMode=='register';
   if(Date.now()<authLock){m.textContent='Espera unos segundos antes de reintentar.';return}
   if(!okEmail(e)){m.textContent='Escribe un email válido.';return}
   if(reg&&!okPw(p)){m.textContent='La contraseña necesita 10 o más caracteres, con letras y números.';return}
   if(reg&&!$('au-t').checked){m.textContent='Para crear la cuenta debes aceptar los términos y la política de privacidad.';return}
+  if(reg&&await pwned(p)){m.textContent=PW_LEAK;return}
   authLock=Date.now()+3000;
   try{
     if(reg){const n=($('au-n').value||'').trim().slice(0,24)||e.split('@')[0];
@@ -1267,6 +1280,7 @@ async function savePw(){
   const a=$('pw1').value,b=$('pw2').value,m=$('pw-m');
   if(!okPw(a)){m.textContent='La contraseña necesita 10 o más caracteres, con letras y números.';return}
   if(a!==b){m.textContent='Las dos contraseñas no coinciden.';return}
+  if(await pwned(a)){m.textContent=PW_LEAK;return}
   const r=await sb.auth.updateUser({password:a});
   if(r.error){m.textContent='No se pudo cambiar. Si hace tiempo que entraste, cierra sesión, vuelve a entrar e inténtalo otra vez.';return}
   done('Tu contraseña se ha cambiado.');
@@ -1304,7 +1318,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.15.0';
+const APP_VERSION='1.15.1';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

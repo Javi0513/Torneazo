@@ -6,11 +6,11 @@ on:
 jobs:
   comprobar:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm install --no-save playwright@1.49.1
-      - run: npx playwright install --with-deps chromium
+      - run: npm install --no-save playwright-core@1.49.1
       - run: node tests/comprobar.js

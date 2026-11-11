@@ -121,14 +121,15 @@ function paywall(msg){
   $('modalBody').innerHTML=`<h2>Premium</h2><p>${msg}</p>
   <ul><li>Sin anuncios</li><li>Hasta 128 participantes</li><li>Todos los modos: trío, escuadrón, equipos de 5</li><li>Compartir resultados con un toque</li></ul>
   <p><b>2,99 €/mes</b> · <b>19,99 €/año</b> · Pase de un torneo <b>1,99 €</b></p><p class="small">${CFG.url?(CFG.pro?'Pago seguro con Stripe.':'El pago online se activará en breve.'):'Demostración: no se cobra nada.'}</p>
-  <div class="row">${CFG.url?(CFG.pro?'<button class="gold" onclick="buyPremium()">Activar Premium</button>':''):'<button class="gold" onclick="setPremium(true)">Activar Premium (demo)</button>'}<button class="sec" onclick="closeModal()">Ahora no</button></div>`;
+  <div class="row">${CFG.url?(CFG.pro?'<button class="gold" onclick="buyPremium(\'m\')">Mensual 2,99 €</button>'+(CFG.proAnual?'<button class="gold" onclick="buyPremium(\'a\')">Anual 19,99 €</button>':''):''):'<button class="gold" onclick="setPremium(true)">Activar Premium (demo)</button>'}<button class="sec" onclick="closeModal()">Ahora no</button></div>`;
   $('modal').classList.add('on');
 }
 const $=s=>document.getElementById(s);
 function closeModal(){$('modal').classList.remove('on')}
-function buyPremium(){
+function buyPremium(k){
   if(!user){authMode='register';authForm();return}
-  const u=CFG.pro+(CFG.pro.indexOf('?')<0?'?':'&')+'client_reference_id='+encodeURIComponent(user.id)+'&prefilled_email='+encodeURIComponent(user.email);
+  const base=k=='a'&&CFG.proAnual?CFG.proAnual:CFG.pro;
+  const u=base+(base.indexOf('?')<0?'?':'&')+'client_reference_id='+encodeURIComponent(user.id)+'&prefilled_email='+encodeURIComponent(user.email);
   window.open(u,'_blank','noopener');
 }
 function setPremium(v){if(CFG.url)return;S.premium=v;closeModal();save();render()}
@@ -314,7 +315,7 @@ function viewKO(){
 // Se rellena con los datos PÚBLICOS del proyecto Supabase (la clave "anon" es pública por diseño;
 // la seguridad real está en las reglas RLS de supabase/migrations). NUNCA pongas aquí la service_role.
 const _c=window.APP_CONFIG||{};
-const CFG={url:_c.supabaseUrl||'',key:_c.supabaseAnonKey||'',pro:_c.proUrl||'',portal:_c.portalUrl||'',captcha:_c.turnstileSiteKey||''};
+const CFG={url:_c.supabaseUrl||'',key:_c.supabaseAnonKey||'',pro:_c.proUrl||'',proAnual:_c.proUrlAnual||'',portal:_c.portalUrl||'',captcha:_c.turnstileSiteKey||''};
 const TERMS='2026-11';
 if(window.APP_CONFIG&&'serviceWorker' in navigator&&location.protocol.indexOf('http')==0)navigator.serviceWorker.register('sw.js').catch(()=>{});
 let sb=null,user=null,profile=null,authMode='login',authLock=0,saveT=null;
@@ -511,7 +512,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.3.0';
+const APP_VERSION='1.4.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
@@ -606,7 +607,20 @@ async function startup(){
   setInterval(()=>checkUpdate(),18e5);
 }
 
-render();initAuth();startup();
+async function pagoOk(){
+  if(!/[?&]pago=ok/.test(location.search))return;
+  try{history.replaceState(null,'',location.pathname)}catch(e){}
+  $('modalBody').innerHTML='<h2>¡Gracias!</h2><p id="pg-m">Estamos activando tu Premium…</p>';$('modal').classList.add('on');
+  for(let i=0;i<15;i++){
+    await new Promise(r=>setTimeout(r,3000));
+    if(!sb||!user)continue;
+    const p=await sb.from('profiles').select('is_premium').eq('id',user.id).maybeSingle();
+    if(p.data&&p.data.is_premium){S.premium=true;render();
+      $('modalBody').innerHTML='<h2>Premium activado</h2><p>Ya no verás anuncios y puedes usar todos los modos y hasta 128 participantes.</p><button onclick="closeModal()">Genial</button>';return}
+  }
+  const m=$('pg-m');if(m)m.textContent='El pago se está procesando. Tu Premium se activará en unos minutos; si no es así, escribe a '+esc((window.APP_CONFIG||{}).contactEmail||'')+'.';
+}
+render();initAuth();startup();pagoOk();
 </script>
 </body>
 </html>

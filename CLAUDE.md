@@ -10,3 +10,4 @@
 - **Base de datos:** proyecto Supabase `torneazo` (id `qflfsqomewjxebvdhgfo`, UE). No usar el proyecto `mi-futbol-cliente`, que es de otra app.
 - **Marca:** JAVI AI. Negro `#070807`, verde lima `#9BEA1C`, títulos en Exo 2 cursiva. Sin emojis en la interfaz.
 - Hablar con Javi en español sencillo y avisarle de cualquier coste antes de crear recursos de pago.
+- **Antes de abrir cada PR:** comprobar que ningún archivo ha quedado vacío o roto (sobre todo `sw.js`, `version.json` y `config.js`) y que el modo sin conexión sigue funcionando.

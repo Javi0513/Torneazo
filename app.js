@@ -865,6 +865,7 @@ function sponsPublic(){
 }
 function countdown(){
   const s=inf().start;if(!/^\d{4}-\d{2}-\d{2}$/.test(s||''))return '';
+  if(estado().c!='next')return '';
   const [y,m,d]=s.split('-').map(Number),t=new Date();t.setHours(0,0,0,0);
   const n=Math.round((new Date(y,m-1,d)-t)/864e5);
   return n>1?`Empieza en ${n} días`:n==1?'Empieza mañana':n==0?'Empieza hoy':'';

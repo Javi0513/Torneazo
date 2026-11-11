@@ -1,6 +1,15 @@
 {
-  "version": "1.18.0",
+  "version": "1.19.0",
   "historial": [
+    {
+      "version": "1.19.0",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Partido por el tercer puesto en las eliminatorias.",
+        "Inserta tu torneo en tu web o blog con un código que se copia en un toque.",
+        "Premium ahora llega hasta 256 participantes."
+      ]
+    },
     {
       "version": "1.18.0",
       "fecha": "11/11/2026",

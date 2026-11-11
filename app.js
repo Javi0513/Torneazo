@@ -1,7 +1,7 @@
 /* TORNEAZO · lógica de la app.
    Los eventos se atienden aquí (data-click, data-change, data-input, data-focus) y no con código
    dentro del HTML, así la política de seguridad puede prohibir los scripts en línea. */
-const OK_FN=new Set(["accountHome", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave"]);
+const OK_FN=new Set(["accountHome", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave"]);
 function splitTop(t,sep){
   const out=[];let d=0,q=null,cur='';
   for(let k=0;k<t.length;k++){const c=t[k];
@@ -191,7 +191,7 @@ const team=id=>S.teams[id];
 
 function paywall(msg){
   $('modalBody').innerHTML=`<h2>Premium</h2><p>${msg}</p>
-  <ul><li>Sin anuncios</li><li>Hasta 128 participantes</li><li>Todos los modos: trío, escuadrón, equipos de 5</li><li>Compartir resultados con un toque</li></ul>
+  <ul><li>Sin anuncios</li><li>Hasta 256 participantes y torneos ilimitados</li><li>Patrocinadores con logo e imagen para compartir</li><li>Todos los modos: trío, escuadrón, equipos de 5</li><li>Compartir resultados con un toque</li></ul>
   <p><b>2,99 €/mes</b> · <b>19,99 €/año</b></p><p class="small">${CFG.url?(CFG.pro?'Pago seguro con Stripe.':'El pago online se activará en breve.'):'Demostración: no se cobra nada.'}</p>
   <div class="row">${CFG.url?(CFG.pro?'<button class="gold" data-click="buyPremium(\'m\')">Mensual 2,99 €</button>'+(CFG.proAnual?'<button class="gold" data-click="buyPremium(\'a\')">Anual 19,99 €</button>':''):''):'<button class="gold" data-click="setPremium(true)">Activar Premium (demo)</button>'}<button class="sec" data-click="closeModal()">Ahora no</button></div>`;
   $('modal').classList.add('on');
@@ -246,7 +246,7 @@ function buildMatches(){
 function draw(){
   const list=names(),size=+S.size;
   if(!S.premium&&list.length>FREE.maxPlayers)return paywall(`La versión gratuita permite hasta ${FREE.maxPlayers} participantes.`);
-  if(list.length>128)return notice('Máximo 128 participantes.');
+  if(list.length>256)return notice('Máximo 256 participantes.');
   if(list.length%size)return notice(`Con modo "${modeName(size)}" necesitas un número de jugadores múltiplo de ${size}. Ahora hay ${list.length}.`);
   const old={};(S.teams||[]).forEach(t=>{if(t.members&&t.members.length==1)old[t.members[0].toLowerCase()]=t});
   const teams=formTeams(plist(),size,old);
@@ -411,7 +411,14 @@ function winner(m){
 function resolveKO(){
   S.ko.forEach((r,ri)=>{if(ri>0)r.forEach((m,i)=>{const na=winner(S.ko[ri-1][2*i]),nb=winner(S.ko[ri-1][2*i+1]);
     if(m.a!==na||m.b!==nb){m.a=na;m.b=nb;m.sa=m.sb=m.pa=m.pb=null}})});
+  const N=S.ko.length;
+  if(!S.third||N<2){S.k3=null;return}
+  const lo=m=>{if(m.bye)return null;const w=winner(m);return w==null?null:(w===m.a?m.b:m.a)};
+  const k=S.k3||(S.k3={a:null,b:null,sa:null,sb:null,pa:null,pb:null}),na=lo(S.ko[N-2][0]),nb=lo(S.ko[N-2][1]);
+  if(k.a!==na||k.b!==nb){k.a=na;k.b=nb;k.sa=k.sb=k.pa=k.pb=null}
 }
+function setThird(v){S.third=!!v&&!!S.ko&&S.ko.length>=2;if(S.ko)resolveKO();save();render()}
+function setK3(side,v){if(!S.k3)return;S.k3[side]=v===''?null:Math.max(0,parseInt(v)||0);save();render()}
 function qualifiers(){
   const q=[],rest=[];
   S.groupsList.forEach((_,gi)=>standings(gi).forEach((r,pos)=>{const o={id:r.id,pos,pts:r.pts,d:r.gf-r.gc,gf:r.gf};(pos<S.nextN?q:rest).push(o)}));
@@ -468,8 +475,8 @@ const OBJ=()=>({gf:`Más ${(UN[S.unit]||UN.goles)[1]} a favor`,gc:`Mejor defensa
 const prz=()=>S.prizes||(S.prizes=[]);
 const uidp=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const koLike=()=>(S.format!='liguilla'&&S.format!='suizo')||!!S.ko;
-const placeLabel=n=>koLike()?({1:'Campeón (1.º)',2:'Subcampeón (2.º)',3:'Semifinalistas (3.º y 4.º)',5:'Cuartos de final (5.º a 8.º)',9:'Octavos de final (9.º a 16.º)'}[n]||n+'.º'):n+'.º puesto';
-const placeOpts=()=>koLike()?[1,2,3,5,9]:[1,2,3,4,5,6,7,8];
+const placeLabel=n=>koLike()?({1:'Campeón (1.º)',2:'Subcampeón (2.º)',3:S.third?'Tercer puesto (3.º)':'Semifinalistas (3.º y 4.º)',4:'Cuarto puesto (4.º)',5:'Cuartos de final (5.º a 8.º)',9:'Octavos de final (9.º a 16.º)'}[n]||n+'.º'):n+'.º puesto';
+const placeOpts=()=>koLike()?(S.third?[1,2,3,4,5,9]:[1,2,3,5,9]):[1,2,3,4,5,6,7,8];
 function tournamentDone(){
   if(S.ko)return winner(S.ko[S.ko.length-1][0])!=null;
   if(S.liga)return S.liga.matches.length>0&&S.liga.matches.every(mOk);
@@ -482,6 +489,7 @@ function placeIds(n){
     const R=S.ko,N=R.length,fin=R[N-1][0],w=winner(fin);
     if(n==1)return {ids:w!=null?[w]:[],done:w!=null};
     if(n==2){const l=w!=null?(fin.a===w?fin.b:fin.a):null;return {ids:l!=null?[l]:[],done:l!=null}}
+    if(S.third&&S.k3&&(n==3||n==4)){const w3=winner(S.k3),r3=w3==null?null:(n==3?w3:(w3===S.k3.a?S.k3.b:S.k3.a));return {ids:r3!=null?[r3]:[],done:r3!=null}}
     const r=N-1-Math.round(Math.log2(n-1));if(r<0||r>N-2)return {ids:[],done:false};
     const ids=[];let all=true;
     R[r].forEach(m=>{if(m.bye)return;const w2=winner(m);if(w2==null){all=false;return}const l=w2===m.a?m.b:m.a;if(l!=null)ids.push(l)});
@@ -492,7 +500,7 @@ function placeIds(n){
   return {ids:[],done:false};
 }
 function tstats(){
-  const st={},ms=[].concat(S.matches||[],S.liga?S.liga.matches:[],...(S.ko||[]).map(r=>r.filter(m=>!m.bye)));
+  const st={},ms=[].concat(S.matches||[],S.liga?S.liga.matches:[],...(S.ko||[]).map(r=>r.filter(m=>!m.bye)),S.ko&&S.third&&S.k3?[S.k3]:[]);
   const add=(id,gf,gc)=>{const t=st[id]||(st[id]={id,w:0,gf:0,gc:0});t.gf+=gf;t.gc+=gc;if(gf>gc)t.w++};
   const ok=ms.filter(m=>m.a!=null&&m.b!=null&&m.sa!=null&&m.sb!=null);
   ok.forEach(m=>{add(m.a,m.sa,m.sb);add(m.b,m.sb,m.sa)});
@@ -629,7 +637,7 @@ function viewSetup(){
   <div class="card" id="tt-part"><h2>Participantes</h2>
   <label>Sorteo</label><div class="chips"><div class="chip ${!S.manual&&!S.balance?'on':''}" data-click="setDrawMode('r')">Al azar</div><div class="chip ${S.balance?'on':''}" data-click="setDrawMode('b')">Equilibrado por nivel</div><div class="chip ${S.manual?'on':''}" data-click="setDrawMode('m')">Lo armo yo</div></div>
   <p class="small">${S.manual?'Los equipos se forman siguiendo el orden de tu lista y los grupos se reparten en orden. Después puedes mover cada equipo de grupo.':S.balance?'Reparte a los mejores y a los menos expertos para que todos los equipos y grupos queden parejos. Asigna los niveles abajo.':'Pon un * al final de un nombre para marcarlo como cabeza de serie: el sorteo no los junta en el mismo grupo ni equipo.'}</p>
-  <div class="row" style="margin-bottom:6px"><button class="sec" id="tt-niveles" data-click="lvlForm()">Asignar niveles (${plist().filter(p=>p.lv).length} de ${names().length})</button></div><p class="small">Uno por línea (o separados por comas). ${S.premium?'Hasta 128.':`Gratis: hasta ${FREE.maxPlayers}.`} ${S.size>1?`Con ${modeName(S.size)} se forman equipos de ${S.size}.`:''}</p>
+  <div class="row" style="margin-bottom:6px"><button class="sec" id="tt-niveles" data-click="lvlForm()">Asignar niveles (${plist().filter(p=>p.lv).length} de ${names().length})</button></div><p class="small">Uno por línea (o separados por comas). ${S.premium?'Hasta 256.':`Gratis: hasta ${FREE.maxPlayers}.`} ${S.size>1?`Con ${modeName(S.size)} se forman equipos de ${S.size}.`:''}</p>
   <textarea data-input="setText(this.value)" placeholder="Baruc&#10;Javi&#10;Willy&#10;...">${esc(S.players)}</textarea>
   <p class="small" id="count">${names().length} participantes</p>
   <div class="row" id="tt-sorteo"><button data-click="draw()">Hacer sorteo</button><button class="sec" data-click="reset()">Nuevo torneo</button></div></div>`;
@@ -706,6 +714,17 @@ function viewKO(){
     ${m.sa!=null&&m.sa===m.sb?(rl().pen?`<div class="match pen"><span class="a small">Penaltis</span>
       <input type="number" min="0" aria-label="Penaltis ${esc(team(m.a).name)}" value="${m.pa??''}" data-change="setKO(${ri},${i},'pa',this.value)"><span>-</span>
       <input type="number" min="0" aria-label="Penaltis ${esc(team(m.b).name)}" value="${m.pb??''}" data-change="setKO(${ri},${i},'pb',this.value)"><span></span></div>${m.pa!=null&&m.pa===m.pb?'<div class="small" style="color:var(--ac)">Los penaltis no pueden acabar en empate.</div>':''}`:'<div class="small" style="color:var(--ac)">Empate: en esta eliminatoria no se permite. Cambia el marcador.</div>'):''}</div>`).join('')+`</div>`});
+  if(n>=2){
+    h+=`<div class="card noro"><label>Partido por el tercer puesto</label><div class="chips"><div class="chip ${S.third?'on':''}" data-click="setThird(true)">Sí</div><div class="chip ${!S.third?'on':''}" data-click="setThird(false)">No</div></div><p class="small">Lo juegan los dos que pierden las semifinales.</p></div>`;
+    if(S.third&&S.k3){const m=S.k3,dis=m.a==null||m.b==null?'disabled':'';
+      h+=`<div class="card round" id="tt-k3"><h2>Tercer puesto</h2><div class="ko">${whenLine(m)}<div class="match"><span class="a">${nm(m.a)}</span>
+      <input type="number" min="0" aria-label="Resultado de ${esc(tnm(m.a))}" ${dis} value="${m.sa??''}" data-change="setK3('sa',this.value)"><span>-</span>
+      <input type="number" min="0" aria-label="Resultado de ${esc(tnm(m.b))}" ${dis} value="${m.sb??''}" data-change="setK3('sb',this.value)"><span>${nm(m.b)}</span></div>
+      ${m.sa!=null&&m.sa===m.sb&&rl().pen&&!dis?`<div class="match pen"><span class="a small">Penaltis</span>
+      <input type="number" min="0" aria-label="Penaltis ${esc(tnm(m.a))}" value="${m.pa??''}" data-change="setK3('pa',this.value)"><span>-</span>
+      <input type="number" min="0" aria-label="Penaltis ${esc(tnm(m.b))}" value="${m.pb??''}" data-change="setK3('pb',this.value)"><span></span></div>`:''}
+      ${winner(m)!=null?`<div class="small" style="margin-top:6px">Tercero: <b>${tag(winner(m))}</b></div>`:''}</div></div>`}
+  }
   return pre+h+`${shareBtns()}`;
 }
 
@@ -846,6 +865,7 @@ function sponsPublic(){
 }
 function countdown(){
   const s=inf().start;if(!/^\d{4}-\d{2}-\d{2}$/.test(s||''))return '';
+  if(estado().c!='next')return '';
   const [y,m,d]=s.split('-').map(Number),t=new Date();t.setHours(0,0,0,0);
   const n=Math.round((new Date(y,m-1,d)-t)/864e5);
   return n>1?`Empieza en ${n} días`:n==1?'Empieza mañana':n==0?'Empieza hoy':'';
@@ -920,6 +940,7 @@ function applyScore(key,sa,sb2){
   const p=String(key).split(':');
   if(p[0]=='m'){setScore(+p[1],'sa',String(sa));setScore(+p[1],'sb',String(sb2))}
   else if(p[0]=='l'){setLiga(+p[1],'sa',String(sa));setLiga(+p[1],'sb',String(sb2))}
+  else if(p[0]=='k3'){setK3('sa',String(sa));setK3('sb',String(sb2))}
   else if(p[0]=='k'){setKO(+p[1],+p[2],'sa',String(sa));setKO(+p[1],+p[2],'sb',String(sb2))}
 }
 async function resOk(id){
@@ -947,7 +968,7 @@ function resPendCard(){
 }
 function resSendCard(){
   if(!RO||!S.selfRep)return '';
-  const L=allMatches().filter(x=>x.m.a!=null&&x.m.b!=null&&!x.m.bye&&!played(x.m));
+  const L=allMatches().filter(x=>x.key!='k3'&&x.m.a!=null&&x.m.b!=null&&!x.m.bye&&!played(x.m));
   if(!L.length)return '';
   return `<div class="card regform" id="tt-resform"><h2>¿Has jugado? Envía el resultado</h2>
   <p class="small">El organizador lo revisará antes de que cuente.</p>
@@ -988,12 +1009,14 @@ function allMatches(){
     lab:S.format=='suizo'?'Ronda '+((+m.r||0)+1):G>1?(m.g==m.h?'Grupo '+gl(m.g):'Grupo '+gl(m.g)+' vs '+gl(m.h)):''}));
   if(S.liga)S.liga.matches.forEach((m,i)=>L.push({key:'l:'+i,m,ph:100,lab:'Nuevo grupo'}));
   if(S.ko)S.ko.forEach((r,ri)=>r.forEach((m,i)=>{if(!m.bye)L.push({key:`k:${ri}:${i}`,m,ph:200+ri,lab:roundName(ri,S.ko.length)})}));
+  if(S.ko&&S.third&&S.k3)L.push({key:'k3',m:S.k3,ph:200+S.ko.length-1,lab:'Tercer puesto'});
   return L;
 }
 function matchByKey(k){
   const p=String(k).split(':');
   if(p[0]=='m')return (S.matches||[])[+p[1]];
   if(p[0]=='l')return S.liga&&S.liga.matches[+p[1]];
+  if(p[0]=='k3')return S.ko&&S.third?S.k3:null;
   if(p[0]=='k')return S.ko&&S.ko[+p[1]]&&S.ko[+p[1]][+p[2]];
 }
 const played=m=>m.sa!=null&&m.sb!=null;
@@ -1343,6 +1366,11 @@ async function setListed(v){
   if(r.error)return notice('No se pudo cambiar. Inténtalo de nuevo.');
   S.pub.listed=!!v;save();render();
 }
+const embedCode=()=>`<iframe src="${pubUrl(S.pub.code)}" title="${String(S.name).replace(/[<>"&]/g,'')}" style="width:100%;max-width:720px;height:820px;border:0;border-radius:12px" loading="lazy"></iframe>`;
+function copyEmbed(){
+  const t=embedCode();
+  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>notice('Código copiado. Pégalo en tu web.'),()=>{const i=$('pub-emb');if(i){i.focus();i.select()}});
+}
 function copyLink(){
   const u=pubUrl(S.pub.code);
   (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>notice('Enlace copiado. ¡Pégalo en WhatsApp o en tu Discord!'),()=>{const i=$('pub-u');if(i){i.focus();i.select()}});
@@ -1359,6 +1387,10 @@ function pubCard(){
     <label>Resultados de los jugadores</label><div class="chips"><div class="chip ${S.selfRep?'on':''}" data-click="setSelfRep(true)">Pueden enviarlos</div><div class="chip ${!S.selfRep?'on':''}" data-click="setSelfRep(false)">Solo yo</div></div>
     <p class="small">Si lo activas, desde la página pública cualquiera puede enviar el resultado de un partido. No cuenta hasta que tú lo aceptes en «Partidos».</p>
     ${S.pub.hidden?`<p class="small bad">Tu torneo está oculto porque ha recibido denuncias y está en revisión. Escribe a ${esc((window.APP_CONFIG||{}).contactEmail||'soporte')}.</p>`:''}
+    <details style="margin:10px 0"><summary class="small" style="cursor:pointer">Insertar en tu web</summary>
+    <p class="small">Pega este código en tu web o blog y el torneo se verá dentro, actualizado solo.</p>
+    <textarea id="pub-emb" readonly style="min-height:70px" data-focus="selectEl(this)">${esc(embedCode())}</textarea>
+    <div class="row" style="margin-top:6px"><button class="sec" data-click="copyEmbed()">Copiar código</button></div></details>
     <div class="row"><button data-click="copyLink()">Copiar enlace</button><button class="sec" data-click="openPub()">Ver página</button><button class="sec" data-click="unpublishLink()">Dejar de compartir</button></div>`
   :`<div class="row"><button data-click="publishLink()">${user?'Crear enlace público':'Entrar para compartir'}</button></div>`}</div>`;
 }
@@ -1547,7 +1579,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.18.0';
+const APP_VERSION='1.19.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
@@ -1682,7 +1714,7 @@ async function pagoOk(){
     if(!sb||!user)continue;
     const p=await sb.from('profiles').select('is_premium').eq('id',user.id).maybeSingle();
     if(p.data&&p.data.is_premium){S.premium=true;render();
-      $('modalBody').innerHTML='<h2>Premium activado</h2><p>Ya no verás anuncios y puedes usar todos los modos y hasta 128 participantes.</p><button data-click="closeModal()">Genial</button>';return}
+      $('modalBody').innerHTML='<h2>Premium activado</h2><p>Ya no verás anuncios y puedes usar todos los modos, hasta 256 participantes y todos los torneos que quieras.</p><button data-click="closeModal()">Genial</button>';return}
   }
   const m=$('pg-m');if(m)m.textContent='El pago se está procesando. Tu Premium se activará en unos minutos; si no es así, escribe a '+esc((window.APP_CONFIG||{}).contactEmail||'')+'.';
 }

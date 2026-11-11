@@ -109,9 +109,9 @@ const FREE={maxPlayers:32,modes:[1,2]};
 const FORMATS={grupos:'Grupos + eliminatoria',liguilla:'Liguilla (todos contra todos)',eliminacion:'Eliminación directa'};
 const def=()=>({premium:false,step:0,name:'Torneo del viernes',game:'FIFA',size:1,format:'grupos',groups:2,
   players:'',teams:[],groupsList:[],matches:[],ko:null,pairing:'dentro',rivals:2,nextN:2,nextExtra:0,nextKind:'ko',liga:null,koTop:2});
-let S=def();
+let S=def(),demoBackup=null,demoBase=null;
 try{const s=JSON.parse(localStorage.getItem('torneazo')||'null');if(s)S=Object.assign(def(),s)}catch(e){}
-const save=()=>{try{localStorage.setItem('torneazo',JSON.stringify(S))}catch(e){}if(typeof cloudSave=='function')cloudSave()};
+const save=()=>{if(demoBackup)return;try{localStorage.setItem('torneazo',JSON.stringify(S))}catch(e){}if(typeof cloudSave=='function')cloudSave()};
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const names=()=>S.players.split(/\n|,/).map(x=>x.trim()).filter(Boolean);
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
@@ -256,7 +256,7 @@ function viewSetup(){
   <div class="row" id="tt-sorteo"><button onclick="draw()">Hacer sorteo</button><button class="sec" onclick="reset()">Nuevo torneo</button></div></div>`;
 }
 function viewDraw(){
-  return `<div class="card"><h2>Resultado del sorteo</h2>`+S.groupsList.map((ids,gi)=>`<h3>${S.format=='liguilla'?'Liguilla':'Grupo '+String.fromCharCode(65+gi)}</h3>
+  return `<div class="card" id="tt-sort"><h2>Resultado del sorteo</h2>`+S.groupsList.map((ids,gi)=>`<h3>${S.format=='liguilla'?'Liguilla':'Grupo '+String.fromCharCode(65+gi)}</h3>
   ${ids.map(id=>`<div>• <b>${esc(team(id).name)}</b>${S.size>2?` <span class="small">${team(id).members.map(esc).join(', ')}</span>`:''}</div>`).join('')}`).join('')+
   `<div class="row" style="margin-top:12px"><button class="sec" onclick="draw()">Repetir sorteo</button><button onclick="set('step',2)">Ver partidos →</button></div></div>`;
 }
@@ -269,17 +269,17 @@ function table(rows,nq){return `<table><tr><th>#</th><th>Equipo</th><th>PJ</th><
 function viewMatches(){
   let h='';const cross=S.matches.some(m=>m.g!==m.h),nq=S.format=='grupos'?+S.nextN:0;
   S.groupsList.forEach((_,gi)=>{
-    h+=`<div class="card"><h2>${S.format=='liguilla'?'Clasificación':'Grupo '+gl(gi)}</h2>${table(standings(gi),nq)}`;
+    h+=`<div class="card"${gi==0?' id="tt-tabla"':''}><h2>${S.format=='liguilla'?'Clasificación':'Grupo '+gl(gi)}</h2>${table(standings(gi),nq)}`;
     if(!cross)h+=`<h3>Partidos</h3>`+S.matches.map((m,i)=>m.g!=gi?'':matchRow(m,`((k,v)=>setScore(${i},k,v))`)).join('');
     h+=`</div>`});
   if(cross){
     for(let x=0;x<S.groupsList.length;x++)for(let y=x+1;y<S.groupsList.length;y++){
       const ms=S.matches.map((m,i)=>[m,i]).filter(([m])=>m.g==x&&m.h==y);
-      h+=`<div class="card"><h2>Grupo ${gl(x)} vs Grupo ${gl(y)}</h2>`+ms.map(([m,i])=>matchRow(m,`((k,v)=>setScore(${i},k,v))`)).join('')+`</div>`}
+      h+=`<div class="card"${x==0&&y==1?' id="tt-cruces"':''}><h2>Grupo ${gl(x)} vs Grupo ${gl(y)}</h2>`+ms.map(([m,i])=>matchRow(m,`((k,v)=>setScore(${i},k,v))`)).join('')+`</div>`}
   }
   if(S.format=='grupos'){
     const mx=Math.min(...S.groupsList.map(g=>g.length));
-    h+=`<div class="card"><h2>Siguiente fase</h2>
+    h+=`<div class="card" id="tt-sigfase"><h2>Siguiente fase</h2>
     <div class="row"><div><label>Pasan los mejores de cada grupo</label><select onchange="S.nextN=+this.value;save();render()">${Array.from({length:mx},(_,i)=>i+1).map(n=>`<option ${S.nextN==n?'selected':''}>${n}</option>`).join('')}</select></div>
     <div><label>+ mejores del resto</label><select onchange="S.nextExtra=+this.value;save();render()">${[0,1,2,3,4,5,6].map(n=>`<option ${S.nextExtra==n?'selected':''}>${n}</option>`).join('')}</select></div></div>
     <label>Formato de la siguiente fase</label><div class="chips">
@@ -303,7 +303,7 @@ function viewKO(){
   const R=S.ko,n=R.length,nm=id=>id==null?'<span class="small">Por definir</span>':esc(team(id).name);
   const fin=winner(R[n-1][0]);
   let h=fin!=null?`<div class="champ">Campeón: <b>${esc(team(fin).name)}</b></div><br>`:'';
-  R.forEach((r,ri)=>{h+=`<div class="card round"><h2>${roundName(ri,n)}</h2>`+r.map((m,i)=>m.bye?`<div class="ko">${nm(m.a??m.b)} <span class="small">· pasa directo</span></div>`:
+  R.forEach((r,ri)=>{h+=`<div class="card round"${ri==0?' id="tt-ko"':''}><h2>${roundName(ri,n)}</h2>`+r.map((m,i)=>m.bye?`<div class="ko">${nm(m.a??m.b)} <span class="small">· pasa directo</span></div>`:
     `<div class="ko"><div class="match"><span class="a">${nm(m.a)}</span>
     <input type="number" min="0" ${m.a==null||m.b==null?'disabled':''} value="${m.sa??''}" onchange="setKO(${ri},${i},'sa',this.value)"><span>-</span>
     <input type="number" min="0" ${m.a==null||m.b==null?'disabled':''} value="${m.sb??''}" onchange="setKO(${ri},${i},'sb',this.value)"><span>${nm(m.b)}</span></div>
@@ -334,7 +334,7 @@ async function afterLogin(){
     const p=await sb.from('profiles').select('display_name,is_premium,avatar').eq('id',user.id).maybeSingle();
     profile=p.data;S.premium=!!(profile&&profile.is_premium);
     const t=await sb.from('tournaments').select('data').order('updated_at',{ascending:false}).limit(1).maybeSingle();
-    if(t.data&&t.data.data){const premium=S.premium;S=Object.assign(def(),t.data.data);S.premium=premium}
+    if(!demoBackup&&t.data&&t.data.data){const premium=S.premium;S=Object.assign(def(),t.data.data);S.premium=premium}
   }else if(sb){S.premium=false}
   render();
 }
@@ -498,7 +498,7 @@ async function saveMail(){
 /* ===== Celebración ===== */
 function afterRender(){
   const c=document.querySelector('.champ');
-  if(c){const k=c.textContent;if(window._cel!==k){window._cel=k;if(!firstRender)confetti()}}
+  if(c){const k=c.textContent;if(window._cel!==k){window._cel=k;if(!firstRender&&!demoBackup)confetti()}}
   firstRender=false;
 }
 function confetti(){
@@ -512,7 +512,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.4.0';
+const APP_VERSION='1.5.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
@@ -549,17 +549,38 @@ function showNews(all,pending){
 }
 function closeNews(){lsSet('torneazo_seen',APP_VERSION);closeModal()}
 const TOUR=[
- {t:'Bienvenido a TORNEAZO',p:'Organiza sorteos y torneos de videojuegos en un momento: grupos al azar, partidos cruzados y una eliminatoria final. Te enseño la app paso a paso.'},
+ {t:'Bienvenido a TORNEAZO',p:'Organiza sorteos y torneos de videojuegos en un momento: grupos al azar, partidos cruzados y una eliminatoria final. Te enseño la app paso a paso, con un torneo de ejemplo que no se guarda.'},
  {el:'#tt-datos',t:'Nombre y juego',p:'Ponle nombre a tu torneo y escribe a qué juego se juega.'},
  {el:'#tt-modo',t:'Modo de juego',p:'Individual, dúo, trío, escuadrón o equipos de 5. Si juegas en equipos, TORNEAZO los forma al azar. Los modos con candado son Premium.'},
  {el:'#tt-formato',t:'Formato del torneo',p:'Grupos + eliminatoria (como un mundial), liguilla (todos contra todos) o eliminación directa.'},
  {el:'#tt-cruzado',t:'Partidos cruzados',p:'Con «Contra otros grupos (cruzado)» nadie juega contra los de su propio grupo: cada jugador se enfrenta a rivales de los demás grupos. Elige cuántos. Solo sale con el formato «grupos + eliminatoria».'},
  {el:'#tt-part',t:'Participantes',p:'Escribe un nombre por línea, o separados por comas. En la versión gratuita caben hasta 32.'},
- {el:'#tt-sorteo',t:'Haz el sorteo',p:'Pulsa «Hacer sorteo» y TORNEAZO reparte a todos al azar en grupos o equipos. Si no te convence, podrás repetirlo.'},
- {el:'.tabs',t:'Las 4 fases',p:'Arriba verás por dónde vas: Configurar, Sorteo, Partidos y Fase final. En «Partidos» anotas los marcadores y la clasificación se calcula sola; los que pasan de fase salen en verde. Después eliges cuántos pasan, y si la siguiente fase es una eliminatoria o un nuevo grupo, hasta que sale el campeón.'},
+ {el:'#tt-sorteo',t:'Haz el sorteo',p:'Pulsa «Hacer sorteo» y TORNEAZO reparte a todos al azar en grupos o equipos. Ahora verás cómo queda con 8 jugadores de ejemplo.'},
+ {stage:'sorteo',el:'#tt-sort',t:'El resultado del sorteo',p:'Aquí ves cómo han quedado los grupos. Si no te convence, pulsa «Repetir sorteo». Cuando te guste, pulsa «Ver partidos».'},
+ {stage:'partidos',el:'#tt-cruces',t:'Anota los resultados',p:'Cada cruce entre grupos tiene sus partidos. Escribe el marcador de cada uno; con cada resultado se actualiza todo solo. Aquí quedan algunos sin jugar.'},
+ {stage:'partidos',el:'#tt-tabla',t:'La clasificación',p:'La tabla de cada grupo se calcula sola con los puntos (3 por victoria, 1 por empate). Los jugadores que pasan de fase salen en verde.'},
+ {stage:'fase',el:'#tt-sigfase',t:'Siguiente fase',p:'Cuando acaban todos los partidos, elige cuántos pasan por grupo, cuántos «mejores del resto» añades, y si la siguiente fase es una eliminatoria o un nuevo grupo. Luego pulsa «Generar siguiente fase».'},
+ {stage:'ko',el:'#tt-ko',t:'La eliminatoria',p:'Se arma el cuadro con los clasificados. Anota cada marcador y el ganador pasa solo a la ronda siguiente. En eliminatoria no puede haber empate.'},
+ {stage:'champ',el:'.champ',t:'¡El campeón!',p:'Al terminar la final sale el campeón. Puedes compartir los resultados con Premium.'},
  {el:'#tt-acct',t:'Tu cuenta',p:'Con una cuenta guardas tus torneos y los recuperas desde otro móvil. Aquí cambias tu foto, tu apodo y tu contraseña.'},
  {el:'#tt-help',t:'Ayuda cuando quieras',p:'Este botón «?» repite el tutorial. Abajo, en «Novedades», verás qué cambia en cada versión.'},
  {t:'¡Listo para empezar!',p:'Escribe tus participantes y pulsa «Hacer sorteo». ¡Que gane el mejor!'}];
+function demoStage(stage){
+  if(!demoBackup){
+    demoBackup=S;
+    S=Object.assign(def(),{premium:demoBackup.premium,name:'Torneo de ejemplo',game:'FIFA',size:1,format:'grupos',groups:2,pairing:'cruzado',rivals:2,nextN:2,nextExtra:0,nextKind:'ko',players:'Ana\nBruno\nCarla\nDavid\nElena\nFede\nGema\nHugo'});
+    draw();demoBase=JSON.stringify(S);
+  }
+  S=Object.assign(def(),JSON.parse(demoBase),{premium:demoBackup.premium});
+  const score=n=>S.matches.forEach((m,i)=>{if(i<n){m.sa=(i*7+3)%4;m.sb=(i*5+1)%3}});
+  if(stage=='sorteo')S.step=1;
+  else if(stage=='partidos'){score(S.matches.length-3);S.step=2}
+  else{score(S.matches.length);S.step=2;
+    if(stage=='ko'||stage=='champ'){genNext();
+      if(stage=='champ')for(let k=0;k<4;k++){S.ko.forEach(rd=>rd.forEach(m=>{if(m.a!=null&&m.b!=null&&!m.bye&&m.sa==null){m.sa=2;m.sb=1}}));resolveKO()}}}
+  render();
+}
+function demoExit(){if(!demoBackup)return;S=demoBackup;demoBackup=null;demoBase=null;render()}
 let tutI=-1;
 function tutoOpen(i){
   closeModal();if(S.step!==0){S.step=0;render()}
@@ -567,6 +588,7 @@ function tutoOpen(i){
 }
 function tutShow(){
   if(tutI<0)return;const s=TOUR[tutI],last=tutI==TOUR.length-1;let box=$('tut');
+  if(s.stage)demoStage(s.stage);else if(demoBackup)demoExit();
   if(!box){box=document.createElement('div');box.id='tut';box.className='tut';
     box.innerHTML='<div class="tut-hole"></div><div class="tut-card" role="dialog" aria-modal="true" aria-labelledby="tutT"></div>';document.body.appendChild(box)}
   const hole=box.querySelector('.tut-hole'),card=box.querySelector('.tut-card'),el=s.el?document.querySelector(s.el):null;
@@ -582,7 +604,7 @@ function tutShow(){
   card.querySelector('[data-tut="next"]').focus({preventScroll:true});
 }
 function tutoEnd(){
-  tutI=-1;const b=$('tut');if(b)b.remove();lsSet('torneazo_tuto','1');lsSet('torneazo_seen',APP_VERSION);
+  tutI=-1;demoExit();const b=$('tut');if(b)b.remove();lsSet('torneazo_tuto','1');lsSet('torneazo_seen',APP_VERSION);
 }
 document.addEventListener('click',e=>{
   const b=e.target.closest&&e.target.closest('[data-tut]');if(!b||tutI<0)return;

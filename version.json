@@ -1,6 +1,15 @@
 {
-  "version": "1.14.0",
+  "version": "1.15.0",
   "historial": [
+    {
+      "version": "1.15.0",
+      "fecha": "14/11/2026",
+      "cambios": [
+        "Torneos públicos: un directorio para encontrar torneos, con búsqueda, filtro por juego y por estado (inscripciones abiertas, en curso, próximos, finalizados).",
+        "Muestra tu torneo en el directorio cuando tú quieras; puedes quitarlo en cualquier momento.",
+        "Cualquiera puede denunciar un torneo; con varias denuncias se oculta hasta que se revisa."
+      ]
+    },
     {
       "version": "1.14.0",
       "fecha": "13/11/2026",

@@ -1,17 +1,39 @@
 {
   "name": "TORNEAZO by JAVI AI",
   "short_name": "TORNEAZO",
-  "description": "Sorteos y torneos de videojuegos: grupos, partidos cruzados y eliminatorias.",
+  "description": "Organiza torneos de videojuegos y deportes: sorteo, grupos, eliminatorias, doble eliminación, por fases, clasificación en directo, inscripciones y premios.",
   "lang": "es",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "background_color": "#070807",
   "theme_color": "#070807",
   "icons": [
-    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
-    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "id": "./",
+  "categories": [
+    "sports",
+    "games",
+    "entertainment",
+    "utilities"
   ]
 }

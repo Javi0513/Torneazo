@@ -1,6 +1,15 @@
 {
-  "version": "1.16.0",
+  "version": "1.17.0",
   "historial": [
+    {
+      "version": "1.17.0",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Descarga una imagen con la clasificación y el campeón para compartirla en WhatsApp o redes (Premium).",
+        "Estadísticas del torneo: goles, mejor ataque, mejor defensa y mayor goleada.",
+        "Los patrocinadores ahora pueden llevar su logo (Premium)."
+      ]
+    },
     {
       "version": "1.16.0",
       "fecha": "11/11/2026",

@@ -808,8 +808,8 @@ async function initRO(){
 
 /* ===== Varios torneos por cuenta (Premium) ===== */
 async function flushT(){clearTimeout(saveT);if(sb&&user&&!RO&&!DIR)await cloudPush().catch(()=>{})}
-async function myTorneos(){
-  if(!sb||!user)return;await flushT();await listT();
+async function myTorneos(noFlush){
+  if(!sb||!user)return;if(noFlush!==true)await flushT();await listT();
   $('modalBody').innerHTML=`<h2>Mis torneos</h2><p class="small">${S.premium?'Con Premium puedes tener todos los torneos que quieras.':'La versión gratuita guarda 1 torneo. Con Premium, todos los que quieras.'}</p>
   ${myT.map(t=>`<div class="trow"><div style="min-width:0;flex:1"><b>${esc(t.name)}</b>${t.id==curId?' <span class="small">· abierto</span>':''}<div class="small">${esc(fmtDate(String(t.updated_at).slice(0,10)))}</div></div>
   ${t.id==curId?'':`<button class="sec sm" data-click="tOpen('${esc(t.id)}')">Abrir</button>`}<button class="sec sm" aria-label="Borrar torneo" data-click="tDel('${esc(t.id)}')">Borrar</button></div>`).join('')||'<p class="small">Aún no tienes torneos guardados.</p>'}
@@ -826,7 +826,7 @@ async function tNew(){
   if(!S.premium&&myT.length>=1)return paywall('La versión gratuita guarda 1 torneo. Con Premium puedes tener todos los que quieras.');
   await flushT();const p=S.premium;S=def();S.premium=p;curId=null;
   try{localStorage.setItem('torneazo',JSON.stringify(S))}catch(e){}
-  await cloudPush().catch(()=>{});await listT();closeModal();render();scrollTo(0,0);
+  await cloudPush(true).catch(()=>{});await listT();closeModal();render();scrollTo(0,0);
 }
 function tDel(id){
   if(!okUuid(id))return;const t=myT.find(x=>x.id==id);if(!t)return;
@@ -837,8 +837,8 @@ async function tDelOk(id){
   if(!okUuid(id))return;const r=await sb.from('tournaments').delete().eq('id',id);
   if(r.error)return notice('No se pudo borrar. Inténtalo de nuevo.');
   await listT();
-  if(id==curId){curId=null;const n=myT[0];if(n)await loadT(n.id);else{const p=S.premium;S=def();S.premium=p;try{localStorage.setItem('torneazo',JSON.stringify(S))}catch(e){}}render()}
-  myTorneos();
+  if(id==curId){clearTimeout(saveT);curId=null;const n=myT[0];if(n)await loadT(n.id);else{const p=S.premium;S=def();S.premium=p;HOME=true;try{localStorage.setItem('torneazo',JSON.stringify(S))}catch(e){}}render()}
+  myTorneos(true);
 }
 /* ===== Noticias y patrocinadores ===== */
 const nws=()=>Array.isArray(S.news)?S.news:[];
@@ -1551,9 +1551,10 @@ async function loadT(id){
   const premium=S.premium;S=Object.assign(def(),t.data.data);S.premium=premium;S.pub=t.data.public_code?{code:t.data.public_code,id:t.data.id,listed:!!t.data.listed,hidden:!!t.data.hidden}:null;
   curId=t.data.id;if(user)lsSet('torneazo_cur_'+user.id,curId);try{localStorage.setItem('torneazo',JSON.stringify(S))}catch(e){}return true;
 }
-async function cloudPush(){
+async function cloudPush(force){
   if(!sb||!user||RO||DIR)return;const d=Object.assign({},S);delete d.premium;
   try{d.dir={estado:estado().c,n:(S.teams||[]).length}}catch(e){}
+  if(!curId&&!force&&!(S.teams||[]).length&&!names().length)return null;
   const cur=curId?await sb.from('tournaments').select('id,public_code').eq('id',curId).maybeSingle():{};
   const row={name:String(S.name).slice(0,80),data:d};
   if(cur.data){await sb.from('tournaments').update(row).eq('id',cur.data.id);return cur.data}
@@ -1569,7 +1570,7 @@ const pubUrl=c=>location.origin+location.pathname+'?t='+c;
 const newCode=()=>{const a=new Uint8Array(12);crypto.getRandomValues(a);return Array.from(a,x=>'abcdefghijklmnopqrstuvwxyz0123456789'[x%36]).join('')};
 async function publishLink(){
   if(!sb||!user){authMode='register';return openAuth()}
-  const row=await cloudPush().catch(()=>null);if(!row)return notice('No se pudo guardar el torneo. Inténtalo de nuevo.');
+  const row=await cloudPush(true).catch(()=>null);if(!row)return notice('No se pudo guardar el torneo. Inténtalo de nuevo.');
   const code=row.public_code||newCode();
   const r=await sb.from('tournaments').update({public_code:code}).eq('id',row.id);
   if(r.error)return notice('No se pudo crear el enlace. Inténtalo de nuevo.');
@@ -1799,7 +1800,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.25.0';
+const APP_VERSION='1.25.1';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

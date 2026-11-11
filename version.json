@@ -1,6 +1,13 @@
 {
-  "version": "1.25.0",
+  "version": "1.25.1",
   "historial": [
+    {
+      "version": "1.25.1",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Arreglado: al borrar un torneo desde «Mis torneos» aparecía otro vacío en su lugar. Ahora se borra de verdad."
+      ]
+    },
     {
       "version": "1.25.0",
       "fecha": "11/11/2026",

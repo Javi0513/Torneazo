@@ -23,5 +23,5 @@ Ninguna app tiene "seguridad máxima" absoluta. Esto es lo que ya está hecho y 
 2. `config.js` ya tiene la URL y la clave pública del proyecto.
 3. En Supabase → Authentication: activar confirmación de email, protección contra contraseñas filtradas y límites de intentos; restringir las URLs de redirección al dominio real. Crear el sitio Turnstile y poner `turnstileSiteKey`.
 4. Stripe: crear el Payment Link de Premium (`proUrl`), el portal de cliente (`portalUrl`) y desplegar `stripe-webhook` con "Verify JWT" desactivado y el secreto `STRIPE_WEBHOOK_SECRET`.
-5. Quitar `'unsafe-inline'` del CSP: hay que mover los `onclick` a un archivo JS propio (Mi Fútbol ya lo tiene así).
+5. ~~Quitar `'unsafe-inline'` del CSP~~ Hecho: el código está en `app.js`, los eventos usan `data-click` y la CSP solo admite scripts propios (`script-src 'self'`). Queda `style-src 'unsafe-inline'` porque la app usa estilos dentro de los elementos.
 6. Pasar `get_advisors` de Supabase y una prueba de intrusión básica antes del lanzamiento. Revisar el texto legal con un profesional.

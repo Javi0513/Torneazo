@@ -1,6 +1,13 @@
 {
-  "version": "1.11.0",
+  "version": "1.12.0",
   "historial": [
+    {
+      "version": "1.12.0",
+      "fecha": "12/11/2026",
+      "cambios": [
+        "Más seguridad: la app ya no usa código dentro de la página, y el navegador bloquea cualquier código que no sea el nuestro."
+      ]
+    },
     {
       "version": "1.11.0",
       "fecha": "12/11/2026",

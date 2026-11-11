@@ -1,6 +1,13 @@
 {
-  "version": "1.17.0",
+  "version": "1.17.1",
   "historial": [
+    {
+      "version": "1.17.1",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Mejor accesibilidad: los lectores de pantalla ahora anuncian los campos de nombre, grupos y resultados."
+      ]
+    },
     {
       "version": "1.17.0",
       "fecha": "11/11/2026",

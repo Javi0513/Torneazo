@@ -1,6 +1,15 @@
 {
-  "version": "1.12.0",
+  "version": "1.13.0",
   "historial": [
+    {
+      "version": "1.13.0",
+      "fecha": "13/11/2026",
+      "cambios": [
+        "Inscripciones con enlace: los jugadores se apuntan desde la página pública del torneo, sin crear cuenta.",
+        "Tú eliges fecha límite, máximo de plazas, si pides contacto o nivel y si apruebas a mano o automáticamente.",
+        "Aprueba o rechaza desde la lista y pasa los aprobados a los participantes con un botón."
+      ]
+    },
     {
       "version": "1.12.0",
       "fecha": "12/11/2026",

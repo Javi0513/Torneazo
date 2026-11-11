@@ -18,6 +18,12 @@ Ninguna app tiene "seguridad máxima" absoluta. Esto es lo que ya está hecho y 
 - El navegador de quien mira escapa todo el texto y valida enlaces (solo `http`/`https`), colores e imágenes, para que un torneo mal intencionado no pueda ejecutar código.
 - Supabase marca `ver_torneo` como «ejecutable por usuarios anónimos»: es intencionado, es lo que permite ver la página sin cuenta.
 
+## Inscripciones con enlace
+- Los jugadores se apuntan **sin cuenta** solo a través de la función `inscribirse()`; no hay acceso directo a la tabla. La función comprueba el enlace, que las inscripciones estén abiertas, la fecha límite, el cupo, que no haya nombres repetidos y limita los intentos (5 por hora y dispositivo, 30 por minuto en el torneo).
+- Solo el dueño del torneo puede **ver, aprobar, rechazar o borrar** las inscripciones de sus torneos (reglas de acceso por fila). La página pública solo enseña **cuántos** hay, nunca los nombres ni los contactos.
+- Los datos del jugador (nombre y, si se piden, contacto y nivel) se tratan como no fiables: se escapan al mostrarlos y se limpian los símbolos especiales al pasarlos a la lista de participantes.
+- Revisado en una transacción de prueba (sin dejar datos): éxito, duplicado, cupo lleno, enlace inválido, cerradas, plazo vencido, aprobación automática, nombre vacío o demasiado largo y datos de configuración raros.
+
 ## Falta antes de publicar (en este orden)
 1. Proyecto Supabase `torneazo` creado (UE, plan gratuito, 0 €) y primera migración aplicada. Falta aplicar `20261111_torneazo_pagos_y_cuenta.sql`.
 2. `config.js` ya tiene la URL y la clave pública del proyecto.

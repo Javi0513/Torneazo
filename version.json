@@ -1,6 +1,15 @@
 {
-  "version": "1.22.0",
+  "version": "1.23.0",
   "historial": [
+    {
+      "version": "1.23.0",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Pantalla de configuración rediseñada: más ordenada en ordenador, con los participantes siempre a la vista.",
+        "Formatos con dibujo y explicación corta para elegir de un vistazo.",
+        "Nuevos efectos y animaciones; se desactivan si tu móvil tiene activado reducir el movimiento."
+      ]
+    },
     {
       "version": "1.22.0",
       "fecha": "11/11/2026",

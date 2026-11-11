@@ -77,6 +77,7 @@ tr{transition:background .2s}tr:hover{background:#9BEA1C0d}
 .ad{animation:rise .6s var(--ease) .4s both}
 .acct{background:var(--card);color:var(--tx);border:1px solid var(--line);font:600 13px Inter,sans-serif;font-style:normal;padding:6px 12px;border-radius:99px;letter-spacing:0}
 .hdr-r{display:flex;align-items:center;gap:8px}
+.modal .card{max-height:92vh;overflow:auto}
 .err{color:#ff8a80;font-size:13px;min-height:18px;margin:6px 0 0}
 .ok{color:var(--ac);font-size:13px}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
@@ -300,17 +301,19 @@ const CFG={url:_c.supabaseUrl||'',key:_c.supabaseAnonKey||'',pro:_c.proUrl||'',p
 const TERMS='2026-11';
 if(window.APP_CONFIG&&'serviceWorker' in navigator&&location.protocol.indexOf('http')==0)navigator.serviceWorker.register('sw.js').catch(()=>{});
 let sb=null,user=null,profile=null,authMode='login',authLock=0,saveT=null;
-const acctLabel=()=>user?esc((profile&&profile.display_name)||user.email.split('@')[0]):(S.demoName?esc(S.demoName):'Entrar');
+const okAv=a=>typeof a=='string'&&a.length<40000&&/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(a);
+const avImg=(a,sz)=>okAv(a)?`<img src="${a}" alt="" style="width:${sz}px;height:${sz}px;border-radius:50%;object-fit:cover;vertical-align:middle;animation:none;filter:none">`:`<span style="display:inline-flex;width:${sz}px;height:${sz}px;border-radius:50%;background:var(--line);align-items:center;justify-content:center;font-weight:800;color:var(--ac);font-size:${sz*.5|0}px;vertical-align:middle">${esc((((profile&&profile.display_name)||(user&&user.email)||'?')[0]||'?').toUpperCase())}</span>`;
+const acctLabel=()=>user?avImg(profile&&profile.avatar,22)+' '+esc((profile&&profile.display_name)||user.email.split('@')[0]):(S.demoName?esc(S.demoName):'Entrar');
 async function initAuth(){
   if(!CFG.url||!window.supabase)return;
   sb=window.supabase.createClient(CFG.url,CFG.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   const {data}=await sb.auth.getSession();user=data.session?data.session.user:null;
-  sb.auth.onAuthStateChange((_e,ses)=>{user=ses?ses.user:null;profile=null;afterLogin()});
+  sb.auth.onAuthStateChange((ev,ses)=>{user=ses?ses.user:null;profile=null;if(ev=='PASSWORD_RECOVERY'){afterLogin().then(()=>{$('modal').classList.add('on');pwForm()});return}afterLogin()});
   await afterLogin();
 }
 async function afterLogin(){
   if(sb&&user){
-    const p=await sb.from('profiles').select('display_name,is_premium').eq('id',user.id).maybeSingle();
+    const p=await sb.from('profiles').select('display_name,is_premium,avatar').eq('id',user.id).maybeSingle();
     profile=p.data;S.premium=!!(profile&&profile.is_premium);
     const t=await sb.from('tournaments').select('data').order('updated_at',{ascending:false}).limit(1).maybeSingle();
     if(t.data&&t.data.data){const premium=S.premium;S=Object.assign(def(),t.data.data);S.premium=premium}
@@ -326,10 +329,7 @@ function cloudSave(){
     else await sb.from('tournaments').insert(row)},1200);
 }
 function openAuth(){
-  if(user){$('modalBody').innerHTML=`<h2>Tu cuenta</h2><p>${esc(user.email)}</p><p class="small">${S.premium?'Plan Premium activo.':'Plan gratuito.'} Tus torneos se guardan en tu cuenta.</p>
-    <div class="row" style="margin-bottom:8px">${S.premium&&CFG.portal?'<button class="sec" onclick="window.open(CFG.portal,\'_blank\',\'noopener\')">Gestionar suscripción</button>':''}<button class="sec" onclick="exportData()">Descargar mis datos</button></div>
-    <div class="row"><button class="sec" onclick="logout()">Cerrar sesión</button><button onclick="closeModal()">Cerrar</button></div>
-    <p class="small" style="margin-top:14px"><a href="#" style="color:#ff8a80" onclick="askDelete();return false">Borrar mi cuenta y mis datos</a> · <a href="privacidad.html" target="_blank" rel="noopener" style="color:var(--mut)">Privacidad</a></p>`;
+  if(user){accountHome();
   }else if(!CFG.url){
     $('modalBody').innerHTML=`<h2>Cuenta (demostración)</h2><p class="small">En esta demo no hay servidor: no se guardan contraseñas ni datos fuera de este dispositivo. En la versión real, el registro verifica el email y los torneos se guardan en tu cuenta.</p>
     <label for="dn">Tu apodo</label><input id="dn" maxlength="24" value="${esc(S.demoName||'')}" autocomplete="nickname">
@@ -401,7 +401,81 @@ async function resetPw(){
   await sb.auth.resetPasswordForEmail(e,{redirectTo:location.origin+location.pathname,...capOpt()});
   $('au-m').innerHTML='<span class="ok">Si el email existe, recibirás un enlace.</span>';
 }
-async function logout(){await sb.auth.signOut();closeModal()}
+async function logout(all){await sb.auth.signOut({scope:all?'global':'local'});closeModal()}
+
+/* ===== Perfil de usuario ===== */
+let pendAv;
+const done=m=>{$('modalBody').innerHTML=`<h2>Listo</h2><p>${m}</p><button onclick="accountHome()">Vale</button>`};
+function accountHome(){
+  const nm=esc((profile&&profile.display_name)||user.email.split('@')[0]);
+  $('modalBody').innerHTML=`<div style="display:flex;gap:12px;align-items:center;margin-bottom:10px">${avImg(profile&&profile.avatar,56)}
+    <div style="min-width:0"><h2 style="margin:0">${nm}</h2><div class="small" style="overflow-wrap:anywhere">${esc(user.email)}</div></div></div>
+  <p class="small">${S.premium?'Plan Premium activo.':'Plan gratuito.'} Tus torneos se guardan en tu cuenta.</p>
+  <div class="row" style="margin-bottom:8px"><button onclick="profForm()">Editar perfil</button><button class="sec" onclick="pwForm()">Contraseña</button></div>
+  <div class="row" style="margin-bottom:8px"><button class="sec" onclick="mailForm()">Cambiar email</button><button class="sec" onclick="exportData()">Descargar mis datos</button></div>
+  ${S.premium&&CFG.portal?'<div class="row" style="margin-bottom:8px"><button class="sec" onclick="window.open(CFG.portal,\'_blank\',\'noopener\')">Gestionar suscripción</button></div>':''}
+  <div class="row"><button class="sec" onclick="logout()">Cerrar sesión</button><button class="sec" onclick="logout(true)">Salir en todos los dispositivos</button></div>
+  <div class="row" style="margin-top:10px"><button onclick="closeModal()">Cerrar</button></div>
+  <p class="small" style="margin-top:14px"><a href="#" style="color:#ff8a80" onclick="askDelete();return false">Borrar mi cuenta y mis datos</a> · <a href="privacidad.html" target="_blank" rel="noopener" style="color:var(--mut)">Privacidad</a></p>`;
+}
+function profForm(){
+  pendAv=undefined;
+  $('modalBody').innerHTML=`<h2>Editar perfil</h2>
+  <div style="display:flex;gap:12px;align-items:center"><span id="pv">${avImg(profile&&profile.avatar,72)}</span>
+    <div><input id="pf-f" type="file" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="pickAv(this)">
+    <button class="sec" onclick="$('pf-f').click()">Cambiar foto</button> <button class="sec" onclick="rmAv()">Quitar</button></div></div>
+  <label for="pf-n">Apodo</label><input id="pf-n" maxlength="24" autocomplete="nickname" value="${esc((profile&&profile.display_name)||'')}">
+  <div class="err" id="pf-m" role="alert"></div>
+  <div class="row"><button onclick="saveProf()">Guardar</button><button class="sec" onclick="accountHome()">Volver</button></div>`;
+}
+function pickAv(inp){
+  const f=inp.files&&inp.files[0],m=$('pf-m');if(!f)return;
+  if(!/^image\/(jpeg|png|webp)$/.test(f.type)||f.size>8e6){m.textContent='Elige una imagen JPG, PNG o WebP de menos de 8 MB.';return}
+  const r=new FileReader();
+  r.onload=()=>{const img=new Image();
+    img.onload=()=>{const z=160,c=document.createElement('canvas');c.width=c.height=z;const k=Math.min(img.width,img.height);
+      c.getContext('2d').drawImage(img,(img.width-k)/2,(img.height-k)/2,k,k,0,0,z,z);
+      pendAv=c.toDataURL('image/jpeg',.82);$('pv').innerHTML=avImg(pendAv,72);m.textContent=''};
+    img.onerror=()=>{m.textContent='No se pudo leer la imagen.'};img.src=r.result};
+  r.readAsDataURL(f);
+}
+function rmAv(){pendAv='';$('pv').innerHTML=avImg('',72)}
+async function saveProf(){
+  const n=$('pf-n').value.trim(),m=$('pf-m');
+  if(n.length<1||n.length>24){m.textContent='El apodo debe tener entre 1 y 24 caracteres.';return}
+  const row={display_name:n};if(pendAv!==undefined)row.avatar=pendAv===''?null:pendAv;
+  const r=await sb.from('profiles').update(row).eq('id',user.id);
+  if(r.error){m.textContent='No se pudo guardar. Inténtalo de nuevo.';return}
+  profile=Object.assign({},profile,row);render();accountHome();
+}
+function pwForm(){
+  $('modalBody').innerHTML=`<h2>Cambiar contraseña</h2>
+  <label for="pw1">Nueva contraseña (10 o más caracteres, con letras y números)</label><input id="pw1" type="password" maxlength="72" autocomplete="new-password">
+  <label for="pw2">Repítela</label><input id="pw2" type="password" maxlength="72" autocomplete="new-password">
+  <div class="err" id="pw-m" role="alert"></div>
+  <div class="row"><button onclick="savePw()">Cambiar</button><button class="sec" onclick="${user?'accountHome()':'closeModal()'}">Cancelar</button></div>`;
+}
+async function savePw(){
+  const a=$('pw1').value,b=$('pw2').value,m=$('pw-m');
+  if(!okPw(a)){m.textContent='La contraseña necesita 10 o más caracteres, con letras y números.';return}
+  if(a!==b){m.textContent='Las dos contraseñas no coinciden.';return}
+  const r=await sb.auth.updateUser({password:a});
+  if(r.error){m.textContent='No se pudo cambiar. Si hace tiempo que entraste, cierra sesión, vuelve a entrar e inténtalo otra vez.';return}
+  done('Tu contraseña se ha cambiado.');
+}
+function mailForm(){
+  $('modalBody').innerHTML=`<h2>Cambiar email</h2><p class="small">Ahora: ${esc(user.email)}. Te enviaremos un enlace de confirmación.</p>
+  <label for="nm-e">Nuevo email</label><input id="nm-e" type="email" maxlength="254" autocomplete="email">
+  <div class="err" id="nm-m" role="alert"></div>
+  <div class="row"><button onclick="saveMail()">Cambiar</button><button class="sec" onclick="accountHome()">Cancelar</button></div>`;
+}
+async function saveMail(){
+  const e=$('nm-e').value.trim().toLowerCase(),m=$('nm-m');
+  if(!okEmail(e)){m.textContent='Escribe un email válido.';return}
+  const r=await sb.auth.updateUser({email:e},{emailRedirectTo:location.origin+location.pathname});
+  if(r.error){m.textContent='No se pudo cambiar el email. Inténtalo de nuevo.';return}
+  done('Revisa tu correo: te hemos enviado un enlace para confirmar el cambio (puede que también al email anterior).');
+}
 
 /* ===== Celebración ===== */
 function afterRender(){

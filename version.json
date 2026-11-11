@@ -1,6 +1,14 @@
 {
-  "version": "1.26.0",
+  "version": "1.27.0",
   "historial": [
+    {
+      "version": "1.27.0",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Nuevo espacio de publicidad de JAVI AI en el plan gratuito, más discreto y con el estilo de la app.",
+        "Con Premium no se ve ningún anuncio."
+      ]
+    },
     {
       "version": "1.26.0",
       "fecha": "11/11/2026",

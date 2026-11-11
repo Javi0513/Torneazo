@@ -1,6 +1,15 @@
 {
-  "version": "1.21.0",
+  "version": "1.22.0",
   "historial": [
+    {
+      "version": "1.22.0",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Nueva pantalla de inicio: elige tu videojuego o deporte de un vistazo y empieza el torneo con todo ya ajustado.",
+        "Torneos destacados para ver cómo van y apuntarte.",
+        "Toca el logo para volver al inicio cuando quieras."
+      ]
+    },
     {
       "version": "1.21.0",
       "fecha": "11/11/2026",

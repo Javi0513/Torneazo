@@ -1,6 +1,15 @@
 {
-  "version": "1.19.0",
+  "version": "1.20.0",
   "historial": [
+    {
+      "version": "1.20.0",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Nuevo formato: doble eliminación. Quien pierde una vez pasa al cuadro de perdedores y tiene una segunda oportunidad.",
+        "Gran final con desempate si gana el que viene del cuadro de perdedores.",
+        "También se puede elegir como fase final después de los grupos."
+      ]
+    },
     {
       "version": "1.19.0",
       "fecha": "11/11/2026",

@@ -150,9 +150,9 @@ button:focus-visible,.chip:focus-visible,.tab:focus-visible,a:focus-visible,sele
 <script>
 const MODES={1:'Individual',2:'Dúo',3:'Trío',4:'Escuadrón (4)',5:'Equipos de 5'};
 const FREE={maxPlayers:32,modes:[1,2]};
-const FORMATS={grupos:'Grupos + eliminatoria',liguilla:'Liguilla (todos contra todos)',eliminacion:'Eliminación directa'};
+const FORMATS={grupos:'Grupos + eliminatoria',liguilla:'Liguilla (todos contra todos)',suizo:'Sistema suizo (por rondas)',eliminacion:'Eliminación directa'};
 const def=()=>({premium:false,step:0,name:'Torneo del viernes',game:'FIFA',size:1,format:'grupos',groups:2,
-  players:'',teams:[],groupsList:[],matches:[],ko:null,pairing:'dentro',rivals:2,nextN:2,nextExtra:0,nextKind:'ko',liga:null,koTop:2,prizes:[],info:{desc:'',rules:'',start:'',end:'',org:'',contact:'',discord:'',web:''},pub:null,manual:false,balance:false,preset:null,lvScheme:null,unit:null,lvl:{},rules:{win:3,draw:1,ida:false,pen:true,noDraw:false}});
+  players:'',teams:[],groupsList:[],matches:[],ko:null,pairing:'dentro',rivals:2,nextN:2,nextExtra:0,nextKind:'ko',liga:null,koTop:2,prizes:[],info:{desc:'',rules:'',start:'',end:'',org:'',contact:'',discord:'',web:''},pub:null,swissRounds:0,swissCut:0,swiss:null,manual:false,balance:false,preset:null,lvScheme:null,unit:null,lvl:{},rules:{win:3,draw:1,ida:false,pen:true,noDraw:false}});
 const ROCODE=(()=>{try{const c=new URLSearchParams(location.search).get('t')||'';return /^[a-z0-9]{10,16}$/.test(c)?c:''}catch(e){return ''}})();
 let RO=!!ROCODE,roStamp=null,roState='load';
 let S=def(),demoBackup=null,demoBase=null;
@@ -357,10 +357,16 @@ function draw(){
   S.teams=teams;S.drawn=(S.drawn||0)+1;S.matches=[];S.ko=null;S.groupsList=[];
   if(S.format=='eliminacion'){S.ko=buildKO(teams.map(t=>t.id));S.step=3}
   else{
-    const g=S.format=='liguilla'?1:Math.max(1,Math.min(+S.groups,Math.floor(teams.length/2)));
+    const g=S.format=='liguilla'||S.format=='suizo'?1:Math.max(1,Math.min(+S.groups,Math.floor(teams.length/2)));
     S.groupsList=Array.from({length:g},()=>[]);
     teams.forEach((t,i)=>{const r=Math.floor(i/g),pos=i%g,k=S.balance&&r%2?g-1-pos:pos;S.groupsList[k].push(t.id)});
-    S.liga=null;buildMatches();S.step=1;
+    S.liga=null;
+    if(S.format=='suizo'){
+      const ids=teams.map(t=>t.id),odd=ids.length%2,bye=odd?ids[ids.length-1]:null,pool=odd?ids.slice(0,-1):ids,half=pool.length/2;
+      S.groupsList=[ids];S.swiss={bye:[bye]};
+      for(let i=0;i<half;i++){const a=S.balance?pool[i]:pool[2*i],b=S.balance?pool[i+half]:pool[2*i+1];S.matches.push({g:0,h:0,a,b,sa:null,sb:null,v:0,r:0})}
+    }else buildMatches();
+    S.step=1;
   }
   save();render();
 }
@@ -417,7 +423,60 @@ function calc(ids,matches){
     up(A,m.sa,m.sb);up(B,m.sb,m.sa)});
   return rows.sort((x,y)=>y.pts-x.pts||(y.gf-y.gc)-(x.gf-x.gc)||y.gf-x.gf);
 }
-const standings=gi=>calc(S.groupsList[gi],S.matches);
+const standings=gi=>S.format=='suizo'?swissRows():calc(S.groupsList[gi],S.matches);
+/* ===== Sistema suizo ===== */
+const swissRounded=()=>S.swiss&&S.swiss.bye?S.swiss.bye.length:0;
+const swissTotal=()=>{const n=(S.teams||[]).length||2;const auto=Math.max(1,Math.ceil(Math.log2(Math.max(2,n))));return Math.max(1,Math.min(+S.swissRounds>0?+S.swissRounds:auto,n-1))};
+function swissRows(){
+  const ids=(S.groupsList&&S.groupsList[0])||[],rows=calc(ids,S.matches),by=Object.fromEntries(rows.map(r=>[r.id,r]));
+  ((S.swiss&&S.swiss.bye)||[]).forEach(b=>{if(b!=null&&by[b]){by[b].pts+=rl().win;by[b].g++;by[b].pj++}});
+  const pts={};rows.forEach(r=>{pts[r.id]=r.pts;r.bh=0});
+  S.matches.filter(mOk).forEach(m=>{if(by[m.a])by[m.a].bh+=pts[m.b]||0;if(by[m.b])by[m.b].bh+=pts[m.a]||0});
+  return rows.sort((x,y)=>y.pts-x.pts||y.bh-x.bh||(y.gf-y.gc)-(x.gf-x.gc)||y.gf-x.gf);
+}
+function swissPair(){
+  const rows=swissRows(),played=new Set();
+  S.matches.forEach(m=>{played.add(m.a+'-'+m.b);played.add(m.b+'-'+m.a)});
+  let pool=rows.map(r=>r.id),bye=null;
+  if(pool.length%2){
+    const had=new Set((S.swiss.bye||[]).filter(x=>x!=null));
+    for(let i=pool.length-1;i>=0;i--)if(!had.has(pool[i])){bye=pool[i];break}
+    if(bye==null)bye=pool[pool.length-1];
+    pool=pool.filter(x=>x!==bye);
+  }
+  const pairs=[],rec=rest=>{
+    if(!rest.length)return true;const a=rest[0];
+    for(let i=1;i<rest.length;i++){const b=rest[i];if(played.has(a+'-'+b))continue;
+      pairs.push([a,b]);if(rec(rest.filter((_,k)=>k!=0&&k!=i)))return true;pairs.pop()}
+    return false};
+  if(!rec(pool)){pairs.length=0;for(let i=0;i+1<pool.length;i+=2)pairs.push([pool[i],pool[i+1]])}
+  return {pairs,bye};
+}
+function swissLastDone(){const R=swissRounded();return R>0&&S.matches.filter(m=>m.r===R-1).every(mOk)}
+function genRound(){
+  if(!S.swiss||!swissLastDone()||swissRounded()>=swissTotal())return;
+  const r=swissRounded(),{pairs,bye}=swissPair();
+  pairs.forEach(([a,b])=>S.matches.push({g:0,h:0,a,b,sa:null,sb:null,v:0,r}));
+  S.swiss.bye.push(bye);S.step=2;save();render();
+}
+function swissToKO(){
+  const n=+S.swissCut;if(!(n>=2)||!swissLastDone()||swissRounded()<swissTotal())return;
+  S.ko=buildKO(swissRows().slice(0,n).map(r=>r.id));S.step=3;save();render();
+}
+function viewSwiss(){
+  const rows=swissRows(),R=swissRounded(),T=swissTotal(),cut=+S.swissCut||0,fin=R>=T&&swissLastDone();
+  let h=`<div class="card" id="tt-clasif"><h2>Clasificación · ronda ${R} de ${T}</h2>${table(rows,fin&&cut?cut:0,true)}<p class="small">Si hay empate a puntos, desempata el BH: la suma de los puntos de tus rivales.</p></div>`;
+  if(fin){
+    h+=`<div class="champ">${cut?'Líder tras las rondas':'Campeón'}: <b>${tag(rows[0].id)}</b></div>`;
+    if(cut)h+=S.ko?'':`<div class="card noro" id="tt-ronda"><h2>Eliminatoria final</h2><p class="small">Pasan los ${cut} mejores de la clasificación.</p><button onclick="swissToKO()">Generar eliminatoria →</button></div>`;
+  }else h+=`<div class="card noro" id="tt-ronda"><h2>Siguiente ronda</h2><p class="small">${swissLastDone()?'Ya puedes sortear la ronda '+(R+1)+': enfrenta a los que van parejos, sin repetir rivales.':'Anota todos los resultados de la ronda '+R+' para generar la siguiente.'}</p>
+    <button ${swissLastDone()?'':'disabled style="opacity:.4"'} onclick="genRound()">Generar ronda ${R+1} →</button></div>`;
+  for(let r=R-1;r>=0;r--){
+    const ms=S.matches.map((m,i)=>[m,i]).filter(([m])=>m.r===r),b=S.swiss.bye[r];
+    h+=`<div class="card"><h2>Ronda ${r+1}</h2>${ms.map(([m,i])=>matchRow(m,`((k,v)=>setScore(${i},k,v))`)).join('')}${b!=null?`<div class="small" style="margin-top:8px">Descansa y suma la victoria: ${tag(b)}</div>`:''}</div>`;
+  }
+  return h+`<div class="card noro"><button class="gold" onclick="share()">Compartir resultados${S.premium?'':' 🔒'}</button></div>`;
+}
 function setScore(i,side,v){const m=S.matches[i];m[side]=v===''?null:Math.max(0,parseInt(v)||0);save();render()}
 const mOk=m=>m.sa!=null&&m.sb!=null&&!(rl().noDraw&&m.sa===m.sb);
 const groupsDone=()=>S.matches.length&&S.matches.every(mOk);
@@ -498,12 +557,13 @@ function infoCard(){
 const OBJ=()=>({gf:`Más ${(UN[S.unit]||UN.goles)[1]} a favor`,gc:`Mejor defensa (menos ${(UN[S.unit]||UN.goles)[1]} en contra)`,w:'Más victorias',big:'Mayor goleada'});
 const prz=()=>S.prizes||(S.prizes=[]);
 const uidp=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-const koLike=()=>S.format!='liguilla'||!!S.ko;
+const koLike=()=>(S.format!='liguilla'&&S.format!='suizo')||!!S.ko;
 const placeLabel=n=>koLike()?({1:'Campeón (1.º)',2:'Subcampeón (2.º)',3:'Semifinalistas (3.º y 4.º)',5:'Cuartos de final (5.º a 8.º)',9:'Octavos de final (9.º a 16.º)'}[n]||n+'.º'):n+'.º puesto';
 const placeOpts=()=>koLike()?[1,2,3,5,9]:[1,2,3,4,5,6,7,8];
 function tournamentDone(){
   if(S.ko)return winner(S.ko[S.ko.length-1][0])!=null;
   if(S.liga)return S.liga.matches.length>0&&S.liga.matches.every(mOk);
+  if(S.format=='suizo')return swissRounded()>=swissTotal()&&swissLastDone()&&!(+S.swissCut>=2);
   if(S.format=='liguilla')return !!groupsDone();
   return false;
 }
@@ -518,7 +578,7 @@ function placeIds(n){
     return {ids,done:all&&ids.length>0};
   }
   if(S.liga){const rows=calc(S.liga.ids,S.liga.matches);return {ids:rows[n-1]?[rows[n-1].id]:[],done:tournamentDone()}}
-  if(S.format=='liguilla'&&S.groupsList&&S.groupsList.length){const rows=standings(0);return {ids:rows[n-1]?[rows[n-1].id]:[],done:tournamentDone()}}
+  if((S.format=='liguilla'||S.format=='suizo')&&S.groupsList&&S.groupsList.length){const rows=standings(0);return {ids:rows[n-1]?[rows[n-1].id]:[],done:tournamentDone()}}
   return {ids:[],done:false};
 }
 function tstats(){
@@ -598,7 +658,7 @@ function prizesText(){
 function share(){
   if(!S.premium)return paywall('Compartir resultados es una función Premium.');
   let t=` ${S.name} (${S.game})\n`;
-  S.groupsList.forEach((_,gi)=>{t+=`\nGrupo ${String.fromCharCode(65+gi)}\n`;standings(gi).forEach((r,i)=>t+=`${i+1}. ${team(r.id).name} - ${r.pts} pts\n`)});
+  S.groupsList.forEach((_,gi)=>{t+=S.format=='suizo'||S.format=='liguilla'?`\nClasificación\n`:`\nGrupo ${String.fromCharCode(65+gi)}\n`;standings(gi).forEach((r,i)=>t+=`${i+1}. ${team(r.id).name} - ${r.pts} pts\n`)});
   if(S.ko){const f=S.ko[S.ko.length-1][0],w=winner(f);if(w!=null)t+=`\nCampeón: ${team(w).name}`}
   t+=prizesText();
   (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>alert('Resultados copiados. ¡Pégalos en WhatsApp!'),()=>prompt('Copia los resultados:',t));
@@ -634,6 +694,9 @@ function viewSetup(){
   <label>Modo de juego</label><div class="chips" id="tt-modo">${Object.entries(MODES).map(([n,l])=>`<div class="chip ${S.size==n?'on':''}" onclick="pickMode(${n})">${l}${!S.premium&&!FREE.modes.includes(+n)?' 🔒':''}</div>`).join('')}
   <select class="mini" aria-label="Otro tamaño de equipo" onchange="if(this.value)pickMode(+this.value)"><option value="">Otro tamaño…</option>${[6,7,8,9,10,11,12,13,14,15].map(n=>`<option value="${n}" ${S.size==n?'selected':''}>Equipos de ${n}</option>`).join('')}</select></div>
   <label>Formato</label><div class="chips" id="tt-formato">${Object.entries(FORMATS).map(([k,l])=>`<div class="chip ${S.format==k?'on':''}" onclick="set('format','${k}')">${l}</div>`).join('')}</div>
+  ${S.format=='suizo'?`<div class="row"><div><label for="sw-r">Rondas</label><select id="sw-r" onchange="set('swissRounds',+this.value)"><option value="0" ${!S.swissRounds?'selected':''}>Automático</option>${[2,3,4,5,6,7,8,9].map(n=>`<option ${S.swissRounds==n?'selected':''}>${n}</option>`).join('')}</select></div>
+  <div><label for="sw-c">Eliminatoria final</label><select id="sw-c" onchange="set('swissCut',+this.value)"><option value="0" ${!S.swissCut?'selected':''}>Sin eliminatoria</option>${[2,4,8].map(n=>`<option value="${n}" ${S.swissCut==n?'selected':''}>Pasan los ${n} mejores</option>`).join('')}</select></div></div>
+  <p class="small">En cada ronda juegan todos, pero se enfrentan los que van parejos en puntos y sin repetir rival. Nadie queda eliminado. Con número impar, uno descansa y suma la victoria.</p>`:''}
   ${S.format=='grupos'?`<label>Número de grupos</label><select onchange="set('groups',+this.value)">${[2,3,4,5,6,8].map(n=>`<option ${S.groups==n?'selected':''}>${n}</option>`).join('')}</select>
   <label>¿Contra quién juega cada uno en la fase de grupos?</label><div class="chips" id="tt-cruzado">
   <div class="chip ${S.pairing=='dentro'?'on':''}" onclick="set('pairing','dentro')">Contra los de su grupo</div>
@@ -657,7 +720,7 @@ function viewSetup(){
 }
 function viewDraw(){
   const g=S.groupsList.length;
-  return `<div class="card" id="tt-sort"><h2>${RO?'Participantes':'Resultado del sorteo'}</h2>${RO?'':`<p class="small">Toca «Editar» para cambiar el nombre, el color y el escudo, o marcar un cabeza de serie.${g>1?' Con el selector de la derecha cambias un equipo de grupo.':''}</p>`}<div class="gwrap">`+S.groupsList.map((ids,gi)=>`<div class="gbox"><h3>${S.format=='liguilla'?'Liguilla':'Grupo '+String.fromCharCode(65+gi)}</h3>
+  return `<div class="card" id="tt-sort"><h2>${RO?'Participantes':'Resultado del sorteo'}</h2>${RO?'':`<p class="small">Toca «Editar» para cambiar el nombre, el color y el escudo, o marcar un cabeza de serie.${g>1?' Con el selector de la derecha cambias un equipo de grupo.':''}</p>`}<div class="gwrap">`+S.groupsList.map((ids,gi)=>`<div class="gbox"><h3>${S.format=='liguilla'?'Liguilla':S.format=='suizo'?'Participantes':'Grupo '+String.fromCharCode(65+gi)}</h3>
   ${ids.map((id,k)=>`<div class="trow"${gi==0&&k==0?' id="tt-equipo"':''}><div style="min-width:0;flex:1">${tag(id)}${S.size>1?`<div class="small">${team(id).members.map(esc).join(', ')}</div>`:''}${team(id).lv?`<div class="small">Nivel: ${esc(lvLabel(team(id).lv))}</div>`:''}</div>
     ${g>1?`<select class="mini" aria-label="Grupo de ${esc(team(id).name)}" onchange="moveTeam(${id},this.value)">${S.groupsList.map((_,x)=>`<option value="${x}" ${x==gi?'selected':''}>${String.fromCharCode(65+x)}</option>`).join('')}</select>`:''}
     <button class="sec sm" onclick="teamForm(${id})">Editar</button></div>`).join('')}</div>`).join('')+'</div>'+
@@ -672,9 +735,10 @@ function matchList(ms,noTitle){
 function matchRow(m,fn){return (rl().noDraw&&m.sa!=null&&m.sa===m.sb?'<div class="small bad">No hay empates en este juego: cambia el marcador.</div>':'')+`<div class="match"><span class="a">${tag(m.a)}</span>
   <input type="number" min="0" value="${m.sa??''}" onchange="${fn}('sa',this.value)"><span>-</span>
   <input type="number" min="0" value="${m.sb??''}" onchange="${fn}('sb',this.value)"><span>${tag(m.b)}</span></div>`}
-function table(rows,nq){return `<table><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th title="Diferencia de ${(UN[S.unit]||UN.goles)[1]}">${uAbbr()}</th><th>Pts</th></tr>
-  ${rows.map((r,i)=>`<tr class="${i<nq?'q':''}"><td>${i+1}</td><td>${tag(r.id)}</td><td>${r.pj}</td><td>${r.g}</td><td>${r.e}</td><td>${r.p}</td><td>${r.gf-r.gc}</td><td><b>${r.pts}</b></td></tr>`).join('')}</table>`}
+function table(rows,nq,bh){return `<table><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th title="Diferencia de ${(UN[S.unit]||UN.goles)[1]}">${uAbbr()}</th>${bh?'<th title="Buchholz: puntos de tus rivales">BH</th>':''}<th>Pts</th></tr>
+  ${rows.map((r,i)=>`<tr class="${i<nq?'q':''}"><td>${i+1}</td><td>${tag(r.id)}</td><td>${r.pj}</td><td>${r.g}</td><td>${r.e}</td><td>${r.p}</td><td>${r.gf-r.gc}</td>${bh?`<td>${r.bh||0}</td>`:''}<td><b>${r.pts}</b></td></tr>`).join('')}</table>`}
 function viewMatches(){
+  if(S.format=='suizo')return viewSwiss();
   let h='';const cross=S.matches.some(m=>m.g!==m.h),nq=S.format=='grupos'?+S.nextN:0;
   S.groupsList.forEach((_,gi)=>{
     h+=`<div class="card"${gi==0?' id="tt-tabla"':''}><h2>${S.format=='liguilla'?'Clasificación':'Grupo '+gl(gi)}</h2>${table(standings(gi),nq)}`;
@@ -728,7 +792,7 @@ function viewResumenRO(){
   const i=inf(),e=estado(),f=fmtDate(i.start),g=fmtDate(i.end),r=rl(),n=(S.teams||[]).length;
   const row=(k,v)=>v?`<div class="irow"><span class="small">${k}</span><span>${v}</span></div>`:'';
   const link=(u)=>okUrl(u)?`<a href="${esc(u)}" target="_blank" rel="noopener noreferrer" style="color:var(--ac);overflow-wrap:anywhere">${esc(u)}</a>`:'';
-  const fm=({grupos:'Grupos + eliminatoria',liguilla:'Liguilla',eliminacion:'Eliminación directa'})[S.format]||'';
+  const fm=({grupos:'Grupos + eliminatoria',liguilla:'Liguilla',suizo:'Sistema suizo',eliminacion:'Eliminación directa'})[S.format]||'';
   return `<div class="card" id="tt-resumen"><h2>${esc(S.name)}</h2><span class="st ${e.c}">${e.t}</span>
     ${i.desc?`<p style="margin:12px 0 0;white-space:pre-line">${esc(i.desc)}</p>`:''}
     <div style="margin-top:12px">${row('Juego o deporte',esc(S.game))}${row('Fechas',f?esc(f)+(g&&g!==f?' – '+esc(g):''):'')}${row('Participantes',n?String(n)+(+S.size>1?' equipos':''):'')}${row('Formato',esc(fm))}
@@ -1001,7 +1065,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.10.0';
+const APP_VERSION='1.11.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
@@ -1042,7 +1106,7 @@ const TOUR=[
  {el:'#tt-datos',t:'Nombre y juego',p:'Ponle nombre a tu torneo y escribe a qué juego se juega.'},
  {el:'#tt-juego',t:'Juego o deporte',p:'Escribe el juego o deporte (Fortnite, FIFA, LoL, fútbol, baloncesto, pádel, ajedrez…) y la app lo reconoce: ajusta sola el tamaño de los equipos, los puntos, los empates y los niveles de experiencia propios de ese juego.'},
  {el:'#tt-modo',t:'Modo de juego',p:'Individual, dúo, trío, escuadrón o equipos de 5. Si juegas en equipos, TORNEAZO los forma al azar. Los modos con candado son Premium.'},
- {el:'#tt-formato',t:'Formato del torneo',p:'Grupos + eliminatoria (como un mundial), liguilla (todos contra todos) o eliminación directa.'},
+ {el:'#tt-formato',t:'Formato del torneo',p:'Grupos + eliminatoria (como un mundial), liguilla (todos contra todos), sistema suizo (por rondas, sin eliminar a nadie) o eliminación directa.'},
  {el:'#tt-cruzado',t:'Partidos cruzados',p:'Con «Contra otros grupos (cruzado)» nadie juega contra los de su propio grupo: cada jugador se enfrenta a rivales de los demás grupos. Elige cuántos. Solo sale con el formato «grupos + eliminatoria».'},
  {el:'#tt-reglas',t:'Reglas del torneo',p:'Cambia los puntos por victoria y por empate, elige si los partidos de grupo son solo de ida o de ida y vuelta, y cómo se decide un empate en la eliminatoria (por penaltis o no se permite).'},
  {el:'#tt-part',t:'Participantes y sorteo',p:'Escribe un nombre por línea, o separados por comas. Pon un * al final para marcar un cabeza de serie. Con «Lo armo yo» no hay sorteo al azar: los equipos salen del orden de tu lista. En gratis caben hasta 32.'},

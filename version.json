@@ -1,6 +1,14 @@
 {
-  "version": "1.10.0",
+  "version": "1.11.0",
   "historial": [
+    {
+      "version": "1.11.0",
+      "fecha": "12/11/2026",
+      "cambios": [
+        "Nuevo formato: sistema suizo. Se juega por rondas, nadie queda eliminado y cada ronda enfrenta a los que van parejos, sin repetir rival.",
+        "Clasificación con desempate por BH y, si quieres, eliminatoria final con los mejores."
+      ]
+    },
     {
       "version": "1.10.0",
       "fecha": "12/11/2026",

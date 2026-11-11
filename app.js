@@ -601,7 +601,7 @@ function render(){
 }
 function viewSetup(){
   return `<div class="card" id="tt-datos"><h2>Datos del torneo</h2>
-  <div class="row"><div><label>Nombre</label><input value="${esc(S.name)}" data-change="setName(this.value)"></div>
+  <div class="row"><div><label for="tt-nombre">Nombre</label><input id="tt-nombre" value="${esc(S.name)}" data-change="setName(this.value)"></div>
   <div><label for="g-in">Juego o deporte</label><input id="g-in" list="juegos" value="${esc(S.game)}" data-change="setGame(this.value)"><datalist id="juegos">${G.map(g=>`<option value="${esc(g.n)}">`).join('')}</datalist></div></div>
   ${gameBanner()}
   <label>Modo de juego</label><div class="chips" id="tt-modo">${Object.entries(MODES).map(([n,l])=>`<div class="chip ${S.size==n?'on':''}" data-click="pickMode(${n})">${l}${!S.premium&&!FREE.modes.includes(+n)?' 🔒':''}</div>`).join('')}
@@ -610,7 +610,7 @@ function viewSetup(){
   ${S.format=='suizo'?`<div class="row"><div><label for="sw-r">Rondas</label><select id="sw-r" data-change="set('swissRounds',+this.value)"><option value="0" ${!S.swissRounds?'selected':''}>Automático</option>${[2,3,4,5,6,7,8,9].map(n=>`<option ${S.swissRounds==n?'selected':''}>${n}</option>`).join('')}</select></div>
   <div><label for="sw-c">Eliminatoria final</label><select id="sw-c" data-change="set('swissCut',+this.value)"><option value="0" ${!S.swissCut?'selected':''}>Sin eliminatoria</option>${[2,4,8].map(n=>`<option value="${n}" ${S.swissCut==n?'selected':''}>Pasan los ${n} mejores</option>`).join('')}</select></div></div>
   <p class="small">En cada ronda juegan todos, pero se enfrentan los que van parejos en puntos y sin repetir rival. Nadie queda eliminado. Con número impar, uno descansa y suma la victoria.</p>`:''}
-  ${S.format=='grupos'?`<label>Número de grupos</label><select data-change="set('groups',+this.value)">${[2,3,4,5,6,8].map(n=>`<option ${S.groups==n?'selected':''}>${n}</option>`).join('')}</select>
+  ${S.format=='grupos'?`<label for="tt-ngrupos">Número de grupos</label><select id="tt-ngrupos" data-change="set('groups',+this.value)">${[2,3,4,5,6,8].map(n=>`<option ${S.groups==n?'selected':''}>${n}</option>`).join('')}</select>
   <label>¿Contra quién juega cada uno en la fase de grupos?</label><div class="chips" id="tt-cruzado">
   <div class="chip ${S.pairing=='dentro'?'on':''}" data-click="set('pairing','dentro')">Contra los de su grupo</div>
   <div class="chip ${S.pairing=='cruzado'?'on':''}" data-click="set('pairing','cruzado')">Contra otros grupos (cruzado)</div></div>
@@ -648,9 +648,10 @@ function matchList(ms,noTitle){
   if(!rl().ida)return (noTitle?'':'<h3>Partidos</h3>')+ms.map(row).join('');
   return '<h3>Ida</h3>'+ms.filter(([m])=>!m.v).map(row).join('')+'<h3>Vuelta</h3>'+ms.filter(([m])=>m.v).map(row).join('');
 }
+const tnm=id=>id==null||!team(id)?'por definir':team(id).name;
 function matchRow(m,fn,ix){return (rl().noDraw&&m.sa!=null&&m.sa===m.sb?'<div class="small bad">No hay empates en este juego: cambia el marcador.</div>':'')+`<div class="match"><span class="a">${tag(m.a)}</span>
-  <input type="number" min="0" value="${m.sa??''}" data-change="${fn}(${ix},'sa',this.value)"><span>-</span>
-  <input type="number" min="0" value="${m.sb??''}" data-change="${fn}(${ix},'sb',this.value)"><span>${tag(m.b)}</span></div>${whenLine(m)}`}
+  <input type="number" min="0" aria-label="Resultado de ${esc(tnm(m.a))}" value="${m.sa??''}" data-change="${fn}(${ix},'sa',this.value)"><span>-</span>
+  <input type="number" min="0" aria-label="Resultado de ${esc(tnm(m.b))}" value="${m.sb??''}" data-change="${fn}(${ix},'sb',this.value)"><span>${tag(m.b)}</span></div>${whenLine(m)}`}
 function table(rows,nq,bh){return `<table><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th title="Diferencia de ${(UN[S.unit]||UN.goles)[1]}">${uAbbr()}</th>${bh?'<th title="Buchholz: puntos de tus rivales">BH</th>':''}<th>Pts</th></tr>
   ${rows.map((r,i)=>`<tr class="${i<nq?'q':''}"><td>${i+1}</td><td>${tag(r.id)}</td><td>${r.pj}</td><td>${r.g}</td><td>${r.e}</td><td>${r.p}</td><td>${r.gf-r.gc}</td>${bh?`<td>${r.bh||0}</td>`:''}<td><b>${r.pts}</b></td></tr>`).join('')}</table>`}
 function viewMatches(){
@@ -674,8 +675,8 @@ function viewMatchesBody(){
   if(S.format=='grupos'){
     const mx=Math.min(...S.groupsList.map(g=>g.length));
     h+=`<div class="card noro" id="tt-sigfase"><h2>Siguiente fase</h2>
-    <div class="row"><div><label>Pasan los mejores de cada grupo</label><select data-change="setNext('nextN',+this.value)">${Array.from({length:mx},(_,i)=>i+1).map(n=>`<option ${S.nextN==n?'selected':''}>${n}</option>`).join('')}</select></div>
-    <div><label>+ mejores del resto</label><select data-change="setNext('nextExtra',+this.value)">${[0,1,2,3,4,5,6].map(n=>`<option ${S.nextExtra==n?'selected':''}>${n}</option>`).join('')}</select></div></div>
+    <div class="row"><div><label for="tt-nextn">Pasan los mejores de cada grupo</label><select id="tt-nextn" data-change="setNext('nextN',+this.value)">${Array.from({length:mx},(_,i)=>i+1).map(n=>`<option ${S.nextN==n?'selected':''}>${n}</option>`).join('')}</select></div>
+    <div><label for="tt-nextx">+ mejores del resto</label><select id="tt-nextx" data-change="setNext('nextExtra',+this.value)">${[0,1,2,3,4,5,6].map(n=>`<option ${S.nextExtra==n?'selected':''}>${n}</option>`).join('')}</select></div></div>
     <label>Formato de la siguiente fase</label><div class="chips">
     <div class="chip ${S.nextKind=='ko'?'on':''}" data-click="set('nextKind','ko')">Eliminatoria</div>
     <div class="chip ${S.nextKind=='liga'?'on':''}" data-click="set('nextKind','liga')">Nuevo grupo (liguilla)</div></div>
@@ -687,7 +688,7 @@ function viewMatchesBody(){
 function viewLiga(){
   const L=S.liga,rows=calc(L.ids,L.matches),done=L.matches.every(mOk);
   return `<div class="card"><h2>Nuevo grupo (liguilla)</h2>${table(rows,S.ko?+S.koTop:0)}<h3>Partidos</h3>${L.matches.map((m,i)=>matchRow(m,'setLiga',i)).join('')}</div>
-  <div class="card"><label>Pasan a la eliminatoria los mejores</label><select data-change="setNext('koTop',+this.value)">${[2,4,8,16].filter(n=>n<=L.ids.length).map(n=>`<option ${S.koTop==n?'selected':''}>${n}</option>`).join('')}</select><br><br>
+  <div class="card"><label for="tt-kotop">Pasan a la eliminatoria los mejores</label><select id="tt-kotop" data-change="setNext('koTop',+this.value)">${[2,4,8,16].filter(n=>n<=L.ids.length).map(n=>`<option ${S.koTop==n?'selected':''}>${n}</option>`).join('')}</select><br><br>
   <button ${done?'':'disabled style="opacity:.4"'} data-click="ligaToKO()">Generar eliminatoria →</button></div>`;
 }
 function viewKO(){
@@ -1472,7 +1473,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.17.0';
+const APP_VERSION='1.17.1';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

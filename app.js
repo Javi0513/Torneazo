@@ -1311,7 +1311,7 @@ function phasesCard(){
 
 /* ===== Anuncio propio de JAVI AI (mientras no haya AdSense) ===== */
 const HOUSE=[{t:'¿Organizas torneos o tienes un club?',s:'Te hacemos tu propia app, con tu marca.'},{t:'Automatiza tu negocio con IA',s:'Menos tareas repetitivas y más clientes.'},{t:'Webs y apps que trabajan por ti',s:'Diseño a medida y asistentes de IA las 24 horas.'}];
-const HOUSE_URL='https://wa.me/34670495858?text='+encodeURIComponent('Hola Javi, vengo de TORNEAZO y me interesa lo que hace JAVI AI.');
+const HOUSE_URL='https://wa.me/34670495859?text='+encodeURIComponent('Hola Javi, vengo de TORNEAZO y me interesa lo que hace JAVI AI.');
 let houseI=0,houseT=null;
 function houseAd(ad){
   if(ad.dataset.house)return;ad.dataset.house='1';
@@ -1914,7 +1914,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.27.0';
+const APP_VERSION='1.27.1';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

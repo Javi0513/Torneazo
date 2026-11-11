@@ -1,6 +1,15 @@
 {
-  "version": "1.9.0",
+  "version": "1.10.0",
   "historial": [
+    {
+      "version": "1.10.0",
+      "fecha": "12/11/2026",
+      "cambios": [
+        "Página pública del torneo: comparte un enlace y cualquiera sigue la clasificación, los partidos, la eliminatoria y los premios en directo, sin cuenta.",
+        "Nueva ficha del torneo: descripción, fechas, organizador, contacto, Discord, web y reglas.",
+        "El torneo muestra su estado: En preparación, Sorteo hecho, En curso o Finalizado."
+      ]
+    },
     {
       "version": "1.9.0",
       "fecha": "12/11/2026",

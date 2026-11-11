@@ -93,6 +93,13 @@ tr{transition:background .2s}tr:hover{background:#9BEA1C0d}
 .tut-card h2{margin:4px 0 8px;font-size:24px}.tut-card p{margin:0;color:var(--mut);line-height:1.45}
 .tut-dots{display:flex;gap:5px;justify-content:center;margin:14px 0 10px}.tut-dots i{width:6px;height:6px;border-radius:9px;background:#2F372D;transition:all .25s var(--ease)}.tut-dots i.on{width:18px;background:var(--ac)}
 .tut-btns{display:flex;align-items:center;gap:8px}.tut-btns span{flex:1}
+.tg{display:inline-flex;align-items:center;gap:6px;min-width:0;max-width:100%}.tg>span{overflow:hidden;text-overflow:ellipsis}
+.tl{width:18px;height:18px;border-radius:50%;object-fit:cover;flex:none}.td{width:10px;height:10px;border-radius:50%;flex:none}
+.cs{font:700 10px Inter,sans-serif;background:var(--ac);color:var(--ink);padding:1px 5px;border-radius:99px;flex:none}
+.match .a .tg{justify-content:flex-end}
+.trow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.sm{padding:7px 12px;font-size:13px}select.mini{width:auto;padding:7px 8px}
+.sw{width:32px;height:32px;padding:0;border-radius:50%;border:2px solid #0006}
 .news h3{color:var(--ac);margin:12px 0 4px}.news ul{margin:4px 0 8px}
 .err{color:#ff8a80;font-size:13px;min-height:18px;margin:6px 0 0}
 .ok{color:var(--ac);font-size:13px}
@@ -108,12 +115,25 @@ const MODES={1:'Individual',2:'Dúo',3:'Trío',4:'Escuadrón (4)',5:'Equipos de 
 const FREE={maxPlayers:32,modes:[1,2]};
 const FORMATS={grupos:'Grupos + eliminatoria',liguilla:'Liguilla (todos contra todos)',eliminacion:'Eliminación directa'};
 const def=()=>({premium:false,step:0,name:'Torneo del viernes',game:'FIFA',size:1,format:'grupos',groups:2,
-  players:'',teams:[],groupsList:[],matches:[],ko:null,pairing:'dentro',rivals:2,nextN:2,nextExtra:0,nextKind:'ko',liga:null,koTop:2});
+  players:'',teams:[],groupsList:[],matches:[],ko:null,pairing:'dentro',rivals:2,nextN:2,nextExtra:0,nextKind:'ko',liga:null,koTop:2,manual:false,rules:{win:3,draw:1,ida:false,pen:true}});
 let S=def(),demoBackup=null,demoBase=null;
 try{const s=JSON.parse(localStorage.getItem('torneazo')||'null');if(s)S=Object.assign(def(),s)}catch(e){}
 const save=()=>{if(demoBackup)return;try{localStorage.setItem('torneazo',JSON.stringify(S))}catch(e){}if(typeof cloudSave=='function')cloudSave()};
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const names=()=>S.players.split(/\n|,/).map(x=>x.trim()).filter(Boolean);
+const rawNames=()=>S.players.split(/\n|,/).map(x=>x.trim()).filter(Boolean);
+const names=()=>rawNames().map(x=>x.replace(/\*+$/,'').trim()).filter(Boolean);
+const seedNames=()=>new Set(rawNames().filter(x=>/\*$/.test(x)).map(x=>x.replace(/\*+$/,'').trim().toLowerCase()));
+const rl=()=>Object.assign({win:3,draw:1,ida:false,pen:true},S.rules||{});
+const PAL=['#9BEA1C','#4FC3F7','#FF8A65','#BA68C8','#FFD54F','#F06292','#4DB6AC','#A1887F','#E0E0E0','#EF5350'];
+const okCol=c=>typeof c=='string'&&/^#[0-9a-fA-F]{6}$/.test(c);
+function notice(msg){$('modalBody').innerHTML=`<p>${esc(msg)}</p><button onclick="closeModal()">Vale</button>`;$('modal').classList.add('on')}
+let askFn=null;
+function confirmAct(msg,fn){askFn=fn;$('modalBody').innerHTML=`<p>${esc(msg)}</p><div class="row"><button onclick="runAsk()">Continuar</button><button class="sec" onclick="closeModal()">Cancelar</button></div>`;$('modal').classList.add('on')}
+function runAsk(){const f=askFn;askFn=null;closeModal();if(f)f()}
+const teamAvatar=(t,sz)=>okAv(t.logo)?`<img src="${t.logo}" alt="" style="width:${sz}px;height:${sz}px;border-radius:50%;object-fit:cover;animation:none;filter:none">`:`<span style="display:inline-flex;width:${sz}px;height:${sz}px;border-radius:50%;background:${okCol(t.color)?t.color:PAL[0]};color:#0A0B0A;align-items:center;justify-content:center;font:800 ${sz*.45|0}px 'Exo 2',Inter,sans-serif">${esc((String(t.name||'?')[0]||'?').toUpperCase())}</span>`;
+const tag=id=>{const t=team(id);if(!t)return '';
+  const dot=okAv(t.logo)?`<img src="${t.logo}" alt="" class="tl">`:`<i class="td" style="background:${okCol(t.color)?t.color:PAL[0]}"></i>`;
+  return `<span class="tg">${dot}<span>${esc(t.name)}</span>${t.seed?'<b class="cs" title="Cabeza de serie">CS</b>':''}</span>`};
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const team=id=>S.teams[id];
 
@@ -137,37 +157,98 @@ function set(k,v){S[k]=v;save();render()}
 function setText(v){S.players=v;save();$('count').textContent=names().length+' participantes'}
 function pickMode(n){if(!S.premium&&!FREE.modes.includes(n))return paywall('Este modo de juego es de la versión Premium.');set('size',n)}
 
+function mkTeam(id,m,size,seed,old){
+  const o=size==1&&old?old[m[0].toLowerCase()]:null;
+  return {id,members:m,seed:!!seed,
+    name:o?o.name:size==1?m[0]:size==2?m.join(' & '):'Equipo '+(id+1),
+    color:o&&o.color?o.color:PAL[id%PAL.length],logo:o&&o.logo?o.logo:undefined};
+}
+function formTeams(list,size,old){
+  const seeds=seedNames(),isSeed=n=>seeds.has(n.toLowerCase());
+  if(S.manual){const teams=[];for(let i=0;i<list.length;i+=size){const m=list.slice(i,i+size);teams.push(mkTeam(teams.length,m,size,false,old))}return teams}
+  const sd=shuffle(list.filter(isSeed)),rest=shuffle(list.filter(n=>!isSeed(n)));
+  if(size==1)return sd.concat(rest).map((n,i)=>mkTeam(i,[n],1,isSeed(n),old));
+  const nT=list.length/size,bk=Array.from({length:nT},()=>[]);
+  sd.forEach((n,i)=>bk[i%nT].push(n));
+  bk.forEach(b=>{while(b.length<size)b.push(rest.shift())});
+  return bk.map((m,i)=>mkTeam(i,m,size,m.some(isSeed),old));
+}
+function buildMatches(){
+  S.matches=[];const g=S.groupsList.length,ida=rl().ida;
+  const add=(x,y,a,b)=>{S.matches.push({g:x,h:y,a,b,sa:null,sb:null,v:0});if(ida)S.matches.push({g:x,h:y,a:b,b:a,sa:null,sb:null,v:1})};
+  if(S.pairing=='cruzado'&&g>1){
+    for(let x=0;x<g;x++)for(let y=x+1;y<g;y++){const A=S.groupsList[x],B=S.groupsList[y],k=Math.min(+S.rivals,B.length);
+      A.forEach((a,i)=>{for(let t=0;t<k;t++)add(x,y,a,B[(i+t)%B.length])})}
+  }else S.groupsList.forEach((ids,gi)=>{for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++)add(gi,gi,ids[i],ids[j])});
+}
 function draw(){
   const list=names(),size=+S.size;
   if(!S.premium&&list.length>FREE.maxPlayers)return paywall(`La versión gratuita permite hasta ${FREE.maxPlayers} participantes.`);
-  if(list.length>128)return alert('Máximo 128 participantes.');
-  if(list.length%size)return alert(`Con modo "${MODES[size]}" necesitas un número de jugadores múltiplo de ${size}. Ahora hay ${list.length}.`);
-  const ps=shuffle(list),teams=[];
-  for(let i=0;i<ps.length;i+=size){const m=ps.slice(i,i+size);
-    teams.push({id:teams.length,members:m,name:size==1?m[0]:size==2?m.join(' & '):'Equipo '+(teams.length+1)})}
-  if(teams.length<2)return alert('Hacen falta al menos 2 participantes o equipos.');
+  if(list.length>128)return notice('Máximo 128 participantes.');
+  if(list.length%size)return notice(`Con modo "${MODES[size]}" necesitas un número de jugadores múltiplo de ${size}. Ahora hay ${list.length}.`);
+  const old={};(S.teams||[]).forEach(t=>{if(t.members&&t.members.length==1)old[t.members[0].toLowerCase()]=t});
+  const teams=formTeams(list,size,old);
+  if(teams.length<2)return notice('Hacen falta al menos 2 participantes o equipos.');
   S.teams=teams;S.drawn=(S.drawn||0)+1;S.matches=[];S.ko=null;S.groupsList=[];
   if(S.format=='eliminacion'){S.ko=buildKO(teams.map(t=>t.id));S.step=3}
   else{
     const g=S.format=='liguilla'?1:Math.max(1,Math.min(+S.groups,Math.floor(teams.length/2)));
     S.groupsList=Array.from({length:g},()=>[]);
     teams.forEach((t,i)=>S.groupsList[i%g].push(t.id));
-    S.liga=null;
-    if(S.pairing=='cruzado'&&g>1){
-      for(let x=0;x<g;x++)for(let y=x+1;y<g;y++){const A=S.groupsList[x],B=S.groupsList[y],k=Math.min(+S.rivals,B.length);
-        A.forEach((a,i)=>{for(let t=0;t<k;t++)S.matches.push({g:x,h:y,a,b:B[(i+t)%B.length],sa:null,sb:null})})}
-    }else S.groupsList.forEach((ids,gi)=>{for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++)S.matches.push({g:gi,h:gi,a:ids[i],b:ids[j],sa:null,sb:null})});
-    S.step=1;
+    S.liga=null;buildMatches();S.step=1;
   }
   save();render();
 }
+function moveTeam(id,to){
+  to=+to;const from=S.groupsList.findIndex(g=>g.includes(id));if(from<0||from===to)return render();
+  if(S.groupsList[from].length<=2){render();return notice('Cada grupo necesita al menos 2 equipos.')}
+  const doIt=()=>{S.groupsList[from]=S.groupsList[from].filter(x=>x!==id);S.groupsList[to].push(id);buildMatches();S.ko=null;S.liga=null;save();render()};
+  if(S.matches.some(m=>m.sa!=null||m.sb!=null)){render();confirmAct('Al cambiar un equipo de grupo se vuelven a crear los partidos y se pierden los resultados anotados.',doIt)}else doIt();
+}
+let tmpLogo,tmpColor;
+function teamForm(id){
+  const t=team(id);tfId=id;tmpLogo=undefined;tmpColor=okCol(t.color)?t.color:PAL[id%PAL.length];
+  $('modalBody').innerHTML=`<h2>Editar equipo</h2>
+  <div style="display:flex;gap:12px;align-items:center"><span id="tf-pv">${teamAvatar({logo:t.logo,color:tmpColor,name:t.name},56)}</span>
+    <div><input id="tf-f" type="file" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="pickLogo(this)">
+    <button class="sec" onclick="$('tf-f').click()">Escudo</button> <button class="sec" onclick="tmpLogo='';tfPrev()">Quitar</button></div></div>
+  <label for="tf-n">Nombre</label><input id="tf-n" maxlength="30" value="${esc(t.name)}" oninput="tfPrev()">
+  <label>Color</label><div class="chips">${PAL.map(c=>`<button class="sw" aria-label="Color ${c}" style="background:${c}" onclick="tmpColor='${c}';tfPrev()"></button>`).join('')}</div>
+  <label style="display:flex;gap:8px;align-items:center;color:var(--tx)"><input id="tf-s" type="checkbox" style="width:auto" ${t.seed?'checked':''}> Cabeza de serie</label>
+  ${t.members&&t.members.length>1?`<p class="small">Integrantes: ${t.members.map(esc).join(', ')}</p><p class="small">Si repites el sorteo, el nombre y el escudo de un equipo se pierden (los de un jugador solo se conservan).</p>`:''}
+  <div class="err" id="tf-m" role="alert"></div>
+  <div class="row"><button onclick="saveTeam(${id})">Guardar</button><button class="sec" onclick="closeModal()">Cancelar</button></div>`;
+  $('modal').classList.add('on');
+}
+let tfId=0;
+function tfPrev(){const t=team(tfId)||{};$('tf-pv').innerHTML=teamAvatar({logo:tmpLogo===undefined?t.logo:tmpLogo,color:tmpColor,name:$('tf-n').value||'?'},56)}
+function pickLogo(inp){
+  const f=inp.files&&inp.files[0],m=$('tf-m');if(!f)return;
+  if(!/^image\/(jpeg|png|webp)$/.test(f.type)||f.size>8e6){m.textContent='Elige una imagen JPG, PNG o WebP de menos de 8 MB.';return}
+  const r=new FileReader();
+  r.onload=()=>{const img=new Image();
+    img.onload=()=>{const z=64,c=document.createElement('canvas');c.width=c.height=z;const k=Math.min(img.width,img.height);
+      c.getContext('2d').drawImage(img,(img.width-k)/2,(img.height-k)/2,k,k,0,0,z,z);
+      let q=.7,d=c.toDataURL('image/jpeg',q);while(d.length>6000&&q>.3){q-=.15;d=c.toDataURL('image/jpeg',q)}
+      tmpLogo=d;tfPrev();m.textContent=''};
+    img.onerror=()=>{m.textContent='No se pudo leer la imagen.'};img.src=r.result};
+  r.readAsDataURL(f);
+}
+function saveTeam(id){
+  const t=team(id),n=$('tf-n').value.trim(),m=$('tf-m');
+  if(n.length<1||n.length>30){m.textContent='El nombre debe tener entre 1 y 30 caracteres.';return}
+  t.name=n;t.color=tmpColor;t.seed=$('tf-s').checked;
+  if(tmpLogo!==undefined){if(tmpLogo&&okAv(tmpLogo))t.logo=tmpLogo;else delete t.logo}
+  save();closeModal();render();
+}
+function setRule(k,v){S.rules=Object.assign(rl(),{[k]:v});save();render()}
 
 function calc(ids,matches){
   const rows=ids.map(id=>({id,pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0}));
   const by=Object.fromEntries(rows.map(r=>[r.id,r]));
   matches.filter(m=>m.sa!=null&&m.sb!=null).forEach(m=>{
     const A=by[m.a],B=by[m.b],w=A&&B?0:1;
-    const up=(X,gf,gc)=>{if(!X)return;X.pj++;X.gf+=gf;X.gc+=gc;if(gf>gc){X.g++;X.pts+=3}else if(gf<gc)X.p++;else{X.e++;X.pts++}};
+    const up=(X,gf,gc)=>{if(!X)return;X.pj++;X.gf+=gf;X.gc+=gc;const R=rl();if(gf>gc){X.g++;X.pts+=R.win}else if(gf<gc)X.p++;else{X.e++;X.pts+=R.draw}};
     up(A,m.sa,m.sb);up(B,m.sb,m.sa)});
   return rows.sort((x,y)=>y.pts-x.pts||(y.gf-y.gc)-(x.gf-x.gc)||y.gf-x.gf);
 }
@@ -187,12 +268,14 @@ function buildKO(seeds){
 }
 function winner(m){
   if(m.bye)return m.a??m.b;
-  if(m.a==null||m.b==null||m.sa==null||m.sb==null||m.sa===m.sb)return null;
-  return m.sa>m.sb?m.a:m.b;
+  if(m.a==null||m.b==null||m.sa==null||m.sb==null)return null;
+  if(m.sa!==m.sb)return m.sa>m.sb?m.a:m.b;
+  if(rl().pen&&m.pa!=null&&m.pb!=null&&m.pa!==m.pb)return m.pa>m.pb?m.a:m.b;
+  return null;
 }
 function resolveKO(){
   S.ko.forEach((r,ri)=>{if(ri>0)r.forEach((m,i)=>{const na=winner(S.ko[ri-1][2*i]),nb=winner(S.ko[ri-1][2*i+1]);
-    if(m.a!==na||m.b!==nb){m.a=na;m.b=nb;m.sa=m.sb=null}})});
+    if(m.a!==na||m.b!==nb){m.a=na;m.b=nb;m.sa=m.sb=m.pa=m.pb=null}})});
 }
 function qualifiers(){
   const q=[],rest=[];
@@ -206,7 +289,7 @@ function genNext(){
   if(ids.length<2)return notice('Tienen que pasar al menos 2 equipos.');
   S.ko=null;S.liga=null;
   if(S.nextKind=='ko')S.ko=buildKO(ids);
-  else{const ms=[];for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++)ms.push({a:ids[i],b:ids[j],sa:null,sb:null});S.liga={ids,matches:ms}}
+  else{const ms=[];for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++){ms.push({a:ids[i],b:ids[j],sa:null,sb:null});if(rl().ida)ms.push({a:ids[j],b:ids[i],sa:null,sb:null})}S.liga={ids,matches:ms}}
   S.step=3;save();render();
 }
 function ligaToKO(){const r=calc(S.liga.ids,S.liga.matches).slice(0,+S.koTop).map(x=>x.id);if(r.length<2)return notice('Hacen falta al menos 2 equipos.');S.ko=buildKO(r);save();render()}
@@ -250,32 +333,47 @@ function viewSetup(){
   <div class="chip ${S.pairing=='dentro'?'on':''}" onclick="set('pairing','dentro')">Contra los de su grupo</div>
   <div class="chip ${S.pairing=='cruzado'?'on':''}" onclick="set('pairing','cruzado')">Contra otros grupos (cruzado)</div></div>
   ${S.pairing=='cruzado'?`<label>Rivales de cada grupo (por jugador)</label><select onchange="set('rivals',+this.value)">${[1,2,3,4].map(n=>`<option ${S.rivals==n?'selected':''}>${n}</option>`).join('')}</select><p class="small">Cada jugador se enfrenta a ${S.rivals} rival(es) de cada uno de los otros grupos, nunca a los de su propio grupo.</p>`:''}`:''}</div>
-  <div class="card" id="tt-part"><h2>Participantes</h2><p class="small">Uno por línea (o separados por comas). ${S.premium?'Hasta 128.':`Gratis: hasta ${FREE.maxPlayers}.`} ${S.size>1?`Con ${MODES[S.size]} se forman equipos al azar de ${S.size}.`:''}</p>
+  <div class="card" id="tt-reglas"><h2>Reglas</h2>
+  <div class="row"><div><label for="r-w">Puntos por victoria</label><select id="r-w" onchange="setRule('win',+this.value)">${[1,2,3,4,5].map(n=>`<option ${rl().win==n?'selected':''}>${n}</option>`).join('')}</select></div>
+  <div><label for="r-d">Puntos por empate</label><select id="r-d" onchange="setRule('draw',+this.value)">${[0,1,2,3].map(n=>`<option ${rl().draw==n?'selected':''}>${n}</option>`).join('')}</select></div></div>
+  <label>Partidos de grupo</label><div class="chips"><div class="chip ${!rl().ida?'on':''}" onclick="setRule('ida',false)">Solo ida</div><div class="chip ${rl().ida?'on':''}" onclick="setRule('ida',true)">Ida y vuelta</div></div>
+  <label>Si hay empate en la eliminatoria</label><div class="chips"><div class="chip ${rl().pen?'on':''}" onclick="setRule('pen',true)">Se decide por penaltis</div><div class="chip ${!rl().pen?'on':''}" onclick="setRule('pen',false)">No se permite empate</div></div></div>
+  <div class="card" id="tt-part"><h2>Participantes</h2>
+  <label>Sorteo</label><div class="chips"><div class="chip ${!S.manual?'on':''}" onclick="set('manual',false)">Al azar</div><div class="chip ${S.manual?'on':''}" onclick="set('manual',true)">Lo armo yo</div></div>
+  <p class="small">${S.manual?'Los equipos se forman siguiendo el orden de tu lista y los grupos se reparten en orden. Después puedes mover cada equipo de grupo.':'Pon un * al final de un nombre para marcarlo como cabeza de serie: el sorteo no los junta en el mismo grupo ni equipo.'}</p><p class="small">Uno por línea (o separados por comas). ${S.premium?'Hasta 128.':`Gratis: hasta ${FREE.maxPlayers}.`} ${S.size>1?`Con ${MODES[S.size]} se forman equipos al azar de ${S.size}.`:''}</p>
   <textarea oninput="setText(this.value)" placeholder="Baruc&#10;Javi&#10;Willy&#10;...">${esc(S.players)}</textarea>
   <p class="small" id="count">${names().length} participantes</p>
   <div class="row" id="tt-sorteo"><button onclick="draw()">Hacer sorteo</button><button class="sec" onclick="reset()">Nuevo torneo</button></div></div>`;
 }
 function viewDraw(){
-  return `<div class="card" id="tt-sort"><h2>Resultado del sorteo</h2>`+S.groupsList.map((ids,gi)=>`<h3>${S.format=='liguilla'?'Liguilla':'Grupo '+String.fromCharCode(65+gi)}</h3>
-  ${ids.map(id=>`<div>• <b>${esc(team(id).name)}</b>${S.size>2?` <span class="small">${team(id).members.map(esc).join(', ')}</span>`:''}</div>`).join('')}`).join('')+
+  const g=S.groupsList.length;
+  return `<div class="card" id="tt-sort"><h2>Resultado del sorteo</h2><p class="small">Toca «Editar» para cambiar el nombre, el color y el escudo, o marcar un cabeza de serie.${g>1?' Con el selector de la derecha cambias un equipo de grupo.':''}</p>`+S.groupsList.map((ids,gi)=>`<h3>${S.format=='liguilla'?'Liguilla':'Grupo '+String.fromCharCode(65+gi)}</h3>
+  ${ids.map((id,k)=>`<div class="trow"${gi==0&&k==0?' id="tt-equipo"':''}><div style="min-width:0;flex:1">${tag(id)}${S.size>1?`<div class="small">${team(id).members.map(esc).join(', ')}</div>`:''}</div>
+    ${g>1?`<select class="mini" aria-label="Grupo de ${esc(team(id).name)}" onchange="moveTeam(${id},this.value)">${S.groupsList.map((_,x)=>`<option value="${x}" ${x==gi?'selected':''}>${String.fromCharCode(65+x)}</option>`).join('')}</select>`:''}
+    <button class="sec sm" onclick="teamForm(${id})">Editar</button></div>`).join('')}`).join('')+
   `<div class="row" style="margin-top:12px"><button class="sec" onclick="draw()">Repetir sorteo</button><button onclick="set('step',2)">Ver partidos →</button></div></div>`;
 }
 const gl=gi=>String.fromCharCode(65+gi);
-function matchRow(m,fn){return `<div class="match"><span class="a">${esc(team(m.a).name)}</span>
+function matchList(ms,noTitle){
+  const row=([m,i])=>matchRow(m,`((k,v)=>setScore(${i},k,v))`);
+  if(!rl().ida)return (noTitle?'':'<h3>Partidos</h3>')+ms.map(row).join('');
+  return '<h3>Ida</h3>'+ms.filter(([m])=>!m.v).map(row).join('')+'<h3>Vuelta</h3>'+ms.filter(([m])=>m.v).map(row).join('');
+}
+function matchRow(m,fn){return `<div class="match"><span class="a">${tag(m.a)}</span>
   <input type="number" min="0" value="${m.sa??''}" onchange="${fn}('sa',this.value)"><span>-</span>
-  <input type="number" min="0" value="${m.sb??''}" onchange="${fn}('sb',this.value)"><span>${esc(team(m.b).name)}</span></div>`}
+  <input type="number" min="0" value="${m.sb??''}" onchange="${fn}('sb',this.value)"><span>${tag(m.b)}</span></div>`}
 function table(rows,nq){return `<table><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>DG</th><th>Pts</th></tr>
-  ${rows.map((r,i)=>`<tr class="${i<nq?'q':''}"><td>${i+1}</td><td>${esc(team(r.id).name)}</td><td>${r.pj}</td><td>${r.g}</td><td>${r.e}</td><td>${r.p}</td><td>${r.gf-r.gc}</td><td><b>${r.pts}</b></td></tr>`).join('')}</table>`}
+  ${rows.map((r,i)=>`<tr class="${i<nq?'q':''}"><td>${i+1}</td><td>${tag(r.id)}</td><td>${r.pj}</td><td>${r.g}</td><td>${r.e}</td><td>${r.p}</td><td>${r.gf-r.gc}</td><td><b>${r.pts}</b></td></tr>`).join('')}</table>`}
 function viewMatches(){
   let h='';const cross=S.matches.some(m=>m.g!==m.h),nq=S.format=='grupos'?+S.nextN:0;
   S.groupsList.forEach((_,gi)=>{
     h+=`<div class="card"${gi==0?' id="tt-tabla"':''}><h2>${S.format=='liguilla'?'Clasificación':'Grupo '+gl(gi)}</h2>${table(standings(gi),nq)}`;
-    if(!cross)h+=`<h3>Partidos</h3>`+S.matches.map((m,i)=>m.g!=gi?'':matchRow(m,`((k,v)=>setScore(${i},k,v))`)).join('');
+    if(!cross)h+=matchList(S.matches.map((m,i)=>[m,i]).filter(([m])=>m.g==gi));
     h+=`</div>`});
   if(cross){
     for(let x=0;x<S.groupsList.length;x++)for(let y=x+1;y<S.groupsList.length;y++){
       const ms=S.matches.map((m,i)=>[m,i]).filter(([m])=>m.g==x&&m.h==y);
-      h+=`<div class="card"${x==0&&y==1?' id="tt-cruces"':''}><h2>Grupo ${gl(x)} vs Grupo ${gl(y)}</h2>`+ms.map(([m,i])=>matchRow(m,`((k,v)=>setScore(${i},k,v))`)).join('')+`</div>`}
+      h+=`<div class="card"${x==0&&y==1?' id="tt-cruces"':''}><h2>Grupo ${gl(x)} vs Grupo ${gl(y)}</h2>`+matchList(ms,true)+`</div>`}
   }
   if(S.format=='grupos'){
     const mx=Math.min(...S.groupsList.map(g=>g.length));
@@ -287,7 +385,7 @@ function viewMatches(){
     <div class="chip ${S.nextKind=='liga'?'on':''}" onclick="set('nextKind','liga')">Nuevo grupo (liguilla)</div></div>
     <p class="small">Se clasifican ${qualifiers().length} equipos (en verde, los mejores de cada grupo).</p>
     <button ${groupsDone()?'':'disabled style="opacity:.4"'} onclick="genNext()">Generar siguiente fase →</button></div>`;
-  }else{const t=standings(0)[0];h+=groupsDone()?`<div class="champ">Campeón: <b>${esc(team(t.id).name)}</b></div>`:''}
+  }else{const t=standings(0)[0];h+=groupsDone()?`<div class="champ">Campeón: <b>${tag(t.id)}</b></div>`:''}
   return h+`<div class="card"><button class="gold" onclick="share()">Compartir resultados${S.premium?'':' 🔒'}</button></div>`;
 }
 function viewLiga(){
@@ -300,14 +398,16 @@ function viewKO(){
   const pre=S.liga?viewLiga():'';
   if(!S.ko)return pre;
   resolveKO();save();
-  const R=S.ko,n=R.length,nm=id=>id==null?'<span class="small">Por definir</span>':esc(team(id).name);
+  const R=S.ko,n=R.length,nm=id=>id==null?'<span class="small">Por definir</span>':tag(id);
   const fin=winner(R[n-1][0]);
-  let h=fin!=null?`<div class="champ">Campeón: <b>${esc(team(fin).name)}</b></div><br>`:'';
+  let h=fin!=null?`<div class="champ">Campeón: <b>${tag(fin)}</b></div><br>`:'';
   R.forEach((r,ri)=>{h+=`<div class="card round"${ri==0?' id="tt-ko"':''}><h2>${roundName(ri,n)}</h2>`+r.map((m,i)=>m.bye?`<div class="ko">${nm(m.a??m.b)} <span class="small">· pasa directo</span></div>`:
     `<div class="ko"><div class="match"><span class="a">${nm(m.a)}</span>
     <input type="number" min="0" ${m.a==null||m.b==null?'disabled':''} value="${m.sa??''}" onchange="setKO(${ri},${i},'sa',this.value)"><span>-</span>
     <input type="number" min="0" ${m.a==null||m.b==null?'disabled':''} value="${m.sb??''}" onchange="setKO(${ri},${i},'sb',this.value)"><span>${nm(m.b)}</span></div>
-    ${m.sa!=null&&m.sa===m.sb?'<div class="small" style="color:var(--gold)">Empate: en eliminatoria debe haber ganador (prórroga/penaltis).</div>':''}</div>`).join('')+`</div>`});
+    ${m.sa!=null&&m.sa===m.sb?(rl().pen?`<div class="match pen"><span class="a small">Penaltis</span>
+      <input type="number" min="0" aria-label="Penaltis ${esc(team(m.a).name)}" value="${m.pa??''}" onchange="setKO(${ri},${i},'pa',this.value)"><span>-</span>
+      <input type="number" min="0" aria-label="Penaltis ${esc(team(m.b).name)}" value="${m.pb??''}" onchange="setKO(${ri},${i},'pb',this.value)"><span></span></div>${m.pa!=null&&m.pa===m.pb?'<div class="small" style="color:var(--ac)">Los penaltis no pueden acabar en empate.</div>':''}`:'<div class="small" style="color:var(--ac)">Empate: en esta eliminatoria no se permite. Cambia el marcador.</div>'):''}</div>`).join('')+`</div>`});
   return pre+h+`<div class="card"><button class="gold" onclick="share()">Compartir resultados${S.premium?'':' 🔒'}</button></div>`;
 }
 
@@ -512,7 +612,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.5.0';
+const APP_VERSION='1.6.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
@@ -554,9 +654,11 @@ const TOUR=[
  {el:'#tt-modo',t:'Modo de juego',p:'Individual, dúo, trío, escuadrón o equipos de 5. Si juegas en equipos, TORNEAZO los forma al azar. Los modos con candado son Premium.'},
  {el:'#tt-formato',t:'Formato del torneo',p:'Grupos + eliminatoria (como un mundial), liguilla (todos contra todos) o eliminación directa.'},
  {el:'#tt-cruzado',t:'Partidos cruzados',p:'Con «Contra otros grupos (cruzado)» nadie juega contra los de su propio grupo: cada jugador se enfrenta a rivales de los demás grupos. Elige cuántos. Solo sale con el formato «grupos + eliminatoria».'},
- {el:'#tt-part',t:'Participantes',p:'Escribe un nombre por línea, o separados por comas. En la versión gratuita caben hasta 32.'},
+ {el:'#tt-reglas',t:'Reglas del torneo',p:'Cambia los puntos por victoria y por empate, elige si los partidos de grupo son solo de ida o de ida y vuelta, y cómo se decide un empate en la eliminatoria (por penaltis o no se permite).'},
+ {el:'#tt-part',t:'Participantes y sorteo',p:'Escribe un nombre por línea, o separados por comas. Pon un * al final para marcar un cabeza de serie. Con «Lo armo yo» no hay sorteo al azar: los equipos salen del orden de tu lista. En gratis caben hasta 32.'},
  {el:'#tt-sorteo',t:'Haz el sorteo',p:'Pulsa «Hacer sorteo» y TORNEAZO reparte a todos al azar en grupos o equipos. Ahora verás cómo queda con 8 jugadores de ejemplo.'},
  {stage:'sorteo',el:'#tt-sort',t:'El resultado del sorteo',p:'Aquí ves cómo han quedado los grupos. Si no te convence, pulsa «Repetir sorteo». Cuando te guste, pulsa «Ver partidos».'},
+ {stage:'sorteo',el:'#tt-equipo',t:'Personaliza tus equipos',p:'«Editar» te deja cambiar el nombre, el color y el escudo de cada equipo y marcarlo como cabeza de serie (CS). Con el selector de la derecha lo pasas a otro grupo.'},
  {stage:'partidos',el:'#tt-cruces',t:'Anota los resultados',p:'Cada cruce entre grupos tiene sus partidos. Escribe el marcador de cada uno; con cada resultado se actualiza todo solo. Aquí quedan algunos sin jugar.'},
  {stage:'partidos',el:'#tt-tabla',t:'La clasificación',p:'La tabla de cada grupo se calcula sola con los puntos (3 por victoria, 1 por empate). Los jugadores que pasan de fase salen en verde.'},
  {stage:'fase',el:'#tt-sigfase',t:'Siguiente fase',p:'Cuando acaban todos los partidos, elige cuántos pasan por grupo, cuántos «mejores del resto» añades, y si la siguiente fase es una eliminatoria o un nuevo grupo. Luego pulsa «Generar siguiente fase».'},

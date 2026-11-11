@@ -1,6 +1,16 @@
 {
-  "version": "1.5.0",
+  "version": "1.6.0",
   "historial": [
+    {
+      "version": "1.6.0",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Personaliza cada equipo: nombre, color y escudo.",
+        "Arma los equipos a mano o mueve un equipo de grupo después del sorteo.",
+        "Cabezas de serie: pon un * al final del nombre y el sorteo no los junta.",
+        "Reglas del torneo: puntos por victoria y empate, ida y vuelta, y penaltis en la eliminatoria."
+      ]
+    },
     {
       "version": "1.5.0",
       "fecha": "11/11/2026",

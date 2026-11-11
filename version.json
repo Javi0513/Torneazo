@@ -1,6 +1,14 @@
 {
-  "version": "1.24.0",
+  "version": "1.25.0",
   "historial": [
+    {
+      "version": "1.25.0",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Nuevo fondo de estadio con videojuegos y deportes en toda la app.",
+        "Las tarjetas son semitransparentes para que se vea el fondo sin perder legibilidad."
+      ]
+    },
     {
       "version": "1.24.0",
       "fecha": "11/11/2026",

@@ -979,7 +979,7 @@ function resPendCard(){
 }
 function resSendCard(){
   if(!RO||!S.selfRep)return '';
-  const L=allMatches().filter(x=>x.key!='k3'&&x.key.indexOf('d:')!=0&&x.m.a!=null&&x.m.b!=null&&!x.m.bye&&!played(x.m));
+  const L=allMatches().filter(x=>x.m.a!=null&&x.m.b!=null&&!x.m.bye&&!played(x.m));
   if(!L.length)return '';
   return `<div class="card regform" id="tt-resform"><h2>¿Has jugado? Envía el resultado</h2>
   <p class="small">El organizador lo revisará antes de que cuente.</p>
@@ -1674,7 +1674,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.20.0';
+const APP_VERSION='1.20.1';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

@@ -1,6 +1,13 @@
 {
-  "version": "1.20.0",
+  "version": "1.20.1",
   "historial": [
+    {
+      "version": "1.20.1",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Los jugadores ya pueden enviar resultados también en doble eliminación y en el partido por el tercer puesto."
+      ]
+    },
     {
       "version": "1.20.0",
       "fecha": "11/11/2026",

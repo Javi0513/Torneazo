@@ -124,6 +124,8 @@ button:focus-visible,.chip:focus-visible,.tab:focus-visible,a:focus-visible,sele
 }
 @media (min-width:1100px){.v2,.v3{grid-template-columns:repeat(auto-fill,minmax(400px,1fr))}}
 @media (max-width:380px){h1{font-size:21px}.brand img{width:46px;height:35px}.acct{max-width:110px;padding-left:10px;padding-right:10px}.tab{min-width:80px;font-size:13px}}
+.detect{background:#0F130E;border:1px solid #2F372D;border-radius:12px;padding:10px 12px;margin:10px 0}.detect .small{margin:4px 0}
+.bad{color:#ff8a80!important}.lvlist{max-height:46vh;overflow:auto;margin-top:8px}
 .news h3{color:var(--ac);margin:12px 0 4px}.news ul{margin:4px 0 8px}
 .err{color:#ff8a80;font-size:13px;min-height:18px;margin:6px 0 0}
 .ok{color:var(--ac);font-size:13px}
@@ -139,17 +141,133 @@ const MODES={1:'Individual',2:'Dúo',3:'Trío',4:'Escuadrón (4)',5:'Equipos de 
 const FREE={maxPlayers:32,modes:[1,2]};
 const FORMATS={grupos:'Grupos + eliminatoria',liguilla:'Liguilla (todos contra todos)',eliminacion:'Eliminación directa'};
 const def=()=>({premium:false,step:0,name:'Torneo del viernes',game:'FIFA',size:1,format:'grupos',groups:2,
-  players:'',teams:[],groupsList:[],matches:[],ko:null,pairing:'dentro',rivals:2,nextN:2,nextExtra:0,nextKind:'ko',liga:null,koTop:2,manual:false,rules:{win:3,draw:1,ida:false,pen:true}});
+  players:'',teams:[],groupsList:[],matches:[],ko:null,pairing:'dentro',rivals:2,nextN:2,nextExtra:0,nextKind:'ko',liga:null,koTop:2,manual:false,balance:false,preset:null,lvScheme:null,unit:null,lvl:{},rules:{win:3,draw:1,ida:false,pen:true,noDraw:false}});
 let S=def(),demoBackup=null,demoBase=null;
 try{const s=JSON.parse(localStorage.getItem('torneazo')||'null');if(s)S=Object.assign(def(),s)}catch(e){}
 const save=()=>{if(demoBackup)return;try{localStorage.setItem('torneazo',JSON.stringify(S))}catch(e){}if(typeof cloudSave=='function')cloudSave()};
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const rawNames=()=>S.players.split(/\n|,/).map(x=>x.trim()).filter(Boolean);
-const names=()=>rawNames().map(x=>x.replace(/\*+$/,'').trim()).filter(Boolean);
+const names=()=>plist().map(p=>p.n);
 const seedNames=()=>new Set(rawNames().filter(x=>/\*$/.test(x)).map(x=>x.replace(/\*+$/,'').trim().toLowerCase()));
-const rl=()=>Object.assign({win:3,draw:1,ida:false,pen:true},S.rules||{});
+const rl=()=>Object.assign({win:3,draw:1,ida:false,pen:true,noDraw:false},S.rules||{});
 const PAL=['#9BEA1C','#4FC3F7','#FF8A65','#BA68C8','#FFD54F','#F06292','#4DB6AC','#A1887F','#E0E0E0','#EF5350'];
 const okCol=c=>typeof c=='string'&&/^#[0-9a-fA-F]{6}$/.test(c);
+
+/* ===== Juegos y deportes, niveles de experiencia ===== */
+const norm=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+const LV={
+ gen:['Principiante','Aficionado','Intermedio','Avanzado','Experto'],
+ dep:['Iniciación','Recreativo','Intermedio','Avanzado','Competición'],
+ fifa:['División 10-8','División 7-5','División 4-3','División 2-1','Élite'],
+ lol:['Hierro','Bronce','Plata','Oro','Platino','Esmeralda','Diamante','Maestro o más'],
+ val:['Hierro','Bronce','Plata','Oro','Platino','Diamante','Ascendente','Inmortal o más'],
+ cs:['Silver','Gold Nova','Master Guardian','Legendary Eagle','Supreme','Global Elite'],
+ rl:['Bronce','Plata','Oro','Platino','Diamante','Campeón','Gran campeón o más'],
+ fps:['Casual','Intermedio','Avanzado','Competitivo','Pro'],
+ aje:['Menos de 1000','1000-1400','1400-1800','1800-2200','Más de 2200'],
+ luc:['Novato','Aficionado','Intermedio','Avanzado','Élite']};
+const UN={goles:['DG','goles'],puntos:['DP','puntos'],sets:['DS','sets'],rondas:['DR','rondas'],partidas:['DP','partidas']};
+// k: clave · n: nombre · al: palabras que lo identifican · cat: tipo · size: jugadores por equipo · win/draw: puntos · nd: sin empates · u: unidad del marcador · lv: niveles
+const G=[
+ {k:'fifa',n:'EA FC / FIFA',al:['ea sports fc','ea fc','eafc','fifa','fc 24','fc 25','fc 26','pes','efootball'],cat:'Videojuego de fútbol',size:1,win:3,draw:1,u:'goles',lv:'fifa'},
+ {k:'nba2k',n:'NBA 2K',al:['nba 2k','2k'],cat:'Videojuego de baloncesto',size:1,win:2,draw:0,nd:1,u:'puntos',lv:'gen'},
+ {k:'fortnite',n:'Fortnite',al:['fortnite'],cat:'Videojuego battle royale',size:2,win:2,draw:0,nd:1,u:'puntos',lv:'fps'},
+ {k:'warzone',n:'Call of Duty / Warzone',al:['call of duty','warzone','cod','modern warfare','black ops'],cat:'Videojuego de disparos',size:4,win:2,draw:0,nd:1,u:'puntos',lv:'fps'},
+ {k:'apex',n:'Apex Legends',al:['apex'],cat:'Videojuego battle royale',size:3,win:2,draw:0,nd:1,u:'puntos',lv:'fps'},
+ {k:'pubg',n:'PUBG',al:['pubg'],cat:'Videojuego battle royale',size:4,win:2,draw:0,nd:1,u:'puntos',lv:'fps'},
+ {k:'valorant',n:'Valorant',al:['valorant'],cat:'Videojuego de disparos',size:5,win:3,draw:0,nd:1,u:'rondas',lv:'val'},
+ {k:'cs',n:'Counter-Strike',al:['counter strike','counterstrike','cs2','csgo','cs go','cs'],cat:'Videojuego de disparos',size:5,win:3,draw:0,nd:1,u:'rondas',lv:'cs'},
+ {k:'r6',n:'Rainbow Six Siege',al:['rainbow six','r6','siege'],cat:'Videojuego de disparos',size:5,win:3,draw:0,nd:1,u:'rondas',lv:'fps'},
+ {k:'overwatch',n:'Overwatch',al:['overwatch'],cat:'Videojuego de equipos',size:5,win:3,draw:0,nd:1,u:'rondas',lv:'fps'},
+ {k:'lol',n:'League of Legends',al:['league of legends','lol','wild rift'],cat:'Videojuego MOBA',size:5,win:3,draw:0,nd:1,u:'partidas',lv:'lol'},
+ {k:'dota',n:'Dota 2',al:['dota'],cat:'Videojuego MOBA',size:5,win:3,draw:0,nd:1,u:'partidas',lv:'gen'},
+ {k:'rl',n:'Rocket League',al:['rocket league'],cat:'Videojuego de coches y fútbol',size:3,win:3,draw:0,nd:1,u:'goles',lv:'rl'},
+ {k:'mariokart',n:'Mario Kart',al:['mario kart','mariokart'],cat:'Videojuego de carreras',size:1,win:2,draw:0,nd:1,u:'puntos',lv:'gen'},
+ {k:'smash',n:'Super Smash Bros',al:['smash'],cat:'Videojuego de lucha',size:1,win:2,draw:0,nd:1,u:'partidas',lv:'luc'},
+ {k:'lucha',n:'Juego de lucha',al:['street fighter','tekken','mortal kombat','brawlhalla','king of fighters'],cat:'Videojuego de lucha',size:1,win:2,draw:0,nd:1,u:'rondas',lv:'luc'},
+ {k:'cr',n:'Clash Royale / Brawl Stars',al:['clash royale','brawl stars','clash'],cat:'Videojuego de móvil',size:1,win:2,draw:0,nd:1,u:'partidas',lv:'gen'},
+ {k:'pokemon',n:'Pokémon',al:['pokemon','pokémon'],cat:'Videojuego',size:1,win:2,draw:0,nd:1,u:'partidas',lv:'gen'},
+ {k:'ajedrez',n:'Ajedrez',al:['ajedrez','chess'],cat:'Juego de mesa',size:1,win:2,draw:1,u:'partidas',lv:'aje',hint:'Anota 1-0, 0-1 o 0-0 si hay tablas.'},
+ {k:'mesa',n:'Juego de mesa o cartas',al:['domino','parchis','damas','mus','truco','uno','poker','cartas','monopoly','catan'],cat:'Juego de mesa',size:1,win:2,draw:0,nd:1,u:'puntos',lv:'gen'},
+ {k:'futsal',n:'Fútbol sala',al:['futbol sala','futsal','futbito','sala'],cat:'Deporte de equipo',size:5,win:3,draw:1,u:'goles',lv:'dep'},
+ {k:'f7',n:'Fútbol 7',al:['futbol 7','futbol7','f7'],cat:'Deporte de equipo',size:7,win:3,draw:1,u:'goles',lv:'dep'},
+ {k:'f11',n:'Fútbol',al:['futbol','football','soccer','f11','futbol 11'],cat:'Deporte de equipo',size:11,win:3,draw:1,u:'goles',lv:'dep'},
+ {k:'basket',n:'Baloncesto',al:['baloncesto','basket','basketball','3x3','nba'],cat:'Deporte de equipo',size:5,win:2,draw:0,nd:1,u:'puntos',lv:'dep'},
+ {k:'balonmano',n:'Balonmano',al:['balonmano','handball'],cat:'Deporte de equipo',size:7,win:2,draw:1,u:'goles',lv:'dep'},
+ {k:'voley',n:'Voleibol',al:['voleibol','voley','volley','volleyball','voley playa'],cat:'Deporte de equipo',size:6,win:2,draw:0,nd:1,u:'sets',lv:'dep'},
+ {k:'rugby',n:'Rugby',al:['rugby'],cat:'Deporte de equipo',size:15,win:3,draw:1,u:'puntos',lv:'dep'},
+ {k:'hockey',n:'Hockey',al:['hockey'],cat:'Deporte de equipo',size:6,win:3,draw:1,u:'goles',lv:'dep'},
+ {k:'waterpolo',n:'Waterpolo',al:['waterpolo'],cat:'Deporte de equipo',size:7,win:2,draw:1,u:'goles',lv:'dep'},
+ {k:'beisbol',n:'Béisbol / Sófbol',al:['beisbol','baseball','softbol','sofbol'],cat:'Deporte de equipo',size:9,win:2,draw:0,nd:1,u:'puntos',lv:'dep'},
+ {k:'americano',n:'Fútbol americano',al:['futbol americano'],cat:'Deporte de equipo',size:11,win:2,draw:1,u:'puntos',lv:'dep'},
+ {k:'balon',n:'Balón prisionero',al:['balon prisionero','dodgeball','quemados'],cat:'Deporte de equipo',size:6,win:2,draw:0,nd:1,u:'puntos',lv:'dep'},
+ {k:'padel',n:'Pádel',al:['padel'],cat:'Deporte de raqueta (parejas)',size:2,win:2,draw:0,nd:1,u:'sets',lv:'dep'},
+ {k:'tenis',n:'Tenis',al:['tenis'],cat:'Deporte de raqueta',size:1,win:2,draw:0,nd:1,u:'sets',lv:'dep'},
+ {k:'pingpong',n:'Tenis de mesa',al:['tenis de mesa','ping pong','pingpong'],cat:'Deporte de raqueta',size:1,win:2,draw:0,nd:1,u:'sets',lv:'dep'},
+ {k:'badminton',n:'Bádminton',al:['badminton'],cat:'Deporte de raqueta',size:1,win:2,draw:0,nd:1,u:'sets',lv:'dep'},
+ {k:'pickleball',n:'Pickleball / Squash',al:['pickleball','squash'],cat:'Deporte de raqueta',size:1,win:2,draw:0,nd:1,u:'sets',lv:'dep'},
+ {k:'petanca',n:'Petanca',al:['petanca','bochas','bolos'],cat:'Deporte de precisión',size:2,win:2,draw:0,nd:1,u:'puntos',lv:'dep'},
+ {k:'dardos',n:'Dardos / Billar',al:['dardos','billar','pool','futbolin'],cat:'Deporte de precisión',size:1,win:2,draw:0,nd:1,u:'partidas',lv:'dep'}];
+const lvList=()=>LV[S.lvScheme||'gen']||LV.gen;
+const lvN=()=>lvList().length;
+const lvLabel=v=>{const L=lvList(),i=Math.min(L.length,Math.max(1,Math.round(v)));return L[i-1]+(v%1?` (${v.toFixed(1)})`:'')};
+const uAbbr=()=>(UN[S.unit]||UN.goles)[0];
+const modeName=n=>MODES[n]||`Equipos de ${n}`;
+function findGame(t){
+  const x=norm(t);if(!x.trim())return null;let best=null,bl=0;
+  G.forEach(g=>g.al.forEach(a=>{const n=norm(a);
+    if(n.length>bl&&new RegExp('(^|[^a-z0-9])'+n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'([^a-z0-9]|$)').test(x)){best=g;bl=n.length}}));
+  return best;
+}
+function detectGame(){
+  const g=findGame(S.game);
+  if(g&&g.k!==S.preset)return applyPreset(g);
+  if(!g&&S.preset){S.preset=null;S.lvScheme=null;S.unit=null}
+  save();render();
+}
+function applyPreset(g){
+  S.preset=g.k;S.lvScheme=g.lv;S.unit=g.u;S.presetNote='';
+  S.rules=Object.assign(rl(),{win:g.win,draw:g.draw,pen:true,noDraw:!!g.nd});
+  if(g.size<=2||S.premium){S.size=g.size;S.ent='jug'}else S.presetNote=`Se juega por equipos de ${g.size}: es un modo Premium.`;
+  save();render();
+}
+function clearPreset(){S.preset=null;S.lvScheme=null;S.unit=null;S.presetNote='';S.rules=Object.assign(rl(),{win:3,draw:1,noDraw:false});save();render()}
+function gameBanner(){
+  const g=G.find(x=>x.k==S.preset);
+  if(!g)return `<p class="small" id="tt-juego">Escribe el juego o deporte y la app lo reconoce y se ajusta sola: Fortnite, FIFA, baloncesto, pádel, ajedrez… Si no lo conozco, uso niveles generales.</p>`;
+  const r=rl();
+  return `<div class="detect" id="tt-juego"><b>${esc(g.n)}</b> · ${esc(g.cat)}
+    <div class="small">${S.size==1?'Individual':esc(modeName(S.size))} · victoria ${r.win} pt${r.win>1?'s':''} · ${r.noDraw?'sin empates':`empate ${r.draw} pt${r.draw==1?'':'s'}`} · marcador en ${esc((UN[g.u]||UN.goles)[1])}${g.hint?` · ${esc(g.hint)}`:''}</div>
+    ${S.presetNote?`<div class="small" style="color:var(--ac)">${esc(S.presetNote)}</div>`:''}
+    <div class="small">Niveles: ${lvList().map(esc).join(' · ')}</div>
+    <button class="sec sm" onclick="clearPreset()">Quitar ajustes</button></div>`;
+}
+function plist(){
+  return rawNames().map(r=>{
+    const seed=/\*$/.test(r);let t=r.replace(/\*+$/,'').trim(),lv=0;
+    const m=t.match(/^(.*?)[:=]\s*([^:=]+)$/);
+    if(m){const q=m[2].trim();let idx=parseInt(q,10);
+      if(!(idx>=1&&idx<=lvN()))idx=lvList().findIndex(x=>norm(x).startsWith(norm(q)))+1;
+      if(idx>=1&&norm(q)){lv=idx;t=m[1].trim()}}
+    if(!lv)lv=(S.lvl||{})[t.toLowerCase()]||0;
+    return {n:t,seed,lv}}).filter(p=>p.n);
+}
+function lvlForm(){
+  const ps=plist(),L=lvList();
+  $('modalBody').innerHTML=`<h2>Niveles de los participantes</h2>
+  <p class="small">Nivel según ${esc(S.game||'el juego')}. Sirve para equilibrar los equipos y repartir a los mejores. Quien no tiene nivel cuenta como nivel medio.</p>
+  <label for="lv-all">Poner el mismo nivel a todos</label><select id="lv-all" onchange="lvAll(this.value)"><option value="">Elegir…</option>${L.map((x,i)=>`<option value="${i+1}">${esc(x)}</option>`).join('')}</select>
+  <div class="lvlist">${ps.length?ps.map(p=>`<div class="trow"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">${esc(p.n)}</span>
+    <select class="mini lvsel" data-n="${esc(p.n.toLowerCase())}" aria-label="Nivel de ${esc(p.n)}"><option value="0">Sin nivel</option>${L.map((x,i)=>`<option value="${i+1}" ${p.lv==i+1?'selected':''}>${esc(x)}</option>`).join('')}</select></div>`).join(''):'<p class="small">Primero escribe a los participantes.</p>'}</div>
+  <div class="row" style="margin-top:12px"><button onclick="saveLvl()">Guardar</button><button class="sec" onclick="closeModal()">Cancelar</button></div>`;
+  $('modal').classList.add('on');
+}
+function lvAll(v){document.querySelectorAll('.lvsel').forEach(x=>{x.value=v||'0'})}
+function saveLvl(){
+  S.lvl=S.lvl||{};document.querySelectorAll('.lvsel').forEach(x=>{const n=x.dataset.n,v=+x.value;if(v>0)S.lvl[n]=v;else delete S.lvl[n]});
+  save();closeModal();render();
+}
+function setDrawMode(k){S.manual=k=='m';S.balance=k=='b';save();render()}
 function notice(msg){$('modalBody').innerHTML=`<p>${esc(msg)}</p><button onclick="closeModal()">Vale</button>`;$('modal').classList.add('on')}
 let askFn=null;
 function confirmAct(msg,fn){askFn=fn;$('modalBody').innerHTML=`<p>${esc(msg)}</p><div class="row"><button onclick="runAsk()">Continuar</button><button class="sec" onclick="closeModal()">Cancelar</button></div>`;$('modal').classList.add('on')}
@@ -181,21 +299,31 @@ function set(k,v){S[k]=v;save();render()}
 function setText(v){S.players=v;save();$('count').textContent=names().length+' participantes'}
 function pickMode(n){if(!S.premium&&!FREE.modes.includes(n))return paywall('Este modo de juego es de la versión Premium.');set('size',n)}
 
-function mkTeam(id,m,size,seed,old){
-  const o=size==1&&old?old[m[0].toLowerCase()]:null;
-  return {id,members:m,seed:!!seed,
+function mkTeam(id,m,size,seed,lvs,old){
+  const o=size==1&&old?old[m[0].toLowerCase()]:null,ls=(lvs||[]).filter(x=>x>0);
+  return {id,members:m,seed:!!seed,lv:ls.length?Math.round(ls.reduce((x,y)=>x+y,0)/ls.length*10)/10:undefined,
     name:o?o.name:size==1?m[0]:size==2?m.join(' & '):'Equipo '+(id+1),
     color:o&&o.color?o.color:PAL[id%PAL.length],logo:o&&o.logo?o.logo:undefined};
 }
 function formTeams(list,size,old){
-  const seeds=seedNames(),isSeed=n=>seeds.has(n.toLowerCase());
-  if(S.manual){const teams=[];for(let i=0;i<list.length;i+=size){const m=list.slice(i,i+size);teams.push(mkTeam(teams.length,m,size,false,old))}return teams}
-  const sd=shuffle(list.filter(isSeed)),rest=shuffle(list.filter(n=>!isSeed(n)));
-  if(size==1)return sd.concat(rest).map((n,i)=>mkTeam(i,[n],1,isSeed(n),old));
+  const mid=Math.ceil(lvN()/2),L=p=>p.lv||mid;
+  const mk=(id,ps)=>mkTeam(id,ps.map(p=>p.n),size,ps.some(p=>p.seed),ps.map(p=>p.lv),old);
+  if(S.manual){const teams=[];for(let i=0;i<list.length;i+=size)teams.push(mk(teams.length,list.slice(i,i+size)));return teams}
+  if(S.balance){
+    const sorted=shuffle(list).sort((x,y)=>(+y.seed)-(+x.seed)||L(y)-L(x));
+    if(size==1)return sorted.map((p,i)=>mk(i,[p]));
+    const nT=list.length/size,bk=Array.from({length:nT},()=>[]);
+    sorted.forEach((p,i)=>{const r=Math.floor(i/nT),pos=i%nT;bk[r%2?nT-1-pos:pos].push(p)});
+    const st=ps=>ps.reduce((x,p)=>x+L(p),0);
+    bk.sort((x,y)=>st(y)-st(x));
+    return bk.map((ps,i)=>mk(i,ps));
+  }
+  const sd=shuffle(list.filter(p=>p.seed)),rest=shuffle(list.filter(p=>!p.seed));
+  if(size==1)return sd.concat(rest).map((p,i)=>mk(i,[p]));
   const nT=list.length/size,bk=Array.from({length:nT},()=>[]);
-  sd.forEach((n,i)=>bk[i%nT].push(n));
+  sd.forEach((p,i)=>bk[i%nT].push(p));
   bk.forEach(b=>{while(b.length<size)b.push(rest.shift())});
-  return bk.map((m,i)=>mkTeam(i,m,size,m.some(isSeed),old));
+  return bk.map((ps,i)=>mk(i,ps));
 }
 function buildMatches(){
   S.matches=[];const g=S.groupsList.length,ida=rl().ida;
@@ -209,16 +337,16 @@ function draw(){
   const list=names(),size=+S.size;
   if(!S.premium&&list.length>FREE.maxPlayers)return paywall(`La versión gratuita permite hasta ${FREE.maxPlayers} participantes.`);
   if(list.length>128)return notice('Máximo 128 participantes.');
-  if(list.length%size)return notice(`Con modo "${MODES[size]}" necesitas un número de jugadores múltiplo de ${size}. Ahora hay ${list.length}.`);
+  if(list.length%size)return notice(`Con modo "${modeName(size)}" necesitas un número de jugadores múltiplo de ${size}. Ahora hay ${list.length}.`);
   const old={};(S.teams||[]).forEach(t=>{if(t.members&&t.members.length==1)old[t.members[0].toLowerCase()]=t});
-  const teams=formTeams(list,size,old);
+  const teams=formTeams(plist(),size,old);
   if(teams.length<2)return notice('Hacen falta al menos 2 participantes o equipos.');
   S.teams=teams;S.drawn=(S.drawn||0)+1;S.matches=[];S.ko=null;S.groupsList=[];
   if(S.format=='eliminacion'){S.ko=buildKO(teams.map(t=>t.id));S.step=3}
   else{
     const g=S.format=='liguilla'?1:Math.max(1,Math.min(+S.groups,Math.floor(teams.length/2)));
     S.groupsList=Array.from({length:g},()=>[]);
-    teams.forEach((t,i)=>S.groupsList[i%g].push(t.id));
+    teams.forEach((t,i)=>{const r=Math.floor(i/g),pos=i%g,k=S.balance&&r%2?g-1-pos:pos;S.groupsList[k].push(t.id)});
     S.liga=null;buildMatches();S.step=1;
   }
   save();render();
@@ -270,7 +398,7 @@ function setRule(k,v){S.rules=Object.assign(rl(),{[k]:v});save();render()}
 function calc(ids,matches){
   const rows=ids.map(id=>({id,pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0}));
   const by=Object.fromEntries(rows.map(r=>[r.id,r]));
-  matches.filter(m=>m.sa!=null&&m.sb!=null).forEach(m=>{
+  matches.filter(mOk).forEach(m=>{
     const A=by[m.a],B=by[m.b],w=A&&B?0:1;
     const up=(X,gf,gc)=>{if(!X)return;X.pj++;X.gf+=gf;X.gc+=gc;const R=rl();if(gf>gc){X.g++;X.pts+=R.win}else if(gf<gc)X.p++;else{X.e++;X.pts+=R.draw}};
     up(A,m.sa,m.sb);up(B,m.sb,m.sa)});
@@ -278,7 +406,8 @@ function calc(ids,matches){
 }
 const standings=gi=>calc(S.groupsList[gi],S.matches);
 function setScore(i,side,v){const m=S.matches[i];m[side]=v===''?null:Math.max(0,parseInt(v)||0);save();render()}
-const groupsDone=()=>S.matches.length&&S.matches.every(m=>m.sa!=null&&m.sb!=null);
+const mOk=m=>m.sa!=null&&m.sb!=null&&!(rl().noDraw&&m.sa===m.sb);
+const groupsDone=()=>S.matches.length&&S.matches.every(mOk);
 
 function buildKO(seeds){
   let size=2;while(size<seeds.length)size*=2;
@@ -349,8 +478,10 @@ function render(){
 function viewSetup(){
   return `<div class="card" id="tt-datos"><h2>Datos del torneo</h2>
   <div class="row"><div><label>Nombre</label><input value="${esc(S.name)}" onchange="S.name=this.value;save()"></div>
-  <div><label>Juego</label><input value="${esc(S.game)}" onchange="S.game=this.value;save()"></div></div>
-  <label>Modo de juego</label><div class="chips" id="tt-modo">${Object.entries(MODES).map(([n,l])=>`<div class="chip ${S.size==n?'on':''}" onclick="pickMode(${n})">${l}${!S.premium&&!FREE.modes.includes(+n)?' 🔒':''}</div>`).join('')}</div>
+  <div><label for="g-in">Juego o deporte</label><input id="g-in" list="juegos" value="${esc(S.game)}" onchange="S.game=this.value;detectGame()"><datalist id="juegos">${G.map(g=>`<option value="${esc(g.n)}">`).join('')}</datalist></div></div>
+  ${gameBanner()}
+  <label>Modo de juego</label><div class="chips" id="tt-modo">${Object.entries(MODES).map(([n,l])=>`<div class="chip ${S.size==n?'on':''}" onclick="pickMode(${n})">${l}${!S.premium&&!FREE.modes.includes(+n)?' 🔒':''}</div>`).join('')}
+  <select class="mini" aria-label="Otro tamaño de equipo" onchange="if(this.value)pickMode(+this.value)"><option value="">Otro tamaño…</option>${[6,7,8,9,10,11,12,13,14,15].map(n=>`<option value="${n}" ${S.size==n?'selected':''}>Equipos de ${n}</option>`).join('')}</select></div>
   <label>Formato</label><div class="chips" id="tt-formato">${Object.entries(FORMATS).map(([k,l])=>`<div class="chip ${S.format==k?'on':''}" onclick="set('format','${k}')">${l}</div>`).join('')}</div>
   ${S.format=='grupos'?`<label>Número de grupos</label><select onchange="set('groups',+this.value)">${[2,3,4,5,6,8].map(n=>`<option ${S.groups==n?'selected':''}>${n}</option>`).join('')}</select>
   <label>¿Contra quién juega cada uno en la fase de grupos?</label><div class="chips" id="tt-cruzado">
@@ -360,11 +491,13 @@ function viewSetup(){
   <div class="card" id="tt-reglas"><h2>Reglas</h2>
   <div class="row"><div><label for="r-w">Puntos por victoria</label><select id="r-w" onchange="setRule('win',+this.value)">${[1,2,3,4,5].map(n=>`<option ${rl().win==n?'selected':''}>${n}</option>`).join('')}</select></div>
   <div><label for="r-d">Puntos por empate</label><select id="r-d" onchange="setRule('draw',+this.value)">${[0,1,2,3].map(n=>`<option ${rl().draw==n?'selected':''}>${n}</option>`).join('')}</select></div></div>
+  <label>Empates en los partidos de grupo</label><div class="chips"><div class="chip ${!rl().noDraw?'on':''}" onclick="setRule('noDraw',false)">Se permiten</div><div class="chip ${rl().noDraw?'on':''}" onclick="setRule('noDraw',true)">No se permiten</div></div>
   <label>Partidos de grupo</label><div class="chips"><div class="chip ${!rl().ida?'on':''}" onclick="setRule('ida',false)">Solo ida</div><div class="chip ${rl().ida?'on':''}" onclick="setRule('ida',true)">Ida y vuelta</div></div>
   <label>Si hay empate en la eliminatoria</label><div class="chips"><div class="chip ${rl().pen?'on':''}" onclick="setRule('pen',true)">Se decide por penaltis</div><div class="chip ${!rl().pen?'on':''}" onclick="setRule('pen',false)">No se permite empate</div></div></div>
   <div class="card" id="tt-part"><h2>Participantes</h2>
-  <label>Sorteo</label><div class="chips"><div class="chip ${!S.manual?'on':''}" onclick="set('manual',false)">Al azar</div><div class="chip ${S.manual?'on':''}" onclick="set('manual',true)">Lo armo yo</div></div>
-  <p class="small">${S.manual?'Los equipos se forman siguiendo el orden de tu lista y los grupos se reparten en orden. Después puedes mover cada equipo de grupo.':'Pon un * al final de un nombre para marcarlo como cabeza de serie: el sorteo no los junta en el mismo grupo ni equipo.'}</p><p class="small">Uno por línea (o separados por comas). ${S.premium?'Hasta 128.':`Gratis: hasta ${FREE.maxPlayers}.`} ${S.size>1?`Con ${MODES[S.size]} se forman equipos al azar de ${S.size}.`:''}</p>
+  <label>Sorteo</label><div class="chips"><div class="chip ${!S.manual&&!S.balance?'on':''}" onclick="setDrawMode('r')">Al azar</div><div class="chip ${S.balance?'on':''}" onclick="setDrawMode('b')">Equilibrado por nivel</div><div class="chip ${S.manual?'on':''}" onclick="setDrawMode('m')">Lo armo yo</div></div>
+  <p class="small">${S.manual?'Los equipos se forman siguiendo el orden de tu lista y los grupos se reparten en orden. Después puedes mover cada equipo de grupo.':S.balance?'Reparte a los mejores y a los menos expertos para que todos los equipos y grupos queden parejos. Asigna los niveles abajo.':'Pon un * al final de un nombre para marcarlo como cabeza de serie: el sorteo no los junta en el mismo grupo ni equipo.'}</p>
+  <div class="row" style="margin-bottom:6px"><button class="sec" id="tt-niveles" onclick="lvlForm()">Asignar niveles (${plist().filter(p=>p.lv).length} de ${names().length})</button></div><p class="small">Uno por línea (o separados por comas). ${S.premium?'Hasta 128.':`Gratis: hasta ${FREE.maxPlayers}.`} ${S.size>1?`Con ${modeName(S.size)} se forman equipos de ${S.size}.`:''}</p>
   <textarea oninput="setText(this.value)" placeholder="Baruc&#10;Javi&#10;Willy&#10;...">${esc(S.players)}</textarea>
   <p class="small" id="count">${names().length} participantes</p>
   <div class="row" id="tt-sorteo"><button onclick="draw()">Hacer sorteo</button><button class="sec" onclick="reset()">Nuevo torneo</button></div></div>`;
@@ -372,7 +505,7 @@ function viewSetup(){
 function viewDraw(){
   const g=S.groupsList.length;
   return `<div class="card" id="tt-sort"><h2>Resultado del sorteo</h2><p class="small">Toca «Editar» para cambiar el nombre, el color y el escudo, o marcar un cabeza de serie.${g>1?' Con el selector de la derecha cambias un equipo de grupo.':''}</p><div class="gwrap">`+S.groupsList.map((ids,gi)=>`<div class="gbox"><h3>${S.format=='liguilla'?'Liguilla':'Grupo '+String.fromCharCode(65+gi)}</h3>
-  ${ids.map((id,k)=>`<div class="trow"${gi==0&&k==0?' id="tt-equipo"':''}><div style="min-width:0;flex:1">${tag(id)}${S.size>1?`<div class="small">${team(id).members.map(esc).join(', ')}</div>`:''}</div>
+  ${ids.map((id,k)=>`<div class="trow"${gi==0&&k==0?' id="tt-equipo"':''}><div style="min-width:0;flex:1">${tag(id)}${S.size>1?`<div class="small">${team(id).members.map(esc).join(', ')}</div>`:''}${team(id).lv?`<div class="small">Nivel: ${esc(lvLabel(team(id).lv))}</div>`:''}</div>
     ${g>1?`<select class="mini" aria-label="Grupo de ${esc(team(id).name)}" onchange="moveTeam(${id},this.value)">${S.groupsList.map((_,x)=>`<option value="${x}" ${x==gi?'selected':''}>${String.fromCharCode(65+x)}</option>`).join('')}</select>`:''}
     <button class="sec sm" onclick="teamForm(${id})">Editar</button></div>`).join('')}</div>`).join('')+'</div>'+
   `<div class="row" style="margin-top:12px"><button class="sec" onclick="draw()">Repetir sorteo</button><button onclick="set('step',2)">Ver partidos →</button></div></div>`;
@@ -383,10 +516,10 @@ function matchList(ms,noTitle){
   if(!rl().ida)return (noTitle?'':'<h3>Partidos</h3>')+ms.map(row).join('');
   return '<h3>Ida</h3>'+ms.filter(([m])=>!m.v).map(row).join('')+'<h3>Vuelta</h3>'+ms.filter(([m])=>m.v).map(row).join('');
 }
-function matchRow(m,fn){return `<div class="match"><span class="a">${tag(m.a)}</span>
+function matchRow(m,fn){return (rl().noDraw&&m.sa!=null&&m.sa===m.sb?'<div class="small bad">No hay empates en este juego: cambia el marcador.</div>':'')+`<div class="match"><span class="a">${tag(m.a)}</span>
   <input type="number" min="0" value="${m.sa??''}" onchange="${fn}('sa',this.value)"><span>-</span>
   <input type="number" min="0" value="${m.sb??''}" onchange="${fn}('sb',this.value)"><span>${tag(m.b)}</span></div>`}
-function table(rows,nq){return `<table><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>DG</th><th>Pts</th></tr>
+function table(rows,nq){return `<table><tr><th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th title="Diferencia de ${(UN[S.unit]||UN.goles)[1]}">${uAbbr()}</th><th>Pts</th></tr>
   ${rows.map((r,i)=>`<tr class="${i<nq?'q':''}"><td>${i+1}</td><td>${tag(r.id)}</td><td>${r.pj}</td><td>${r.g}</td><td>${r.e}</td><td>${r.p}</td><td>${r.gf-r.gc}</td><td><b>${r.pts}</b></td></tr>`).join('')}</table>`}
 function viewMatches(){
   let h='';const cross=S.matches.some(m=>m.g!==m.h),nq=S.format=='grupos'?+S.nextN:0;
@@ -413,7 +546,7 @@ function viewMatches(){
   return h+`<div class="card"><button class="gold" onclick="share()">Compartir resultados${S.premium?'':' 🔒'}</button></div>`;
 }
 function viewLiga(){
-  const L=S.liga,rows=calc(L.ids,L.matches),done=L.matches.every(m=>m.sa!=null&&m.sb!=null);
+  const L=S.liga,rows=calc(L.ids,L.matches),done=L.matches.every(mOk);
   return `<div class="card"><h2>Nuevo grupo (liguilla)</h2>${table(rows,S.ko?+S.koTop:0)}<h3>Partidos</h3>${L.matches.map((m,i)=>matchRow(m,`((k,v)=>setLiga(${i},k,v))`)).join('')}</div>
   <div class="card"><label>Pasan a la eliminatoria los mejores</label><select onchange="S.koTop=+this.value;save();render()">${[2,4,8,16].filter(n=>n<=L.ids.length).map(n=>`<option ${S.koTop==n?'selected':''}>${n}</option>`).join('')}</select><br><br>
   <button ${done?'':'disabled style="opacity:.4"'} onclick="ligaToKO()">Generar eliminatoria →</button></div>`;
@@ -636,7 +769,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.7.0';
+const APP_VERSION='1.8.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
@@ -675,11 +808,13 @@ function closeNews(){lsSet('torneazo_seen',APP_VERSION);closeModal()}
 const TOUR=[
  {t:'Bienvenido a TORNEAZO',p:'Organiza sorteos y torneos de videojuegos en un momento: grupos al azar, partidos cruzados y una eliminatoria final. Te enseño la app paso a paso, con un torneo de ejemplo que no se guarda.'},
  {el:'#tt-datos',t:'Nombre y juego',p:'Ponle nombre a tu torneo y escribe a qué juego se juega.'},
+ {el:'#tt-juego',t:'Juego o deporte',p:'Escribe el juego o deporte (Fortnite, FIFA, LoL, fútbol, baloncesto, pádel, ajedrez…) y la app lo reconoce: ajusta sola el tamaño de los equipos, los puntos, los empates y los niveles de experiencia propios de ese juego.'},
  {el:'#tt-modo',t:'Modo de juego',p:'Individual, dúo, trío, escuadrón o equipos de 5. Si juegas en equipos, TORNEAZO los forma al azar. Los modos con candado son Premium.'},
  {el:'#tt-formato',t:'Formato del torneo',p:'Grupos + eliminatoria (como un mundial), liguilla (todos contra todos) o eliminación directa.'},
  {el:'#tt-cruzado',t:'Partidos cruzados',p:'Con «Contra otros grupos (cruzado)» nadie juega contra los de su propio grupo: cada jugador se enfrenta a rivales de los demás grupos. Elige cuántos. Solo sale con el formato «grupos + eliminatoria».'},
  {el:'#tt-reglas',t:'Reglas del torneo',p:'Cambia los puntos por victoria y por empate, elige si los partidos de grupo son solo de ida o de ida y vuelta, y cómo se decide un empate en la eliminatoria (por penaltis o no se permite).'},
  {el:'#tt-part',t:'Participantes y sorteo',p:'Escribe un nombre por línea, o separados por comas. Pon un * al final para marcar un cabeza de serie. Con «Lo armo yo» no hay sorteo al azar: los equipos salen del orden de tu lista. En gratis caben hasta 32.'},
+ {el:'#tt-niveles',t:'Niveles de experiencia',p:'Dale a cada participante su nivel según el juego (por ejemplo Oro en LoL o Avanzado en pádel). Con «Equilibrado por nivel» el sorteo reparte los mejores y los que empiezan para que los equipos queden parejos.'},
  {el:'#tt-sorteo',t:'Haz el sorteo',p:'Pulsa «Hacer sorteo» y TORNEAZO reparte a todos al azar en grupos o equipos. Ahora verás cómo queda con 8 jugadores de ejemplo.'},
  {stage:'sorteo',el:'#tt-sort',t:'El resultado del sorteo',p:'Aquí ves cómo han quedado los grupos. Si no te convence, pulsa «Repetir sorteo». Cuando te guste, pulsa «Ver partidos».'},
  {stage:'sorteo',el:'#tt-equipo',t:'Personaliza tus equipos',p:'«Editar» te deja cambiar el nombre, el color y el escudo de cada equipo y marcarlo como cabeza de serie (CS). Con el selector de la derecha lo pasas a otro grupo.'},

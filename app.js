@@ -623,7 +623,7 @@ function render(){
   ap.classList.toggle('anim',key!==lastKey);ap.classList.toggle('ro',RO);lastKey=key;ap.innerHTML=h;afterRender();
   let ad=document.getElementById('ad');
   if(!S.premium){if(!ad){ad=document.createElement('div');ad.id='ad';ad.className='ad';document.body.appendChild(ad)}
-    ad.innerHTML='<b>Anuncio</b> · Espacio publicitario fijo (no bloquea la app) <span data-click="paywall(\'Quita los anuncios con Premium.\')">Quitar anuncios</span>'}
+    houseAd(ad)}
   else if(ad)ad.remove();
 }
 function viewSetup(){
@@ -1308,6 +1308,23 @@ function phasesCard(){
   ${multiLast()?'':done?`<button class="noro" style="margin-top:12px" data-click="nextPhase()">Pasar a la fase ${M.ph+2}: ${esc(PH_N[nx.f])} (pasan ${Math.min(+cur.pass||2,rankPhase().length)}) →</button>`:`<p class="small" style="margin:10px 0 0">Cuando termine esta fase, pasan los ${+cur.pass||2} mejores a la fase ${M.ph+2} (${esc(PH_N[nx.f])}).</p>`}</div>`;
 }
 
+
+/* ===== Anuncio propio de JAVI AI (mientras no haya AdSense) ===== */
+const HOUSE=[{t:'¿Organizas torneos o tienes un club?',s:'Te hacemos tu propia app, con tu marca.'},{t:'Automatiza tu negocio con IA',s:'Menos tareas repetitivas y más clientes.'},{t:'Webs y apps que trabajan por ti',s:'Diseño a medida y asistentes de IA las 24 horas.'}];
+const HOUSE_URL='https://wa.me/34670495858?text='+encodeURIComponent('Hola Javi, vengo de TORNEAZO y me interesa lo que hace JAVI AI.');
+let houseI=0,houseT=null;
+function houseAd(ad){
+  if(ad.dataset.house)return;ad.dataset.house='1';
+  const logo=(document.querySelector('.brand img')||{}).src||'';
+  ad.innerHTML=`<div class="adh"><img class="adlogo" src="${logo}" alt="JAVI AI"><div class="adtx"><span class="adk">Publicidad · JAVI AI</span><b id="ad-t">${esc(HOUSE[0].t)}</b><span id="ad-s">${esc(HOUSE[0].s)}</span></div>
+  <a class="adcta" href="${HOUSE_URL}" target="_blank" rel="noopener noreferrer">Hablemos</a>${RO||DIR?'':'<span class="adx" role="button" tabindex="0" data-click="paywall(\'Quita los anuncios con Premium.\')">Quitar anuncios</span>'}</div>`;
+  const still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  clearInterval(houseT);
+  houseT=setInterval(()=>{const t=$('ad-t'),s=$('ad-s'),box=document.querySelector('.adtx');if(!t||!s)return;houseI=(houseI+1)%HOUSE.length;
+    const put=()=>{t.textContent=HOUSE[houseI].t;s.textContent=HOUSE[houseI].s};
+    if(still||!box)return put();box.classList.add('out');setTimeout(()=>{put();box.classList.remove('out')},350)},9000);
+}
+
 /* ===== Calendario de partidos ===== */
 let pv='res',calF='all';
 const DAYS=['dom','lun','mar','mié','jue','vie','sáb'],MONTHS=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
@@ -1897,7 +1914,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.26.0';
+const APP_VERSION='1.27.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

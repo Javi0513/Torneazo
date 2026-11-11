@@ -1,6 +1,14 @@
 {
-  "version": "1.4.0",
+  "version": "1.5.0",
   "historial": [
+    {
+      "version": "1.5.0",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "El tutorial ahora recorre todas las pantallas: sorteo, partidos, clasificación, siguiente fase, eliminatoria y campeón.",
+        "Usa un torneo de ejemplo que no se guarda ni toca tus torneos."
+      ]
+    },
     {
       "version": "1.4.0",
       "fecha": "11/11/2026",

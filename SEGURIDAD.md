@@ -13,6 +13,11 @@ Ninguna app tiene "seguridad máxima" absoluta. Esto es lo que ya está hecho y 
 - **Copiado de Mi Fútbol JV32 (ya probado en producción):** librería de Supabase en local (`supabase.js`, sin depender de un CDN), webhook de Stripe con firma HMAC y protección contra avisos desordenados (`supabase/functions/stripe-webhook`), aceptación de términos guardada en el perfil, captcha opcional (Cloudflare Turnstile), descargar mis datos, borrar mi cuenta (`borrar_mi_cuenta`), política de privacidad y página de borrado, instalación como app y modo sin conexión (`sw.js`, `manifest.webmanifest`).
 - **Solo la clave pública** (`anon`) va en la app. La clave `service_role` nunca.
 
+## Página pública de un torneo
+- El dueño publica poniendo un código al azar (12 caracteres) en su torneo; sin código, nadie lo ve. Cualquiera con el enlace puede ver **solo ese torneo** (nombres, resultados, premios e información) con la función `ver_torneo` y solo en lectura: no puede escribir nada.
+- El navegador de quien mira escapa todo el texto y valida enlaces (solo `http`/`https`), colores e imágenes, para que un torneo mal intencionado no pueda ejecutar código.
+- Supabase marca `ver_torneo` como «ejecutable por usuarios anónimos»: es intencionado, es lo que permite ver la página sin cuenta.
+
 ## Falta antes de publicar (en este orden)
 1. Proyecto Supabase `torneazo` creado (UE, plan gratuito, 0 €) y primera migración aplicada. Falta aplicar `20261111_torneazo_pagos_y_cuenta.sql`.
 2. `config.js` ya tiene la URL y la clave pública del proyecto.

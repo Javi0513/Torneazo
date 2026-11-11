@@ -1,7 +1,7 @@
 /* TORNEAZO · lógica de la app.
    Los eventos se atienden aquí (data-click, data-change, data-input, data-focus) y no con código
    dentro del HTML, así la política de seguridad puede prohibir los scripts en línea. */
-const OK_FN=new Set(["accountHome", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave"]);
+const OK_FN=new Set(["accountHome", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave"]);
 function splitTop(t,sep){
   const out=[];let d=0,q=null,cur='';
   for(let k=0;k<t.length;k++){const c=t[k];
@@ -46,7 +46,7 @@ document.addEventListener('focusin',e=>{const el=e.target.closest&&e.target.clos
 
 const MODES={1:'Individual',2:'Dúo',3:'Trío',4:'Escuadrón (4)',5:'Equipos de 5'};
 const FREE={maxPlayers:32,modes:[1,2]};
-const FORMATS={grupos:'Grupos + eliminatoria',liguilla:'Liguilla (todos contra todos)',suizo:'Sistema suizo (por rondas)',eliminacion:'Eliminación directa',doble:'Doble eliminación'};
+const FORMATS={grupos:'Grupos + eliminatoria',liguilla:'Liguilla (todos contra todos)',suizo:'Sistema suizo (por rondas)',eliminacion:'Eliminación directa',doble:'Doble eliminación',fases:'Por fases'};
 const def=()=>({premium:false,step:0,name:'Torneo del viernes',game:'FIFA',size:1,format:'grupos',groups:2,
   players:'',teams:[],groupsList:[],matches:[],ko:null,pairing:'dentro',rivals:2,nextN:2,nextExtra:0,nextKind:'ko',liga:null,koTop:2,prizes:[],info:{desc:'',rules:'',start:'',end:'',org:'',contact:'',discord:'',web:''},pub:null,reg:{open:false,deadline:'',max:0,contact:false,level:false,auto:false,msg:''},swissRounds:0,swissCut:0,swiss:null,manual:false,balance:false,preset:null,lvScheme:null,unit:null,lvl:{},rules:{win:3,draw:1,ida:false,pen:true,noDraw:false}});
 const ROCODE=(()=>{try{const c=new URLSearchParams(location.search).get('t')||'';return /^[a-z0-9]{10,16}$/.test(c)?c:''}catch(e){return ''}})();
@@ -247,6 +247,7 @@ function buildMatches(){
   }else S.groupsList.forEach((ids,gi)=>{for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++)add(gi,gi,ids[i],ids[j])});
 }
 function draw(){
+  if(S.multi){S.multi.ph=0;S.multi.hist=[];syncPhase0();const e=planCheck(names().length/(+S.size||1));if(e)return notice(e)}
   const list=names(),size=+S.size;
   if(!S.premium&&list.length>FREE.maxPlayers)return paywall(`La versión gratuita permite hasta ${FREE.maxPlayers} participantes.`);
   if(list.length>256)return notice('Máximo 256 participantes.');
@@ -341,7 +342,7 @@ function calc(ids,matches){
 const standings=gi=>S.format=='suizo'?swissRows():calc(S.groupsList[gi],S.matches);
 /* ===== Sistema suizo ===== */
 const swissRounded=()=>S.swiss&&S.swiss.bye?S.swiss.bye.length:0;
-const swissTotal=()=>{const n=(S.teams||[]).length||2;const auto=Math.max(1,Math.ceil(Math.log2(Math.max(2,n))));return Math.max(1,Math.min(+S.swissRounds>0?+S.swissRounds:auto,n-1))};
+const swissTotal=()=>{const n=((S.groupsList&&S.groupsList[0])||S.teams||[]).length||2;const auto=Math.max(1,Math.ceil(Math.log2(Math.max(2,n))));return Math.max(1,Math.min(+S.swissRounds>0?+S.swissRounds:auto,n-1))};
 function swissRows(){
   const ids=(S.groupsList&&S.groupsList[0])||[],rows=calc(ids,S.matches),by=Object.fromEntries(rows.map(r=>[r.id,r]));
   ((S.swiss&&S.swiss.bye)||[]).forEach(b=>{if(b!=null&&by[b]){by[b].pts+=rl().win;by[b].g++;by[b].pj++}});
@@ -380,9 +381,9 @@ function swissToKO(){
 }
 function viewSwiss(){
   const rows=swissRows(),R=swissRounded(),T=swissTotal(),cut=+S.swissCut||0,fin=R>=T&&swissLastDone();
-  let h=`<div class="card" id="tt-clasif"><h2>Clasificación · ronda ${R} de ${T}</h2>${table(rows,fin&&cut?cut:0,true)}<p class="small">Si hay empate a puntos, desempata el BH: la suma de los puntos de tus rivales.</p></div>`;
+  let h=`<div class="card" id="tt-clasif"><h2>Clasificación · ronda ${R} de ${T}</h2>${table(rows,S.multi&&!multiLast()?(+S.multi.plan[S.multi.ph].pass||0):fin&&cut?cut:0,true)}<p class="small">Si hay empate a puntos, desempata el BH: la suma de los puntos de tus rivales.</p></div>`;
   if(fin){
-    h+=`<div class="champ">${cut?'Líder tras las rondas':'Campeón'}: <b>${tag(rows[0].id)}</b></div>`;
+    h+=`<div class="champ">${cut||(S.multi&&!multiLast())?'Líder tras las rondas':'Campeón'}: <b>${tag(rows[0].id)}</b></div>`;
     if(cut)h+=S.ko?'':`<div class="card noro" id="tt-ronda"><h2>Eliminatoria final</h2><p class="small">Pasan los ${cut} mejores de la clasificación.</p><button data-click="swissToKO()">Generar eliminatoria →</button></div>`;
   }else h+=`<div class="card noro" id="tt-ronda"><h2>Siguiente ronda</h2><p class="small">${swissLastDone()?'Ya puedes sortear la ronda '+(R+1)+': enfrenta a los que van parejos, sin repetir rivales.':'Anota todos los resultados de la ronda '+R+' para generar la siguiente.'}</p>
     <button ${swissLastDone()?'':'disabled style="opacity:.4"'} data-click="genRound()">Generar ronda ${R+1} →</button></div>`;
@@ -491,6 +492,7 @@ const koLike=()=>((S.format!='liguilla'&&S.format!='suizo')||!!S.ko)&&!S.de&&S.f
 const placeLabel=n=>(S.de||S.format=='doble')?({1:'Campeón (1.º)',2:'Subcampeón (2.º)',3:'Tercer puesto (3.º)',4:'Cuarto puesto (4.º)'}[n]||n+'.º'):koLike()?({1:'Campeón (1.º)',2:'Subcampeón (2.º)',3:S.third?'Tercer puesto (3.º)':'Semifinalistas (3.º y 4.º)',4:'Cuarto puesto (4.º)',5:'Cuartos de final (5.º a 8.º)',9:'Octavos de final (9.º a 16.º)'}[n]||n+'.º'):n+'.º puesto';
 const placeOpts=()=>(S.de||S.format=='doble')?[1,2,3,4]:koLike()?(S.third?[1,2,3,4,5,9]:[1,2,3,5,9]):[1,2,3,4,5,6,7,8];
 function tournamentDone(){
+  if(S.multi&&!multiLast())return false;
   if(S.de)return deChamp()!=null;
   if(S.ko)return winner(S.ko[S.ko.length-1][0])!=null;
   if(S.liga)return S.liga.matches.length>0&&S.liga.matches.every(mOk);
@@ -631,11 +633,12 @@ function viewSetup(){
   ${gameBanner()}
   <label>Modo de juego</label><div class="chips" id="tt-modo">${Object.entries(MODES).map(([n,l])=>`<div class="chip ${S.size==n?'on':''}" data-click="pickMode(${n})">${l}${!S.premium&&!FREE.modes.includes(+n)?LOCK:''}</div>`).join('')}
   <select class="mini" aria-label="Otro tamaño de equipo" data-change="pickModeVal(this.value)"><option value="">Otro tamaño…</option>${[6,7,8,9,10,11,12,13,14,15].map(n=>`<option value="${n}" ${S.size==n?'selected':''}>Equipos de ${n}</option>`).join('')}</select></div>
-  <label>Formato</label><div class="fmts" id="tt-formato" role="radiogroup" aria-label="Formato">${Object.entries(FORMATS).map(([k,l])=>`<div class="fmt ${S.format==k?'on':''}" role="radio" tabindex="0" aria-checked="${S.format==k}" data-click="set('format','${k}')">${fmtIcon(k)}<b>${l.replace(/ \(.*\)$/,'')}</b><span>${FMT_D[k]}</span></div>`).join('')}</div>
-  ${S.format=='suizo'?`<div class="row"><div><label for="sw-r">Rondas</label><select id="sw-r" data-change="set('swissRounds',+this.value)"><option value="0" ${!S.swissRounds?'selected':''}>Automático</option>${[2,3,4,5,6,7,8,9].map(n=>`<option ${S.swissRounds==n?'selected':''}>${n}</option>`).join('')}</select></div>
+  <label>Formato</label><div class="fmts" id="tt-formato" role="radiogroup" aria-label="Formato">${Object.entries(FORMATS).map(([k,l])=>`<div class="fmt ${(k=='fases'?!!S.multi:!S.multi&&S.format==k)?'on':''}" role="radio" tabindex="0" aria-checked="${k=='fases'?!!S.multi:!S.multi&&S.format==k}" data-click="setFmt('${k}')">${fmtIcon(k)}<b>${l.replace(/ \(.*\)$/,'')}</b><span>${FMT_D[k]}</span></div>`).join('')}</div>
+  ${S.multi?planCard():''}
+  ${!S.multi&&S.format=='suizo'?`<div class="row"><div><label for="sw-r">Rondas</label><select id="sw-r" data-change="set('swissRounds',+this.value)"><option value="0" ${!S.swissRounds?'selected':''}>Automático</option>${[2,3,4,5,6,7,8,9].map(n=>`<option ${S.swissRounds==n?'selected':''}>${n}</option>`).join('')}</select></div>
   <div><label for="sw-c">Eliminatoria final</label><select id="sw-c" data-change="set('swissCut',+this.value)"><option value="0" ${!S.swissCut?'selected':''}>Sin eliminatoria</option>${[2,4,8].map(n=>`<option value="${n}" ${S.swissCut==n?'selected':''}>Pasan los ${n} mejores</option>`).join('')}</select></div></div>
   <p class="small">En cada ronda juegan todos, pero se enfrentan los que van parejos en puntos y sin repetir rival. Nadie queda eliminado. Con número impar, uno descansa y suma la victoria.</p>`:''}
-  ${S.format=='grupos'?`<label for="tt-ngrupos">Número de grupos</label><select id="tt-ngrupos" data-change="set('groups',+this.value)">${[2,3,4,5,6,8].map(n=>`<option ${S.groups==n?'selected':''}>${n}</option>`).join('')}</select>
+  ${!S.multi&&S.format=='grupos'?`<label for="tt-ngrupos">Número de grupos</label><select id="tt-ngrupos" data-change="set('groups',+this.value)">${[2,3,4,5,6,8].map(n=>`<option ${S.groups==n?'selected':''}>${n}</option>`).join('')}</select>
   <label>¿Contra quién juega cada uno en la fase de grupos?</label><div class="chips" id="tt-cruzado">
   <div class="chip ${S.pairing=='dentro'?'on':''}" data-click="set('pairing','dentro')">Contra los de su grupo</div>
   <div class="chip ${S.pairing=='cruzado'?'on':''}" data-click="set('pairing','cruzado')">Contra otros grupos (cruzado)</div></div>
@@ -660,7 +663,7 @@ function viewSetup(){
 }
 function viewDraw(){
   const g=S.groupsList.length;
-  return `<div class="card" id="tt-sort"><h2>${RO?'Participantes':'Resultado del sorteo'}</h2>${RO?'':`<p class="small">Toca «Editar» para cambiar el nombre, el color y el escudo, o marcar un cabeza de serie.${g>1?' Con el selector de la derecha cambias un equipo de grupo.':''}</p>`}<div class="gwrap">`+S.groupsList.map((ids,gi)=>`<div class="gbox"><h3>${S.format=='liguilla'?'Liguilla':S.format=='suizo'?'Participantes':'Grupo '+String.fromCharCode(65+gi)}</h3>
+  return phasesCard()+`<div class="card" id="tt-sort"><h2>${RO?'Participantes':'Resultado del sorteo'}</h2>${RO?'':`<p class="small">Toca «Editar» para cambiar el nombre, el color y el escudo, o marcar un cabeza de serie.${g>1?' Con el selector de la derecha cambias un equipo de grupo.':''}</p>`}<div class="gwrap">`+S.groupsList.map((ids,gi)=>`<div class="gbox"><h3>${S.format=='liguilla'?'Liguilla':S.format=='suizo'?'Participantes':'Grupo '+String.fromCharCode(65+gi)}</h3>
   ${ids.map((id,k)=>`<div class="trow"${gi==0&&k==0?' id="tt-equipo"':''}><div style="min-width:0;flex:1">${tag(id)}${S.size>1?`<div class="small">${team(id).members.map(esc).join(', ')}</div>`:''}${team(id).lv?`<div class="small">Nivel: ${esc(lvLabel(team(id).lv))}</div>`:''}</div>
     ${g>1?`<select class="mini" aria-label="Grupo de ${esc(team(id).name)}" data-change="moveTeam(${id},this.value)">${S.groupsList.map((_,x)=>`<option value="${x}" ${x==gi?'selected':''}>${String.fromCharCode(65+x)}</option>`).join('')}</select>`:''}
     <button class="sec sm" data-click="teamForm(${id})">Editar</button></div>`).join('')}</div>`).join('')+'</div>'+
@@ -680,13 +683,13 @@ function table(rows,nq,bh){return `<table><tr><th>#</th><th>Equipo</th><th>PJ</t
   ${rows.map((r,i)=>`<tr class="${i<nq?'q':''}"><td>${i+1}</td><td>${tag(r.id)}</td><td>${r.pj}</td><td>${r.g}</td><td>${r.e}</td><td>${r.p}</td><td>${r.gf-r.gc}</td>${bh?`<td>${r.bh||0}</td>`:''}<td><b>${r.pts}</b></td></tr>`).join('')}</table>`}
 function viewMatches(){
   const hasRes=(S.matches||[]).length>0||!!S.liga;
-  if(!hasRes)return (RO?resSendCard():resPendCard())+viewCal();
+  if(!hasRes)return phasesCard()+(RO?resSendCard():resPendCard())+viewCal();
   const seg=`<div class="chips seg"><div class="chip ${pv!='cal'?'on':''}" data-click="setPv('res')">Resultados</div><div class="chip ${pv=='cal'?'on':''}" data-click="setPv('cal')">Calendario</div></div>`;
-  return (RO?resSendCard():resPendCard())+seg+(pv=='cal'?viewCal():viewMatchesBody()+statsCard());
+  return phasesCard()+(RO?resSendCard():resPendCard())+seg+(pv=='cal'?viewCal():viewMatchesBody()+statsCard());
 }
 function viewMatchesBody(){
   if(S.format=='suizo')return viewSwiss();
-  let h='';const cross=S.matches.some(m=>m.g!==m.h),nq=S.format=='grupos'?+S.nextN:0;
+  let h='';const cross=S.matches.some(m=>m.g!==m.h),nq=S.multi&&!multiLast()?(S.format=='liguilla'?(+S.multi.plan[S.multi.ph].pass||0):Math.ceil((+S.multi.plan[S.multi.ph].pass||0)/Math.max(1,S.groupsList.length))):S.format=='grupos'?+S.nextN:0;
   S.groupsList.forEach((_,gi)=>{
     h+=`<div class="card"${gi==0?' id="tt-tabla"':''}><h2>${S.format=='liguilla'?'Clasificación':'Grupo '+gl(gi)}</h2>${table(standings(gi),nq)}`;
     if(!cross)h+=matchList(S.matches.map((m,i)=>[m,i]).filter(([m])=>m.g==gi));
@@ -696,7 +699,7 @@ function viewMatchesBody(){
       const ms=S.matches.map((m,i)=>[m,i]).filter(([m])=>m.g==x&&m.h==y);
       h+=`<div class="card"${x==0&&y==1?' id="tt-cruces"':''}><h2>Grupo ${gl(x)} vs Grupo ${gl(y)}</h2>`+matchList(ms,true)+`</div>`}
   }
-  if(S.format=='grupos'){
+  if(S.format=='grupos'&&!S.multi){
     const mx=Math.min(...S.groupsList.map(g=>g.length));
     h+=`<div class="card noro" id="tt-sigfase"><h2>Siguiente fase</h2>
     <div class="row"><div><label for="tt-nextn">Pasan los mejores de cada grupo</label><select id="tt-nextn" data-change="setNext('nextN',+this.value)">${Array.from({length:mx},(_,i)=>i+1).map(n=>`<option ${S.nextN==n?'selected':''}>${n}</option>`).join('')}</select></div>
@@ -717,14 +720,15 @@ function viewLiga(){
   <button ${done?'':'disabled style="opacity:.4"'} data-click="ligaToKO()">Generar eliminatoria →</button></div>`;
 }
 function viewKO(){
-  if(S.de)return viewDE();
+  if(S.de)return phasesCard()+viewDE();
   const pre=S.liga?viewLiga():'';
-  if(!S.ko)return pre;
+  if(!S.ko)return phasesCard()+pre;
   resolveKO();save();
   const R=S.ko,n=R.length,nm=id=>id==null?'<span class="small">Por definir</span>':tag(id);
+  const ph=phasesCard();
   const fin=winner(R[n-1][0]);
   const p1=prz().find(p=>p.kind=='pos'&&p.n==1&&p.text);
-  let h=fin!=null?`<div class="champ">Campeón: <b>${tag(fin)}</b>${p1?`<div class="small" style="font-style:normal;margin-top:6px">Premio: ${esc(p1.text)}</div>`:''}</div><br>`:'';
+  let h=ph+(fin!=null?`<div class="champ">Campeón: <b>${tag(fin)}</b>${p1?`<div class="small" style="font-style:normal;margin-top:6px">Premio: ${esc(p1.text)}</div>`:''}</div><br>`:'');
   h+='<div class="bracket">';
   R.forEach((r,ri)=>{h+=`<div class="card round"${ri==0?' id="tt-ko"':''}><h2>${roundName(ri,n)}</h2><div class="rms">`+r.map((m,i)=>m.bye?`<div class="ko">${nm(m.a??m.b)} <span class="small">· pasa directo</span></div>`:
     `<div class="ko">${whenLine(m)}<div class="match"><span class="a">${nm(m.a)}</span>
@@ -755,13 +759,15 @@ function viewResumenRO(){
   const row=(k,v)=>v?`<div class="irow"><span class="small">${k}</span><span>${v}</span></div>`:'';
   const link=(u)=>okUrl(u)?`<a href="${esc(u)}" target="_blank" rel="noopener noreferrer" style="color:var(--ac);overflow-wrap:anywhere">${esc(u)}</a>`:'';
   const fm=({grupos:'Grupos + eliminatoria',liguilla:'Liguilla',suizo:'Sistema suizo',eliminacion:'Eliminación directa',doble:'Doble eliminación'})[S.format]||'';
+  const fmx=S.multi?'Por fases: '+S.multi.plan.map(p=>PH_N[p.f]).join(' → '):fm;
   const cd=countdown(),rr=rg(),dl=/^\d{4}-\d{2}-\d{2}$/.test(rr.deadline||'')&&rr.open?'Inscripciones hasta el '+fmtDate(rr.deadline):'';
   return `<div class="card" id="tt-resumen" style="background:linear-gradient(135deg,#0F130E,#1d3008);border-color:var(--ac)"><div class="small" style="text-transform:uppercase;letter-spacing:1px">${esc(S.game)}</div><h2 style="font-size:26px;margin:4px 0 8px">${esc(S.name)}</h2><span class="st ${e.c}">${e.t}</span>
     ${cd||dl?`<p style="margin:10px 0 0;color:var(--ac);font-weight:700">${esc([cd,dl].filter(Boolean).join(' · '))}</p>`:''}
     ${i.desc?`<p style="margin:12px 0 0;white-space:pre-line">${esc(i.desc)}</p>`:''}
-    <div style="margin-top:12px">${row('Juego o deporte',esc(S.game))}${row('Fechas',f?esc(f)+(g&&g!==f?' – '+esc(g):''):'')}${row('Participantes',n?String(n)+(+S.size>1?' equipos':''):'')}${row('Formato',esc(fm))}
+    <div style="margin-top:12px">${row('Juego o deporte',esc(S.game))}${row('Fechas',f?esc(f)+(g&&g!==f?' – '+esc(g):''):'')}${row('Participantes',n?String(n)+(+S.size>1?' equipos':''):'')}${row('Formato',esc(fmx))}
     ${row('Puntos',`${+r.win||0} por victoria${r.noDraw?', sin empates':`, ${+r.draw||0} por empate`}`)}${row('Organiza',esc(i.org))}${row('Contacto',esc(i.contact))}${row('Discord',link(i.discord))}${row('Web',link(i.web))}</div></div>
   ${newsPublic()}
+  ${phasesCard()}
   ${nextCard()}
   ${regPublicCard()}
   ${i.rules?`<div class="card"><h2>Reglas</h2><p style="margin:0;white-space:pre-line">${esc(i.rules)}</p></div>`:''}
@@ -1192,23 +1198,114 @@ if(!RO&&!DIR&&!(S.teams||[]).length)HOME=true;
 
 /* ===== Diseño de la pantalla de configuración ===== */
 const LOCK='<svg class="ico lock" viewBox="0 0 24 24" aria-label="Premium" role="img"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
-const FMT_D={grupos:'Grupos y luego eliminatoria',liguilla:'Todos contra todos',suizo:'Rondas por puntos, nadie queda fuera',eliminacion:'Quien pierde, fuera',doble:'Dos vidas: cuadro de perdedores'};
+const FMT_D={fases:'Encadena varias fases: suizo, grupos, liguilla, eliminatoria…',grupos:'Grupos y luego eliminatoria',liguilla:'Todos contra todos',suizo:'Rondas por puntos, nadie queda fuera',eliminacion:'Quien pierde, fuera',doble:'Dos vidas: cuadro de perdedores'};
 function fmtIcon(k){
   const p={grupos:'<rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M10 7.5h4v5h3M10 17.5h4v-5"/><circle cx="20" cy="12.5" r="1.6"/>',
     liguilla:'<circle cx="12" cy="4.5" r="2"/><circle cx="4.5" cy="12" r="2"/><circle cx="19.5" cy="12" r="2"/><circle cx="12" cy="19.5" r="2"/><path d="M10.5 6l-4.5 4.5M13.5 6l4.5 4.5M6 13.5l4.5 4.5M18 13.5l-4.5 4.5M12 6.5v11M6.5 12h11"/>',
     suizo:'<path d="M3 6h7M3 12h7M3 18h7M14 6h7M14 12h7M14 18h7"/><path d="M10 6l4 6M10 12l4-6M10 18l4 0"/>',
     eliminacion:'<path d="M3 4h5v5H3M3 15h5v5H3M8 6.5h3v11H8M11 12h4M15 9h6v6h-6z"/>',
+    fases:'<rect x="3" y="4" width="5" height="5" rx="1"/><rect x="10" y="10" width="5" height="5" rx="1"/><rect x="16" y="16" width="5" height="5" rx="1"/><path d="M8 6.5h4.5V10M15 12.5h3.5V16"/>',
     doble:'<path d="M3 3.5h4v4H3M3 10h4M7 5.5h3v4.5H7M10 7.5h4"/><path d="M3 16h4v4H3M7 18h4v-5.5h3"/><path d="M14 7.5v5M14 10h3M17 7h4v6h-4z"/>'}[k]||'';
   return `<svg class="ico fmti" viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
 }
 function setupHero(){
   const g=findGame(S.game)||{k:'x',n:S.game||'Tu torneo',cat:'',al:[]},n=names().length,t=allP().length;
-  const fm=(FORMATS[S.format]||'').replace(/ \(.*\)$/,''),md=(MODES[S.size]||('Equipos de '+S.size));
+  const fm=S.multi?'Por fases ('+S.multi.plan.length+')':(FORMATS[S.format]||'').replace(/ \(.*\)$/,''),md=(MODES[S.size]||('Equipos de '+S.size));
   const stat=(v,l)=>`<div class="hstat"><b>${v}</b><span>${l}</span></div>`;
   return `<section class="shero"><div class="shero-art">${gArt(g,'h')}</div><div class="shero-tx">
   <span class="kicker">${esc(g.n||'Juego o deporte sin elegir')}</span><h2>${esc(S.name)}</h2>
   <div class="hstats">${stat(n,t!==n?`presentes de ${t}`:'participantes')}${stat(esc(fm),'formato')}${stat(esc(md),'modo')}${S.format=='grupos'?stat(+S.groups,'grupos'):''}</div></div>
   <span class="st next">En preparación</span></section>`;
+}
+
+
+/* ===== Torneo por fases (constructor libre) ===== */
+const PH_N={grupos:'Grupos',liguilla:'Liguilla',suizo:'Sistema suizo',eliminacion:'Eliminatoria',doble:'Doble eliminación'};
+const PH_MID=['grupos','liguilla','suizo'],PH_LAST=['liguilla','suizo','eliminacion','doble'];
+const multiLast=()=>!S.multi||S.multi.ph>=S.multi.plan.length-1;
+function syncPhase0(){const p=S.multi.plan[0];S.format=p.f;S.pairing='dentro';S.swissCut=0;if(p.f=='grupos')S.groups=+p.g||2;if(p.f=='suizo')S.swissRounds=+p.r||0}
+function setFmt(k){
+  if(k=='fases'){if(!S.multi)S.multi={plan:[{f:'grupos',g:4,pass:8},{f:'eliminacion'}],ph:0,hist:[]};syncPhase0()}
+  else{if(!FORMATS[k])return;S.multi=null;S.format=k}
+  save();render();
+}
+function planCheck(n){
+  const P=S.multi.plan;let cur=n;
+  for(let i=0;i<P.length;i++){const p=P[i],last=i==P.length-1;
+    if(p.f=='grupos'&&cur<4)return `La fase ${i+1} (grupos) necesita al menos 4 participantes y llegan ${cur}.`;
+    if(p.f=='doble'&&cur<3)return `La fase ${i+1} (doble eliminación) necesita al menos 3 participantes y llegan ${cur}.`;
+    if(cur<2)return `A la fase ${i+1} llegan menos de 2 participantes.`;
+    if(!last){const ps=+p.pass||2;if(ps>=cur)return `En la fase ${i+1} pasan ${ps}, pero solo hay ${cur}. Tienen que pasar menos.`;cur=ps}
+  }
+  return '';
+}
+function planSet(i,k,v){
+  const P=S.multi&&S.multi.plan;if(!P||!P[i])return;if(S.teams.length&&i<=S.multi.ph)return;
+  if(k=='f'){if(!(i==P.length-1?PH_LAST:PH_MID).includes(v))return;P[i].f=v;if(v=='grupos'&&!P[i].g)P[i].g=2}
+  else if(k=='g')P[i].g=Math.max(2,Math.min(16,+v||2));
+  else if(k=='r')P[i].r=Math.max(0,Math.min(12,+v||0));
+  else if(k=='pass')P[i].pass=Math.max(2,Math.min(256,+v||2));
+  if(i==0&&!S.teams.length)syncPhase0();save();render();
+}
+function planAdd(){
+  const P=S.multi.plan;if(P.length>=6)return notice('Como máximo 6 fases.');
+  const prev=P[P.length-2],ps=prev&&prev.pass?Math.max(2,Math.floor(prev.pass/2)):8;
+  P.splice(P.length-1,0,{f:'liguilla',pass:ps});save();render();
+}
+function planDel(i){const P=S.multi.plan;if(P.length<=2||!P[i]||(S.teams.length&&i<=S.multi.ph))return;P.splice(i,1);
+  const L=P[P.length-1];if(!PH_LAST.includes(L.f))L.f='eliminacion';if(i==0)syncPhase0();save();render()}
+const optsN=(arr,v)=>arr.map(n=>`<option value="${n}" ${+v==n?'selected':''}>${n}</option>`).join('');
+function planCard(){
+  const P=S.multi.plan,drawn=(S.teams||[]).length>0,err=planCheck(names().length/(+S.size||1)||0);
+  return `<div class="plan" id="tt-fases"><label>Fases del torneo</label>${P.map((p,i)=>{const last=i==P.length-1,lock=drawn&&i<=S.multi.ph,dis=lock?'disabled':'';
+    return `<div class="prow${lock?' lock':''}"><span class="stepn">${i+1}</span>
+    <select aria-label="Formato de la fase ${i+1}" ${dis} data-change="planSet(${i},'f',this.value)">${(last?PH_LAST:PH_MID).map(f=>`<option value="${f}" ${p.f==f?'selected':''}>${PH_N[f]}</option>`).join('')}</select>
+    ${p.f=='grupos'?`<label class="pl">grupos<select aria-label="Grupos de la fase ${i+1}" ${dis} data-change="planSet(${i},'g',this.value)">${optsN([2,3,4,5,6,8],p.g)}</select></label>`:''}
+    ${p.f=='suizo'?`<label class="pl">rondas<select aria-label="Rondas de la fase ${i+1}" ${dis} data-change="planSet(${i},'r',this.value)"><option value="0" ${!p.r?'selected':''}>Auto</option>${optsN([2,3,4,5,6,7,8,9],p.r)}</select></label>`:''}
+    ${last?'<span class="small">Final</span>':`<label class="pl">pasan<select aria-label="Clasificados de la fase ${i+1}" ${dis} data-change="planSet(${i},'pass',this.value)">${optsN([2,3,4,6,8,10,12,16,20,24,32,48,64,96,128],p.pass)}</select></label>`}
+    ${P.length>2&&!lock?`<button class="sec sm" aria-label="Quitar fase ${i+1}" data-click="planDel(${i})">Quitar</button>`:''}</div>`}).join('<div class="parr" aria-hidden="true"></div>')}
+  <div class="row" style="margin-top:8px"><button class="sec" data-click="planAdd()">Añadir fase</button></div>
+  ${err&&names().length?`<p class="small bad">${esc(err)}</p>`:'<p class="small">En grupos pasan los mejores de cada grupo y, si hace falta, los mejores segundos. Cada fase empieza de cero con los clasificados.</p>'}</div>`;
+}
+function phaseDone(){const f=S.format;if(f=='suizo')return swissRounded()>=swissTotal()&&swissLastDone();if(f=='grupos'||f=='liguilla')return !!groupsDone();return false}
+function rankPhase(){
+  if(S.format=='suizo')return swissRows().map(r=>r.id);
+  if(S.format=='liguilla')return standings(0).map(r=>r.id);
+  const all=[];S.groupsList.forEach((_,gi)=>standings(gi).forEach((r,pos)=>all.push({id:r.id,pos,pts:r.pts,d:r.gf-r.gc,gf:r.gf})));
+  return all.sort((x,y)=>x.pos-y.pos||y.pts-x.pts||y.d-x.d||y.gf-x.gf).map(x=>x.id);
+}
+function nextPhase(){
+  const M=S.multi;if(!M||multiLast()||!phaseDone())return;
+  const p=M.plan[M.ph],nx=M.plan[M.ph+1],rank=rankPhase(),n=Math.min(+p.pass||2,rank.length),q=rank.slice(0,n);
+  if(nx.f=='doble'&&n<3)return notice('La doble eliminación necesita al menos 3 clasificados.');
+  if(nx.f=='grupos'&&n<4)return notice('Una fase de grupos necesita al menos 4 clasificados.');
+  M.hist.push({f:S.format,rank,q,snap:JSON.parse(JSON.stringify({groupsList:S.groupsList,matches:S.matches,swiss:S.swiss}))});
+  S.matches=[];S.groupsList=[];S.swiss=null;S.liga=null;S.ko=null;S.de=null;S.k3=null;S.third=false;S.swissCut=0;
+  M.ph++;S.format=nx.f;
+  if(nx.f=='eliminacion'){S.ko=buildKO(q);S.step=3}
+  else if(nx.f=='doble'){S.de=buildDE(q);S.step=3}
+  else if(nx.f=='suizo'){
+    S.swissRounds=+nx.r||0;const odd=q.length%2,bye=odd?q[q.length-1]:null,pool=odd?q.slice(0,-1):q,half=pool.length/2;
+    S.groupsList=[q];S.swiss={bye:[bye]};for(let i=0;i<half;i++)S.matches.push({g:0,h:0,a:pool[i],b:pool[i+half],sa:null,sb:null,v:0,r:0});S.step=2;
+  }else{
+    const g=nx.f=='liguilla'?1:Math.max(1,Math.min(+nx.g||2,Math.floor(q.length/2)));
+    S.groupsList=Array.from({length:g},()=>[]);q.forEach((id,i)=>{const r=Math.floor(i/g),pos=i%g;S.groupsList[r%2?g-1-pos:pos].push(id)});
+    S.pairing='dentro';buildMatches();S.step=g>1?1:2;
+  }
+  save();render();scrollTo(0,0);
+}
+function phaseShow(i){
+  const h=S.multi&&S.multi.hist[+i];if(!h)return;const Q=new Set(h.q);
+  $('modalBody').innerHTML=`<h2>Fase ${+i+1}: ${esc(PH_N[h.f]||h.f)}</h2><p class="small">Clasificación final. Pasaron ${h.q.length}.</p>
+  <div class="lvlist">${h.rank.map((id,k)=>`<div class="trow"><span style="width:28px" class="small">${k+1}.</span><div style="flex:1;min-width:0">${tag(id)}</div>${Q.has(id)?'<span class="st live">Pasa</span>':''}</div>`).join('')}</div>
+  <div class="row" style="margin-top:12px"><button data-click="closeModal()">Cerrar</button></div>`;
+  $('modal').classList.add('on');
+}
+function phasesCard(){
+  const M=S.multi;if(!M||!(S.teams||[]).length)return '';
+  const done=phaseDone(),cur=M.plan[M.ph],nx=M.plan[M.ph+1];
+  return `<div class="card keepro phcard" id="tt-fasesv"><h2>Fases del torneo</h2><div class="phline">${M.plan.map((p,i)=>`<div class="phs ${i<M.ph?'ok':i==M.ph?'on':''}"><span class="stepn">${i+1}</span><div><b>${esc(PH_N[p.f])}</b><span class="small">${i==M.plan.length-1?'Final':'pasan '+(+p.pass||2)}</span></div>${i<M.ph?`<button class="sec sm" data-click="phaseShow(${i})">Ver</button>`:''}</div>`).join('')}</div>
+  ${multiLast()?'':done?`<button class="noro" style="margin-top:12px" data-click="nextPhase()">Pasar a la fase ${M.ph+2}: ${esc(PH_N[nx.f])} (pasan ${Math.min(+cur.pass||2,rankPhase().length)}) →</button>`:`<p class="small" style="margin:10px 0 0">Cuando termine esta fase, pasan los ${+cur.pass||2} mejores a la fase ${M.ph+2} (${esc(PH_N[nx.f])}).</p>`}</div>`;
 }
 
 /* ===== Calendario de partidos ===== */
@@ -1783,7 +1880,7 @@ async function saveMail(){
 /* ===== Celebración ===== */
 function afterRender(){
   const c=document.querySelector('.champ');
-  if(c){const k=c.textContent;if(window._cel!==k){window._cel=k;if(!firstRender&&!demoBackup)confetti()}}
+  if(c){const k=c.textContent;if(window._cel!==k){window._cel=k;if(!firstRender&&!demoBackup&&multiLast())confetti()}}
   firstRender=false;
   if(RO)document.querySelectorAll('#app input,#app select,#app textarea,#app button').forEach(e=>{if(!e.closest('.regform')&&(!e.closest('.keepro')||e.classList.contains('noro')))e.disabled=true});
   if(!RO&&S.step==0&&sb&&user&&S.pub&&S.pub.id&&Date.now()-regAt>20000)loadRegs();
@@ -1800,7 +1897,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.25.1';
+const APP_VERSION='1.26.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

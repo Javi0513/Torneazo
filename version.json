@@ -1,6 +1,15 @@
 {
-  "version": "1.25.1",
+  "version": "1.26.0",
   "historial": [
+    {
+      "version": "1.26.0",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Nuevo formato «Por fases»: encadena hasta 6 fases en un mismo torneo, por ejemplo suizo, grupos, liguilla y doble eliminación.",
+        "Tú eliges cuántos pasan en cada fase, y cada fase empieza con los clasificados.",
+        "Puedes ver la clasificación de las fases anteriores cuando quieras."
+      ]
+    },
     {
       "version": "1.25.1",
       "fecha": "11/11/2026",

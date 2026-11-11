@@ -1,0 +1,33 @@
+{
+  "version": "1.2.0",
+  "historial": [
+    {
+      "version": "1.2.0",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Aviso cuando hay una versión nueva, con botón para actualizar.",
+        "Ventana de «Novedades» que explica qué ha cambiado.",
+        "Tutorial paso a paso para nuevos usuarios (botón «?» de arriba)."
+      ]
+    },
+    {
+      "version": "1.1.0",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Perfil de usuario: foto y apodo.",
+        "Cambiar contraseña y cambiar email desde tu cuenta.",
+        "Salir de la cuenta en todos los dispositivos."
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "fecha": "10/11/2026",
+      "cambios": [
+        "Sorteo de grupos y equipos al azar.",
+        "Partidos cruzados entre grupos.",
+        "Siguiente fase a tu gusto: eliminatoria o nuevo grupo.",
+        "Cuentas de usuario para guardar tus torneos."
+      ]
+    }
+  ]
+}

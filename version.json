@@ -1,6 +1,15 @@
 {
-  "version": "1.7.0",
+  "version": "1.8.0",
   "historial": [
+    {
+      "version": "1.8.0",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "La app reconoce el juego o deporte que escribes (más de 35: Fortnite, FIFA, LoL, fútbol, baloncesto, pádel, ajedrez…) y se ajusta sola.",
+        "Niveles de experiencia propios de cada juego y sorteo equilibrado por nivel.",
+        "Equipos de hasta 15 jugadores y juegos sin empates (baloncesto, vóley, tenis…)."
+      ]
+    },
     {
       "version": "1.7.0",
       "fecha": "11/11/2026",

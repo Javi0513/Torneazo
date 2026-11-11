@@ -1,6 +1,15 @@
 {
-  "version": "1.8.1",
+  "version": "1.9.0",
   "historial": [
+    {
+      "version": "1.9.0",
+      "fecha": "12/11/2026",
+      "cambios": [
+        "Nueva pestaña «Premios»: pon lo que se lleva cada uno.",
+        "Premios por posición (campeón, subcampeón, semifinalistas…), por objetivos (más goles, mejor defensa, más victorias…) o a tu manera (mejor jugador, fair play…).",
+        "Los premios de posición y de objetivos se asignan solos con los resultados y salen al compartir."
+      ]
+    },
     {
       "version": "1.8.1",
       "fecha": "11/11/2026",

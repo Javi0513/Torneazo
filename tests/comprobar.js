@@ -1,6 +1,7 @@
 // Comprobaciones rápidas de TORNEAZO (se ejecutan solas en cada PR).
 const fs=require('fs'),http=require('http'),path=require('path');
-const {chromium}=require('playwright');
+let pw;try{pw=require('playwright')}catch(e){pw=require('playwright-core')}
+const {chromium}=pw;
 const root=path.join(__dirname,'..');
 let fallos=0;const ko=m=>{console.error('FALLA: '+m);fallos++},ok=m=>console.log('ok: '+m);
 
@@ -25,7 +26,7 @@ const srv=http.createServer((q,r)=>{let p=path.join(root,decodeURIComponent(q.ur
   r.writeHead(200,{'Content-Type':mime[path.extname(p)]||'application/octet-stream'});fs.createReadStream(p).pipe(r)});
 (async()=>{
   await new Promise(r=>srv.listen(8791,r));
-  const b=await chromium.launch(),p=await b.newPage(),errs=[];
+  const b=await chromium.launch(process.env.CI?{channel:'chrome'}:{}),p=await b.newPage(),errs=[];
   p.on('pageerror',e=>errs.push(e.message));
   p.on('console',m=>{if(m.type()=='error'&&/Content Security Policy|Refused to/.test(m.text()))errs.push(m.text())});
   await p.goto('http://localhost:8791/');await p.waitForTimeout(1500);

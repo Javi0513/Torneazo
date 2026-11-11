@@ -1,6 +1,15 @@
 {
-  "version": "1.17.2",
+  "version": "1.18.0",
   "historial": [
+    {
+      "version": "1.18.0",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Los jugadores pueden enviar el resultado de su partido desde la página pública, sin cuenta.",
+        "Tú decides si lo permites y apruebas cada resultado antes de que cuente.",
+        "Actívalo en «Página pública» y revisa los envíos en «Partidos»."
+      ]
+    },
     {
       "version": "1.17.2",
       "fecha": "11/11/2026",

@@ -1,6 +1,13 @@
 {
-  "version": "1.8.0",
+  "version": "1.8.1",
   "historial": [
+    {
+      "version": "1.8.1",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Corregido el modo sin conexión: la app vuelve a abrirse sin internet y a guardarse en el móvil."
+      ]
+    },
     {
       "version": "1.8.0",
       "fecha": "11/11/2026",

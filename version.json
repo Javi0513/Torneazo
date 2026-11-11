@@ -1,6 +1,13 @@
 {
-  "version": "1.27.0",
+  "version": "1.27.1",
   "historial": [
+    {
+      "version": "1.27.1",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Corregido el teléfono de WhatsApp del anuncio de JAVI AI."
+      ]
+    },
     {
       "version": "1.27.0",
       "fecha": "11/11/2026",

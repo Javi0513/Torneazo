@@ -1,7 +1,7 @@
 /* TORNEAZO · lógica de la app.
    Los eventos se atienden aquí (data-click, data-change, data-input, data-focus) y no con código
    dentro del HTML, así la política de seguridad puede prohibir los scripts en línea. */
-const OK_FN=new Set(["accountHome", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave"]);
+const OK_FN=new Set(["accountHome", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave"]);
 function splitTop(t,sep){
   const out=[];let d=0,q=null,cur='';
   for(let k=0;k<t.length;k++){const c=t[k];
@@ -617,7 +617,7 @@ function render(){
   h+=`<div class="view ${DIR?'vDir':HOME&&!RO?'vHome':'v'+S.step}">${body}</div>`;
   if(DIR)h+=`<p class="small" style="text-align:center;margin-bottom:4px"><a href="${esc(location.pathname)}" style="color:var(--ac)">Crea tu propio torneo con TORNEAZO</a> · v${APP_VERSION}</p>`;
   else if(RO)h+=`<p class="small" style="text-align:center;margin-bottom:4px"><a href="${esc(location.pathname)}" style="color:var(--ac)">Crea tu propio torneo con TORNEAZO</a> · <a href="${esc(location.pathname)}?directorio" style="color:var(--mut)">Torneos públicos</a> · <a href="#" style="color:var(--mut)" data-click="reportOpen();return false">Denunciar</a> · v${APP_VERSION}</p>`;
-  else h+=`<p class="small" style="text-align:center;margin-bottom:4px"><a href="#" style="color:var(--mut)" data-click="showNews(true);return false">Novedades</a> · <a href="#" style="color:var(--mut)" data-click="tutoOpen(0);return false">Tutorial</a> · <a href="${esc(location.pathname)}?directorio" style="color:var(--mut)">Torneos públicos</a> · v${APP_VERSION}</p>`;
+  else h+=`<p class="small" style="text-align:center;margin-bottom:4px"><a href="#" style="color:var(--mut)" data-click="showNews(true);return false">Novedades</a> · <a href="#" style="color:var(--mut)" data-click="tutoOpen(0);return false">Tutorial</a> · <a href="#" style="color:var(--mut)" data-click="playersOpen();return false">Jugadores</a> · <a href="${esc(location.pathname)}?directorio" style="color:var(--mut)">Torneos públicos</a> · v${APP_VERSION}</p>`;
   if(!RO&&!DIR)h+=`<p class="small" style="text-align:center">${S.premium?(CFG.url?'':'<a href="#" style="color:var(--mut)" data-click="setPremium(false);return false">Volver a versión gratuita (demo)</a>'):'<a href="#" style="color:var(--ac)" data-click="paywall(\'Quita los anuncios y desbloquea todo.\');return false">Probar Premium</a>'}</p>`;
   const ap=document.getElementById('app'),key=S.step+':'+(S.drawn||0);
   ap.classList.toggle('anim',key!==lastKey);ap.classList.toggle('ro',RO);lastKey=key;ap.innerHTML=h;afterRender();
@@ -1325,6 +1325,89 @@ function houseAd(ad){
     if(still||!box)return put();box.classList.add('out');setTimeout(()=>{put();box.classList.remove('out')},350)},9000);
 }
 
+
+/* ===== Código QR del torneo ===== */
+let qrLoad=null;
+function loadQR(){
+  if(window.qrcode)return Promise.resolve();
+  if(!qrLoad)qrLoad=new Promise((ok,ko)=>{const s=document.createElement('script');s.src='qrcode.js';s.onload=ok;s.onerror=()=>{qrLoad=null;ko()};document.head.appendChild(s)});
+  return qrLoad;
+}
+function qrCanvas(url,title){
+  const q=qrcode(0,'M');q.addData(url);q.make();
+  const n=q.getModuleCount(),W=1080,H=1350,pad=120,cell=Math.floor((W-pad*2)/n),sz=cell*n,ox=(W-sz)/2,oy=230;
+  const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  x.fillStyle='#070807';x.fillRect(0,0,W,H);x.fillStyle='#9BEA1C';x.fillRect(0,0,W,12);
+  x.textAlign='center';x.fillStyle='#9BEA1C';x.font='italic 800 52px "Exo 2",Inter,sans-serif';x.fillText('TORNEAZO',W/2,110);
+  x.fillStyle='#F2F5EF';x.font='600 40px Inter,sans-serif';let t=String(title||'');while(x.measureText(t).width>W-120&&t.length>1)t=t.slice(0,-1);x.fillText(t,W/2,180);
+  x.fillStyle='#ffffff';const r=28;x.beginPath();x.roundRect?x.roundRect(ox-40,oy-40,sz+80,sz+80,r):x.rect(ox-40,oy-40,sz+80,sz+80);x.fill();
+  x.fillStyle='#070807';for(let i=0;i<n;i++)for(let j=0;j<n;j++)if(q.isDark(i,j))x.fillRect(ox+j*cell,oy+i*cell,cell,cell);
+  x.fillStyle='#F2F5EF';x.font='italic 800 46px "Exo 2",Inter,sans-serif';x.fillText('Escanea y sigue el torneo',W/2,oy+sz+130);
+  x.fillStyle='#9AA595';x.font='500 30px Inter,sans-serif';x.fillText('Clasificación, partidos e inscripciones en directo',W/2,oy+sz+185);
+  x.fillStyle='#9AA595';x.font='500 26px Inter,sans-serif';x.fillText('by JAVI AI',W/2,H-50);
+  return c;
+}
+async function qrOpen(){
+  if(!S.pub||!S.pub.code)return;
+  try{await loadQR()}catch(e){return notice('No se pudo cargar el código QR. Revisa la conexión.')}
+  const url=pubUrl(S.pub.code),c=qrCanvas(url,S.name);
+  $('modalBody').innerHTML=`<h2>Código QR del torneo</h2><p class="small">Imprímelo o ponlo en una pantalla: al escanearlo se abre la página del torneo, donde se ve todo en directo y se apuntan los jugadores.</p>
+  <img class="qrimg" src="${c.toDataURL('image/png')}" alt="Código QR de ${esc(S.name)}">
+  <div class="row" style="margin-top:12px"><button data-click="qrDownload()">Descargar imagen</button><button class="sec" data-click="closeModal()">Cerrar</button></div>`;
+  $('modal').classList.add('on');
+}
+function qrDownload(){
+  if(!window.qrcode||!S.pub)return;
+  qrCanvas(pubUrl(S.pub.code),S.name).toBlob(b=>{if(!b)return;const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='qr-'+(String(S.name).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'torneo')+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)},'image/png');
+}
+
+/* ===== Perfil y ranking de jugadores (todos tus torneos) ===== */
+let PLY=null,plyQ='';
+function withS(d,fn){const keep=S;try{S=Object.assign(def(),d);return fn()}catch(e){return null}finally{S=keep}}
+function tourStats(d,tname,when){
+  return withS(d,()=>{
+    const T=S.teams||[];if(!T.length)return null;
+    const st={};T.forEach(t=>st[t.id]={pj:0,g:0,e:0,p:0,gf:0,gc:0});
+    const ms=[].concat(S.matches||[],S.liga?S.liga.matches:[],...(S.ko||[]).map(r=>r.filter(m=>!m.bye)),S.ko&&S.third&&S.k3?[S.k3]:[],S.de?S.de.m.filter(deReal):[],...((S.multi&&S.multi.hist)||[]).map(h=>(h.snap&&h.snap.matches)||[]));
+    ms.forEach(m=>{if(m.a==null||m.b==null||m.a===-1||m.b===-1||m.sa==null||m.sb==null||!st[m.a]||!st[m.b])return;
+      const A=st[m.a],B=st[m.b];A.pj++;B.pj++;A.gf+=m.sa;A.gc+=m.sb;B.gf+=m.sb;B.gc+=m.sa;
+      let w=m.sa>m.sb?'a':m.sb>m.sa?'b':null;if(!w&&m.pa!=null&&m.pb!=null&&m.pa!==m.pb)w=m.pa>m.pb?'a':'b';
+      if(w=='a'){A.g++;B.p++}else if(w=='b'){B.g++;A.p++}else{A.e++;B.e++}});
+    const done=tournamentDone(),p1=done?placeIds(1).ids:[],p2=done?placeIds(2).ids:[];
+    return T.map(t=>({name:String(t.name||'').trim(),tn:tname,when,done,pos:p1.includes(t.id)?1:p2.includes(t.id)?2:0,...st[t.id]})).filter(x=>x.name);
+  });
+}
+async function playersOpen(){
+  $('modalBody').innerHTML='<h2>Jugadores</h2><p class="small">Cargando tus torneos…</p>';$('modal').classList.add('on');
+  let list=[];
+  if(sb&&user){await flushT();const r=await sb.from('tournaments').select('id,name,data,updated_at').order('updated_at',{ascending:false});list=(r.data||[]).map(x=>({d:x.data,n:x.name,w:String(x.updated_at).slice(0,10)}))}
+  else list=[{d:JSON.parse(JSON.stringify(S)),n:S.name,w:''}];
+  const by={};
+  list.forEach(t=>(tourStats(t.d,t.n,t.w)||[]).forEach(r=>{const k=r.name.toLowerCase();const P=by[k]||(by[k]={name:r.name,t:0,pj:0,g:0,e:0,p:0,gf:0,gc:0,tit:0,sub:0,hist:[]});
+    P.t++;P.pj+=r.pj;P.g+=r.g;P.e+=r.e;P.p+=r.p;P.gf+=r.gf;P.gc+=r.gc;if(r.pos==1)P.tit++;if(r.pos==2)P.sub++;P.hist.push(r)}));
+  PLY=Object.values(by).sort((a,b)=>b.tit-a.tit||b.g-a.g||(b.pj?b.g/b.pj:0)-(a.pj?a.g/a.pj:0)||a.name.localeCompare(b.name));plyQ='';
+  playersRender();
+}
+function playersFilter(v){plyQ=String(v||'').toLowerCase();const L=document.getElementById('ply-list');if(L)L.innerHTML=playersRows()}
+function playersRows(){
+  const L=PLY.map((p,i)=>[p,i]).filter(([p])=>!plyQ||p.name.toLowerCase().includes(plyQ)).slice(0,100);
+  return L.length?L.map(([p,i],k)=>`<div class="trow plyrow" role="button" tabindex="0" data-click="playerShow(${i})"><span class="small" style="width:26px">${i+1}.</span><div style="flex:1;min-width:0"><b>${esc(p.name)}</b><div class="small">${p.t} torneo${p.t==1?'':'s'} · ${p.g}V ${p.e}E ${p.p}D</div></div>${p.tit?`<span class="st live">${p.tit} título${p.tit==1?'':'s'}</span>`:''}</div>`).join(''):'<p class="small">No hay jugadores con ese nombre.</p>';
+}
+function playersRender(){
+  if(!PLY)return;
+  $('modalBody').innerHTML=`<h2>Jugadores</h2><p class="small">${user?'Ranking con todos tus torneos: títulos primero, luego victorias.':'Entra en tu cuenta para juntar los datos de todos tus torneos. Ahora ves solo este.'} Se junta por nombre, así que escríbelo siempre igual.</p>
+  ${PLY.length?`<input type="search" aria-label="Buscar jugador" placeholder="Buscar jugador" data-input="playersFilter(this.value)" value="${esc(plyQ)}"><div class="lvlist" id="ply-list" style="margin-top:8px">${playersRows()}</div>`:'<p>Aún no hay partidos jugados.</p>'}
+  <div class="row" style="margin-top:12px"><button class="sec" data-click="closeModal()">Cerrar</button></div>`;
+}
+function playerShow(i){
+  const p=PLY&&PLY[+i];if(!p)return;const pc=p.pj?Math.round(p.g*100/p.pj):0;
+  const tile=(v,l)=>`<div class="stile"><b>${v}</b><span>${l}</span></div>`;
+  $('modalBody').innerHTML=`<h2>${esc(p.name)}</h2>
+  <div class="stiles">${tile(p.t,'torneos')}${tile(p.tit,'títulos')}${tile(p.sub,'subcampeón')}${tile(p.pj,'partidos')}${tile(pc+'%','victorias')}${tile(p.gf+'-'+p.gc,'a favor y en contra')}</div>
+  <h3 style="margin:16px 0 6px">Historial</h3><div class="lvlist">${p.hist.map(h=>`<div class="trow"><div style="flex:1;min-width:0"><b>${esc(h.tn)}</b><div class="small">${h.when?esc(fmtDate(h.when))+' · ':''}${h.pj} partidos · ${h.g}V ${h.e}E ${h.p}D</div></div>${h.pos==1?'<span class="st live">Campeón</span>':h.pos==2?'<span class="st">Subcampeón</span>':h.done?'':'<span class="small">En juego</span>'}</div>`).join('')}</div>
+  <div class="row" style="margin-top:12px"><button data-click="playersRender()">Volver</button><button class="sec" data-click="closeModal()">Cerrar</button></div>`;
+}
+
 /* ===== Calendario de partidos ===== */
 let pv='res',calF='all';
 const DAYS=['dom','lun','mar','mié','jue','vie','sáb'],MONTHS=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
@@ -1726,7 +1809,7 @@ function pubCard(){
     <p class="small">Pega este código en tu web o blog y el torneo se verá dentro, actualizado solo.</p>
     <textarea id="pub-emb" readonly style="min-height:70px" data-focus="selectEl(this)">${esc(embedCode())}</textarea>
     <div class="row" style="margin-top:6px"><button class="sec" data-click="copyEmbed()">Copiar código</button></div></details>
-    <div class="row"><button data-click="copyLink()">Copiar enlace</button><button class="sec" data-click="openPub()">Ver página</button><button class="sec" data-click="unpublishLink()">Dejar de compartir</button></div>`
+    <div class="row"><button data-click="copyLink()">Copiar enlace</button><button class="sec" data-click="qrOpen()">Código QR</button><button class="sec" data-click="openPub()">Ver página</button><button class="sec" data-click="unpublishLink()">Dejar de compartir</button></div>`
   :`<div class="row"><button data-click="publishLink()">${user?'Crear enlace público':'Entrar para compartir'}</button></div>`}</div>`;
 }
 function openAuth(){
@@ -1825,7 +1908,7 @@ function accountHome(){
   $('modalBody').innerHTML=`<div style="display:flex;gap:12px;align-items:center;margin-bottom:10px">${avImg(profile&&profile.avatar,56)}
     <div style="min-width:0"><h2 style="margin:0">${nm}</h2><div class="small" style="overflow-wrap:anywhere">${esc(user.email)}</div></div></div>
   <p class="small">${S.premium?'Plan Premium activo.':'Plan gratuito.'} Tus torneos se guardan en tu cuenta.</p>
-  <div class="row" style="margin-bottom:8px"><button data-click="myTorneos()">Mis torneos (${myT.length})</button></div>
+  <div class="row" style="margin-bottom:8px"><button data-click="myTorneos()">Mis torneos (${myT.length})</button><button class="sec" data-click="playersOpen()">Jugadores</button></div>
   <div class="row" style="margin-bottom:8px"><button class="sec" data-click="profForm()">Editar perfil</button><button class="sec" data-click="pwForm()">Contraseña</button></div>
   <div class="row" style="margin-bottom:8px"><button class="sec" data-click="mailForm()">Cambiar email</button><button class="sec" data-click="exportData()">Descargar mis datos</button></div>
   ${S.premium&&CFG.portal?'<div class="row" style="margin-bottom:8px"><button class="sec" data-click="openPortal()">Gestionar suscripción</button></div>':''}
@@ -1914,7 +1997,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.27.1';
+const APP_VERSION='1.28.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

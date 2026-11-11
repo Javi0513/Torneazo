@@ -1,6 +1,15 @@
 {
-  "version": "1.27.1",
+  "version": "1.28.0",
   "historial": [
+    {
+      "version": "1.28.0",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Código QR del torneo: imprímelo o ponlo en una pantalla y los jugadores abren la página del torneo al escanearlo.",
+        "Perfil de jugador: ranking con todos tus torneos, con títulos, victorias, goles e historial de cada jugador.",
+        "Lo encuentras en Mi cuenta y abajo del todo, en «Jugadores»."
+      ]
+    },
     {
       "version": "1.27.1",
       "fecha": "11/11/2026",

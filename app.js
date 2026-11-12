@@ -1,7 +1,7 @@
 /* TORNEAZO · lógica de la app.
    Los eventos se atienden aquí (data-click, data-change, data-input, data-focus) y no con código
    dentro del HTML, así la política de seguridad puede prohibir los scripts en línea. */
-const OK_FN=new Set(["accountHome", "avisosOn", "avisosOff", "orgInvite", "orgUnlink", "orgRemove", "orgLeave", "orgCopy", "tLeave", "setLvl", "refreshLvq", "setCal", "setCalDay", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave"]);
+const OK_FN=new Set(["accountHome", "openCode", "avisosOn", "avisosOff", "orgInvite", "orgUnlink", "orgRemove", "orgLeave", "orgCopy", "tLeave", "setLvl", "refreshLvq", "setCal", "setCalDay", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave"]);
 function splitTop(t,sep){
   const out=[];let d=0,q=null,cur='';
   for(let k=0;k<t.length;k++){const c=t[k];
@@ -50,6 +50,8 @@ const FORMATS={grupos:'Grupos + eliminatoria',liguilla:'Liguilla (todos contra t
 const def=()=>({premium:false,step:0,name:'Torneo del viernes',game:'FIFA',size:1,format:'grupos',groups:2,
   players:'',teams:[],groupsList:[],matches:[],ko:null,pairing:'dentro',rivals:2,nextN:2,nextExtra:0,nextKind:'ko',liga:null,koTop:2,prizes:[],info:{desc:'',rules:'',start:'',end:'',org:'',contact:'',discord:'',web:''},pub:null,reg:{open:false,deadline:'',max:0,contact:false,level:false,auto:false,msg:''},swissRounds:0,swissCut:0,swiss:null,manual:false,balance:false,preset:null,lvScheme:null,unit:null,lvl:{},rules:{win:3,draw:1,ida:false,pen:true,noDraw:false}});
 const ROCODE=(()=>{try{const c=new URLSearchParams(location.search).get('t')||'';return /^[a-z0-9]{10,16}$/.test(c)?c:''}catch(e){return ''}})();
+// En la página de un torneo, el icono de la pantalla de inicio abre ese torneo (manifiesto sin start_url).
+if(ROCODE)try{const l=document.querySelector('link[rel=manifest]');if(l)l.href='manifest-torneo.webmanifest'}catch(e){}
 const DIR=!ROCODE&&(()=>{try{return new URLSearchParams(location.search).has('directorio')}catch(e){return false}})();
 let RO=!!ROCODE,roStamp=null,roState='load';
 let S=def(),demoBackup=null,demoBase=null;
@@ -1212,6 +1214,7 @@ function viewHome(){
   return `<section class="hero"><h2>Compite en torneos de tus <span>juegos</span> y <span>deportes</span> favoritos</h2>
   <p>Elige qué se juega, apunta a los participantes y TORNEAZO hace el sorteo, los partidos y la clasificación.</p>
   <div class="row"><button data-click="homeStart('')">Crear torneo</button>${cur?`<button class="sec" data-click="homeResume()">Seguir con «${esc(String(S.name).slice(0,28))}»</button>`:`<a class="btnlink sec" href="${esc(location.pathname)}?directorio">Ver torneos públicos</a>`}</div></section>
+  <section class="opencode"><label for="oc-i">¿Tienes el enlace o el código de un torneo?</label><div class="row"><input id="oc-i" placeholder="Pega aquí el enlace o el código" autocomplete="off"><button class="sec" data-click="openCode()">Abrir</button></div><div class="err" id="oc-m" role="alert"></div></section>
   <section><h3 class="hsec">${homeFeat&&homeFeat.length?'Torneos destacados':'Ideas para empezar'}</h3><div class="feats">${feat}</div></section>
   <section><div class="hbar"><h3 class="hsec">¿Qué se juega?</h3><input type="search" aria-label="Busca un juego o deporte" placeholder="Busca un juego o deporte" data-input="homeFilter(this.value)"></div>
   <div class="chips">${[['all','Todo'],['vid','Videojuegos'],['dep','Deportes']].map(([k,l])=>`<div class="chip ${homeCat==k?'on':''}" data-click="homeSet('cat','${k}')">${l}</div>`).join('')}</div>
@@ -1592,7 +1595,7 @@ function avisosCard(){
   const mine=lsGet('torneazo_av_'+ROCODE),T=S.teams,me=mine!=null&&T[+mine]?T[+mine]:null;
   let body;
   if(me)body=`<p>Avisos activados para <b>${esc(me.name)}</b>. Te avisaremos cuando te toque jugar${(S.matches||[]).some(m=>m.t)?' y 15 minutos antes de cada partido':''}.</p><div class="row"><button class="sec" data-click="avisosOff()">Desactivar avisos</button></div>`;
-  else if(!pushOk()&&isIOS()&&!isStandalone())body=`<p class="small">En iPhone, primero añade TORNEAZO a tu pantalla de inicio: toca <b>Compartir</b> y luego <b>Añadir a pantalla de inicio</b>. Abre la app desde ahí y vuelve a esta página para activar los avisos.</p>`;
+  else if(!pushOk()&&isIOS()&&!isStandalone())body=`<p class="small">En iPhone los avisos funcionan desde la app: toca <b>Compartir</b> (el cuadrado con la flecha) y luego <b>Añadir a pantalla de inicio</b>. Abre TORNEAZO desde el nuevo icono: se abrirá este torneo y aquí podrás activar los avisos.</p>`;
   else if(!pushOk())body='<p class="small">Este navegador no admite avisos. Prueba con Chrome, Edge, Firefox o Safari actualizados.</p>';
   else body=`<p class="small">Elige quién eres y te avisaremos en el móvil cuando te toque jugar, aunque tengas la app cerrada.</p>
   <label for="av-t">Soy</label><select id="av-t">${T.map((t,i)=>`<option value="${i}">${esc(t.name)}</option>`).join('')}</select>
@@ -1626,6 +1629,13 @@ async function notifyTurn(){
   const k=curId+':'+Math.min(...L.map(x=>x.m.o));if(k===lastTurnKey)return;lastTurnKey=k;
   try{const s=await sb.auth.getSession(),tok=s.data&&s.data.session&&s.data.session.access_token;if(!tok)return;
     await fetch(CFG.url+'/functions/v1/avisos',{method:'POST',headers:{'Content-Type':'application/json',apikey:CFG.key,Authorization:'Bearer '+tok},body:JSON.stringify({mode:'turno',tid:curId})})}catch(e){lastTurnKey=null}
+}
+
+
+function openCode(){
+  const v=String(($('oc-i')||{}).value||'').trim(),m=v.match(/[?&]t=([a-z0-9]{10,16})/i)||v.match(/^([a-z0-9]{10,16})$/i),c=m?m[1].toLowerCase():'';
+  if(!c){const e=$('oc-m');if(e)e.textContent='No reconozco ese enlace. Pega el enlace completo del torneo o su código.';return}
+  location.href=location.pathname+'?t='+c;
 }
 
 /* ===== Calendario de partidos ===== */
@@ -2235,7 +2245,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.32.0';
+const APP_VERSION='1.32.1';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

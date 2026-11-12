@@ -1,6 +1,14 @@
 {
-  "version": "1.32.0",
+  "version": "1.32.1",
   "historial": [
+    {
+      "version": "1.32.1",
+      "fecha": "12/11/2026",
+      "cambios": [
+        "En iPhone: si añades TORNEAZO a la pantalla de inicio desde un torneo, el icono abre ese torneo (necesario para los avisos).",
+        "En la portada puedes pegar el enlace o el código de un torneo para abrirlo."
+      ]
+    },
     {
       "version": "1.32.0",
       "fecha": "12/11/2026",

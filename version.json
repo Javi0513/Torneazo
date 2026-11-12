@@ -1,6 +1,14 @@
 {
-  "version": "1.29.1",
+  "version": "1.30.0",
   "historial": [
+    {
+      "version": "1.30.0",
+      "fecha": "12/11/2026",
+      "cambios": [
+        "Nivel junto a cada jugador: en Participantes eliges el nivel de cada uno en la misma lista.",
+        "El nivel se ve como etiqueta de color en el sorteo y en la página pública."
+      ]
+    },
     {
       "version": "1.29.1",
       "fecha": "12/11/2026",

@@ -1,6 +1,15 @@
 {
-  "version": "1.30.0",
+  "version": "1.31.0",
   "historial": [
+    {
+      "version": "1.31.0",
+      "fecha": "12/11/2026",
+      "cambios": [
+        "Varios organizadores: invita hasta 5 personas con un enlace para que apunten resultados contigo desde su móvil.",
+        "Si dos organizadores apuntan a la vez, los cambios se juntan solos.",
+        "Los torneos que organizas con otros aparecen en «Mis torneos» como «Compartido»."
+      ]
+    },
     {
       "version": "1.30.0",
       "fecha": "12/11/2026",

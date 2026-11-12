@@ -1,7 +1,7 @@
 /* TORNEAZO · lógica de la app.
    Los eventos se atienden aquí (data-click, data-change, data-input, data-focus) y no con código
    dentro del HTML, así la política de seguridad puede prohibir los scripts en línea. */
-const OK_FN=new Set(["accountHome", "goBack", "modalX", "adminOpen", "setPlySort", "setBrandC", "brandClear", "brandLogo", "setMe", "waOpen", "waSend", "setSelfCk", "ckApply", "ckReset", "ckSend", "ckOther", "tvOpen", "tvClose", "tvFull", "tvNext", "dupT", "dupOk", "exportPdf", "openCode", "avisosOn", "avisosOff", "orgInvite", "orgUnlink", "orgRemove", "orgLeave", "orgCopy", "tLeave", "setLvl", "refreshLvq", "setCal", "setCalDay", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave", "welcomeGo"]);
+const OK_FN=new Set(["accountHome", "askAccount", "askGo", "guestLater", "guestKeep", "guestDrop", "goBack", "modalX", "adminOpen", "setPlySort", "setBrandC", "brandClear", "brandLogo", "setMe", "waOpen", "waSend", "setSelfCk", "ckApply", "ckReset", "ckSend", "ckOther", "tvOpen", "tvClose", "tvFull", "tvNext", "dupT", "dupOk", "exportPdf", "openCode", "avisosOn", "avisosOff", "orgInvite", "orgUnlink", "orgRemove", "orgLeave", "orgCopy", "tLeave", "setLvl", "refreshLvq", "setCal", "setCalDay", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave", "welcomeGo"]);
 function splitTop(t,sep){
   const out=[];let d=0,q=null,cur='';
   for(let k=0;k<t.length;k++){const c=t[k];
@@ -56,7 +56,7 @@ const DIR=!ROCODE&&(()=>{try{return new URLSearchParams(location.search).has('di
 let RO=!!ROCODE,roStamp=null,roState='load';
 let S=def(),demoBackup=null,demoBase=null;
 try{const s=JSON.parse(localStorage.getItem('torneazo')||'null');if(s)S=Object.assign(def(),s)}catch(e){}
-const save=()=>{if(demoBackup||RO||DIR)return;try{localStorage.setItem('torneazo',JSON.stringify(S))}catch(e){}if(typeof cloudSave=='function')cloudSave()};
+const save=()=>{if(demoBackup||RO||DIR)return;try{localStorage.setItem('torneazo',JSON.stringify(S));if(!user&&CFG.url&&window.__authReady)localStorage.setItem('torneazo_guest','1')}catch(e){}if(typeof cloudSave=='function')cloudSave()};
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rawNames=()=>S.players.split(/\n|,/).map(x=>x.trim()).filter(Boolean);
 const names=()=>plist().map(p=>p.n);
@@ -691,7 +691,7 @@ function viewSetup(){
 }
 function viewDraw(){
   const g=S.groupsList.length;
-  return phasesCard()+`<div class="card" id="tt-sort"><h2>${RO?'Participantes':'Resultado del sorteo'}</h2>${RO?'':`<p class="small">Toca «Editar» para cambiar el nombre, el color y el escudo, o marcar un cabeza de serie.${g>1?' Con el selector de la derecha cambias un equipo de grupo.':''}</p>`}<div class="gwrap">`+S.groupsList.map((ids,gi)=>`<div class="gbox"><h3>${S.format=='liguilla'?'Liguilla':S.format=='suizo'?'Participantes':'Grupo '+String.fromCharCode(65+gi)}</h3>
+  return guestCard()+phasesCard()+`<div class="card" id="tt-sort"><h2>${RO?'Participantes':'Resultado del sorteo'}</h2>${RO?'':`<p class="small">Toca «Editar» para cambiar el nombre, el color y el escudo, o marcar un cabeza de serie.${g>1?' Con el selector de la derecha cambias un equipo de grupo.':''}</p>`}<div class="gwrap">`+S.groupsList.map((ids,gi)=>`<div class="gbox"><h3>${S.format=='liguilla'?'Liguilla':S.format=='suizo'?'Participantes':'Grupo '+String.fromCharCode(65+gi)}</h3>
   ${ids.map((id,k)=>`<div class="trow"${gi==0&&k==0?' id="tt-equipo"':''}><div style="min-width:0;flex:1">${tag(id)}${S.size>1?`<div class="small">${team(id).members.map(esc).join(', ')}</div>`:''}${team(id).lv?`<div>${lvBadge(team(id).lv)}</div>`:''}</div>
     ${g>1?`<select class="mini" aria-label="Grupo de ${esc(team(id).name)}" data-change="moveTeam(${id},this.value)">${S.groupsList.map((_,x)=>`<option value="${x}" ${x==gi?'selected':''}>${String.fromCharCode(65+x)}</option>`).join('')}</select>`:''}
     <button class="sec sm" data-click="teamForm(${id})">Editar</button></div>`).join('')}</div>`).join('')+'</div>'+
@@ -722,9 +722,9 @@ function nowCard(){
 }
 function viewMatches(){
   const hasRes=(S.matches||[]).length>0||!!S.liga;
-  if(!hasRes)return phasesCard()+(RO?resSendCard():resPendCard())+viewCal();
+  if(!hasRes)return guestCard()+phasesCard()+(RO?resSendCard():resPendCard())+viewCal();
   const seg=`<div class="chips seg"><div class="chip ${pv!='cal'?'on':''}" data-click="setPv('res')">Resultados</div><div class="chip ${pv=='cal'?'on':''}" data-click="setPv('cal')">Calendario</div></div>`;
-  return phasesCard()+nowCard()+(RO?avisosCard():'')+(RO?resSendCard():resPendCard())+seg+(pv=='cal'?viewCal():viewMatchesBody()+statsCard());
+  return guestCard()+phasesCard()+nowCard()+(RO?avisosCard():'')+(RO?resSendCard():resPendCard())+seg+(pv=='cal'?viewCal():viewMatchesBody()+statsCard());
 }
 function viewMatchesBody(){
   if(S.format=='suizo')return viewSwiss();
@@ -1317,7 +1317,7 @@ function viewHome(){
   if(homeFeat==null)homeFeatLoad();
   const list=G.filter(g=>homeCat=='all'||homeKind(g)==homeCat),cur=busyT();
   const feat=(homeFeat&&homeFeat.length?homeFeat.slice(0,6).map(featCard):PROMOS.map(promoCard)).join('');
-  return `<section class="hero"><h2>Compite en torneos de tus <span>juegos</span> y <span>deportes</span> favoritos</h2>
+  return `${cur?guestCard():''}<section class="hero"><h2>Compite en torneos de tus <span>juegos</span> y <span>deportes</span> favoritos</h2>
   <p>Elige qué se juega, apunta a los participantes y TORNEAZO hace el sorteo, los partidos y la clasificación.</p>
   <div class="row"><button data-click="homeStart('')">Crear torneo</button>${cur?`<button class="sec" data-click="homeResume()">Seguir con «${esc(String(S.name).slice(0,28))}»</button>`:`<a class="btnlink sec" href="${esc(location.pathname)}?directorio">Ver torneos públicos</a>`}</div></section>
   <section class="opencode"><label for="oc-i">¿Tienes el enlace o el código de un torneo?</label><div class="row"><input id="oc-i" placeholder="Pega aquí el enlace o el código" autocomplete="off"><button class="sec" data-click="openCode()">Abrir</button></div><div class="err" id="oc-m" role="alert"></div></section>
@@ -1667,7 +1667,7 @@ async function orgLoad(force){
 const orgUrl=c=>location.origin+location.pathname+'?coorg='+c;
 function orgCard(){
   if(!CFG.url)return '';
-  if(!user)return `<div class="card" id="tt-orgs"><h2>Organizadores</h2><p class="small">Invita a otra persona para que apunte resultados contigo desde su móvil. Primero entra en tu cuenta.</p><div class="row"><button data-click="openAuth()">Entrar</button></div></div>`;
+  if(!user)return `<div class="card" id="tt-orgs"><h2>Organizadores</h2><p class="small">Invita a otra persona para que apunte resultados contigo desde su móvil. Necesitas una cuenta gratis.</p><div class="row"><button data-click="askAccount('coorg')">Crear cuenta o entrar</button></div></div>`;
   if(!curId)return `<div class="card" id="tt-orgs"><h2>Organizadores</h2><p class="small">Escribe los participantes para guardar el torneo y podrás invitar a otros organizadores.</p></div>`;
   if(!curOwn)return `<div class="card" id="tt-orgs"><h2>Organizadores</h2><p class="small">Organizas este torneo junto a su creador: puedes apuntar resultados, horarios y todo lo demás. El enlace público y la invitación los gestiona el creador.</p><div class="row"><button class="sec" data-click="orgLeave()">Dejar de organizar</button></div></div>`;
   return `<div class="card" id="tt-orgs"><h2>Organizadores</h2><p class="small">Invita hasta 5 personas para que apunten resultados contigo desde su móvil. Necesitan una cuenta de TORNEAZO (gratis). Los cambios de todos se juntan solos.</p>
@@ -2330,13 +2330,14 @@ async function initAuth(){
   sb=window.supabase.createClient(CFG.url,CFG.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   const {data}=await sb.auth.getSession();user=data.session?data.session.user:null;
   sb.auth.onAuthStateChange((ev,ses)=>{user=ses?ses.user:null;profile=null;if(ev=='PASSWORD_RECOVERY'){afterLogin().then(()=>{$('modal').classList.add('on');pwForm()});return}afterLogin()});
-  await afterLogin();
+  await afterLogin();window.__authReady=true;if(!user&&hasWork())lsSet('torneazo_guest','1');
 }
 async function afterLogin(){
   if(sb&&user){
     const p=await sb.from('profiles').select('display_name,is_premium,avatar,is_admin').eq('id',user.id).maybeSingle();
     profile=p.data;S.premium=!!(profile&&profile.is_premium);
     await listT();
+    if(!demoBackup&&!curId&&lsGet('torneazo_guest')=='1'&&hasWork()){await guestMerge();render();if(sb&&(COORG||lsGet('torneazo_coorg')))coorgJoin();return}
     const want=lsGet('torneazo_cur_'+user.id),pick=myT.find(x=>x.id==want)||myT[0];
     if(!demoBackup&&pick)await loadT(pick.id);else if(!pick)curId=null;
     if(HOME&&!homeTouched&&(S.teams||[]).length)HOME=false;
@@ -2382,7 +2383,7 @@ function cloudSave(){
 const pubUrl=c=>location.origin+location.pathname+'?t='+c;
 const newCode=()=>{const a=new Uint8Array(12);crypto.getRandomValues(a);return Array.from(a,x=>'abcdefghijklmnopqrstuvwxyz0123456789'[x%36]).join('')};
 async function publishLink(){
-  if(!sb||!user){authMode='register';return openAuth()}
+  if(!sb||!user)return askAccount('share');
   const row=await cloudPush(true).catch(()=>null);if(!row)return notice('No se pudo guardar el torneo. Inténtalo de nuevo.');
   const code=row.public_code||newCode();
   const r=await sb.from('tournaments').update({public_code:code}).eq('id',row.id);
@@ -2518,7 +2519,7 @@ async function resetPw(){
   await sb.auth.resetPasswordForEmail(e,{redirectTo:location.origin+location.pathname,...capOpt()});
   $('au-m').innerHTML='<span class="ok">Si el email existe, recibirás un enlace.</span>';
 }
-async function logout(all){await sb.auth.signOut({scope:all?'global':'local'});closeModal()}
+async function logout(all){await sb.auth.signOut({scope:all?'global':'local'});try{localStorage.removeItem('torneazo_guest')}catch(e){}closeModal()}
 
 /* ===== Perfil de usuario ===== */
 let pendAv;
@@ -2777,6 +2778,51 @@ function welcomeGo(k){
   if(d){d.classList.add('out');setTimeout(()=>d.remove(),300)}
   if(k=='reg'||k=='login'){authMode=k=='reg'?'register':'login';authForm();$('modal').classList.add('on')}
 }
+
+/* ===== Invitados: pedir la cuenta en el momento justo y no perder su torneo al entrar ===== */
+const hasWork=()=>(S.teams||[]).length>0||names().length>0;
+const todayK=()=>fmtLocal(new Date()).slice(0,10);
+function askAccount(k){
+  const why={share:'Para compartir el torneo con un enlace o un código QR necesitas una cuenta gratis.',coorg:'Para organizar con otra persona necesitas una cuenta gratis.',save:'Ahora tu torneo solo está en este móvil. Si se borra el navegador o cambias de móvil, lo pierdes.',reg:'Para abrir inscripciones por enlace necesitas una cuenta gratis.'}[k]||'Crea tu cuenta gratis para sacarle todo el partido a TORNEAZO.';
+  const ck='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  $('modalBody').innerHTML=`<h2>Crea tu cuenta gratis</h2><p>${why}</p>
+  <ul class="wl-list"><li>${ck}Tu torneo guardado y en todos tus dispositivos</li><li>${ck}Enlace y QR para que todos lo sigan en directo</li><li>${ck}Inscripciones, avisos al móvil y co-organizadores</li></ul>
+  <p class="small">${hasWork()?'El torneo que ya tienes hecho se guarda en tu cuenta tal cual. ':''}Es gratis y tardas 20 segundos.</p>
+  <div class="row" style="margin-top:8px"><button data-click="askGo('register')">Crear cuenta</button><button class="sec" data-click="askGo('login')">Ya tengo cuenta</button></div>
+  <p style="text-align:center;margin:10px 0 0"><a href="#" style="color:var(--mut)" data-click="closeModal();return false">Ahora no</a></p>`;
+  $('modal').classList.add('on');
+}
+function askGo(m){authMode=m=='login'?'login':'register';authForm();$('modal').classList.add('on')}
+function guestCard(){
+  if(!CFG.url||user||RO||DIR||!hasWork()||lsGet('torneazo_nudge')==todayK())return '';
+  return `<div class="card guestcard" id="tt-guest"><div><b>Tu torneo solo está en este móvil</b><p class="small" style="margin:2px 0 0">Crea tu cuenta gratis para no perderlo y compartirlo con un enlace. Se guarda tal cual.</p></div>
+  <div class="row"><button data-click="askGo('register')">Crear cuenta</button><button class="sec" data-click="guestLater()">Ahora no</button></div></div>`;
+}
+function guestLater(){lsSet('torneazo_nudge',todayK());render()}
+let guestBusy=false;
+async function guestMerge(){
+  if(guestBusy||!sb||!user||lsGet('torneazo_guest')!='1')return false;
+  if(!hasWork()){try{localStorage.removeItem('torneazo_guest')}catch(e){}return false}
+  guestBusy=true;
+  try{
+    const premium=S.premium,mine=myT.filter(t=>t.own);
+    if(premium||!mine.length){curId=null;curRev=null;curBase=null;curOwn=true;const r=await cloudPush(true).catch(()=>null);
+      if(r){try{localStorage.removeItem('torneazo_guest')}catch(e){}await listT();notice('Hemos guardado en tu cuenta el torneo que hiciste como invitado.')}
+      return true}
+    $('modalBody').innerHTML=`<h2>Tienes dos torneos</h2><p>Has hecho «${esc(S.name)}» como invitado y en tu cuenta ya tienes «${esc(mine[0].name)}». La versión gratuita guarda uno.</p>
+    <div class="row" style="flex-direction:column;gap:8px"><button data-click="guestKeep('${esc(mine[0].id)}')">Guardar el que acabo de hacer</button><button class="sec" data-click="guestDrop('${esc(mine[0].id)}')">Abrir el de mi cuenta</button><button class="gold" data-click="buyPremium('m')">Hazte Premium y guarda los dos</button></div>
+    <p class="small">Si guardas el nuevo, sustituye al de tu cuenta (y su enlace público mostrará el nuevo).</p>`;
+    $('modal').classList.add('on');return true;
+  }finally{guestBusy=false}
+}
+async function guestKeep(id){
+  if(!okUuid(id))return;closeModal();curId=id;curRev=null;curBase=null;curOwn=true;
+  const r=await cloudPush().catch(()=>null);
+  if(r){try{localStorage.removeItem('torneazo_guest')}catch(e){}await listT();lsSet('torneazo_cur_'+user.id,id);const t=await sb.from('tournaments').select('public_code,listed,hidden').eq('id',id).maybeSingle();
+    S.pub=t.data&&t.data.public_code?{code:t.data.public_code,id,listed:!!t.data.listed,hidden:!!t.data.hidden}:null;save();render();notice('Listo: tu torneo ya está guardado en tu cuenta.')}
+  else notice('No se pudo guardar. Inténtalo de nuevo.');
+}
+async function guestDrop(id){if(!okUuid(id))return;closeModal();try{localStorage.removeItem('torneazo_guest')}catch(e){}if(await loadT(id))render()}
 
 async function pagoOk(){
   if(!/[?&]pago=ok/.test(location.search))return;

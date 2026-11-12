@@ -6,7 +6,8 @@
       "fecha": "12/11/2026",
       "cambios": [
         "Nueva animación al abrir la app (tócala para saltarla).",
-        "La primera vez te damos la bienvenida: crea tu cuenta, entra o sigue como invitado."
+        "La primera vez te damos la bienvenida: crea tu cuenta, entra o sigue como invitado.",
+        "Si haces un torneo sin cuenta y luego te registras o entras, se guarda en tu cuenta tal cual."
       ]
     },
     {

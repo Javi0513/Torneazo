@@ -1,6 +1,20 @@
 {
-  "version": "1.33.0",
+  "version": "1.34.0",
   "historial": [
+    {
+      "version": "1.34.0",
+      "fecha": "12/11/2026",
+      "cambios": [
+        "Modo TV: pon la clasificación, el cuadro y «Ahora se juega» en grande en la tele del local o en un proyector. Va cambiando de pantalla y se actualiza solo.",
+        "Confirmar asistencia por QR: cada jugador escanea el código, elige su nombre y pulsa «Estoy aquí». Tú ves quién ha llegado sin ir uno por uno.",
+        "Mis partidos: en la página del torneo cada jugador ve solo sus partidos y puede añadirlos al calendario del móvil.",
+        "Mandar por WhatsApp: los resultados de la jornada, la clasificación y el enlace, listos para el grupo.",
+        "Desempates a tu gusto: enfrentamiento directo, diferencia, más a favor o más victorias.",
+        "Enlaces a directos (Twitch, YouTube…) para el torneo y para cada partido.",
+        "Ranking de jugadores por puntos (ELO) y nuevas estadísticas: mejor racha y partido con más goles.",
+        "Premium: tu logo y tu color en la página pública, en el modo TV y en la imagen para compartir."
+      ]
+    },
     {
       "version": "1.33.0",
       "fecha": "12/11/2026",

@@ -8,6 +8,7 @@
         "Partidos repartidos por jornadas: cada uno juega una vez por jornada y, si son impares, uno descansa.",
         "Tras el sorteo ves un esquema de quién juega contra quién, jornada a jornada.",
         "Horario automático: pon días, horas, campos, duración y descanso (10 min por defecto) y al hacer el sorteo cada partido tiene su hora.",
+        "Modo «Torneo de hoy»: el horario empieza al hacer el sorteo y todos los partidos se juegan seguidos ese día. Verás a qué hora termina.",
         "Arreglado en iPhone: el cursor de escribir ya no aparece descolocado al tocar un campo."
       ]
     },

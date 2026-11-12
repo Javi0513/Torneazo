@@ -1429,7 +1429,9 @@ function croquis(){
   const M=S.matches||[];if(!M.length||M.some(m=>m.j==null))return '';
   const cross=M.some(m=>m.g!==m.h),blocks=cross?[{t:'Partidos entre grupos',ms:M,ids:null}]:S.groupsList.map((ids,gi)=>({t:(S.groupsList.length>1?'Grupo '+gl(gi):'Todos contra todos'),ms:M.filter(m=>m.g==gi),ids}));
   const short=t=>{const s=fmtWhen(t);return s?`<span class="cqt">${esc(s)}</span>`:''};
-  return `<div class="card" id="tt-croquis"><h2>Quién juega contra quién</h2><p class="small">Así queda el sorteo, jornada a jornada. En cada jornada cada uno juega una vez${S.cal&&S.cal.auto?' y ya tiene hora asignada':''}.</p>
+  const ts=M.filter(m=>okDT(m.t)).map(m=>m.t).sort(),dur=calDef().dur;
+  let fin='';if(ts.length){const l=ts[ts.length-1],d=new Date(l.replace('T',' ')+':00');d.setMinutes(d.getMinutes()+dur);fin=`<div class="cqfin"><span>Primer partido <b>${esc(fmtWhen(ts[0]))}</b></span><span>Termina hacia <b>${esc(fmtWhen(fmtLocal(d)))}</b></span></div>`}
+  return `<div class="card" id="tt-croquis"><h2>Quién juega contra quién</h2><p class="small">Así queda el sorteo, jornada a jornada. En cada jornada cada uno juega una vez${S.cal&&S.cal.auto?' y ya tiene hora asignada':''}.</p>${fin}
   <div class="cqwrap">${blocks.map(b=>{const js=[...new Set(b.ms.map(m=>m.j))].sort((x,y)=>x-y);
     return `<div class="cqb"><h3>${esc(b.t)}</h3>${js.map(j=>{const L=b.ms.filter(m=>m.j==j),inJ=new Set(L.flatMap(m=>[m.a,m.b])),rest=(b.ids||[]).filter(id=>!inJ.has(id));
       return `<div class="cqj"><b>J${j+1}</b><div class="cqm">${L.map(m=>`<span class="cqp">${tag(m.a)}<i>vs</i>${tag(m.b)}${short(m.t)}</span>`).join('')}${rest.length?`<span class="small">Descansa: ${rest.map(id=>esc(tnm(id))).join(', ')}</span>`:''}</div></div>`}).join('')}</div>`}).join('')}</div></div>`;
@@ -1437,10 +1439,11 @@ function croquis(){
 
 /* ===== Horario automático del torneo ===== */
 const DOW=['D','L','M','X','J','V','S'];
-function calDef(){return Object.assign({auto:false,date:fmtLocal(new Date()).slice(0,10),time:'10:00',until:'22:00',courts:1,dur:30,gap:10,days:[0,1,2,3,4,5,6]},S.cal||{})}
+function calDef(){return Object.assign({auto:false,mode:S.cal&&!S.cal.mode?'dias':'hoy',date:fmtLocal(new Date()).slice(0,10),time:'10:00',until:'22:00',courts:1,dur:30,gap:10,days:[0,1,2,3,4,5,6]},S.cal||{})}
 function setCal(k,v){
   const c=calDef();
   if(k=='auto')c.auto=!!v;
+  else if(k=='mode'&&(v=='hoy'||v=='dias'))c.mode=v;
   else if(k=='date'&&/^\d{4}-\d{2}-\d{2}$/.test(v))c.date=v;
   else if((k=='time'||k=='until')&&/^\d{2}:\d{2}$/.test(v))c[k]=v;
   else if(k=='courts')c.courts=Math.max(1,Math.min(16,+v||1));
@@ -1449,8 +1452,10 @@ function setCal(k,v){
   S.cal=c;save();render();
 }
 function setCalDay(d){const c=calDef();d=+d;const s=new Set(c.days);if(s.has(d)){if(s.size>1)s.delete(d)}else s.add(d);c.days=[...s].sort();S.cal=c;save();render()}
-const calOpts=all=>{const c=calDef();return {date:c.date,time:c.time,until:c.until,courts:c.courts,dur:c.dur,rest:c.gap,gap:c.gap,days:c.days,all}};
-function calCheck(){const c=calDef();if(c.until<=c.time)return 'La hora de fin debe ser posterior a la de inicio.';const mins=(+c.until.slice(0,2))*60+(+c.until.slice(3))-((+c.time.slice(0,2))*60+(+c.time.slice(3)));if(c.dur>mins)return 'Un partido no cabe en el horario de un día.';return ''}
+const nowSlot=()=>{const d=new Date(Date.now()+5*60000);d.setSeconds(0,0);d.setMinutes(Math.ceil(d.getMinutes()/5)*5);return fmtLocal(d)};
+const calOpts=all=>{const c=calDef();if(c.mode=='hoy'){const t=nowSlot();return {date:t.slice(0,10),time:t.slice(11),until:'23:59',courts:c.courts,dur:c.dur,rest:c.gap,gap:c.gap,days:null,all}}
+  return {date:c.date,time:c.time,until:c.until,courts:c.courts,dur:c.dur,rest:c.gap,gap:c.gap,days:c.days,all}};
+function calCheck(){const c=calDef();if(c.mode=='hoy')return '';if(c.until<=c.time)return 'La hora de fin debe ser posterior a la de inicio.';const mins=(+c.until.slice(0,2))*60+(+c.until.slice(3))-((+c.time.slice(0,2))*60+(+c.time.slice(3)));if(c.dur>mins)return 'Un partido no cabe en el horario de un día.';return ''}
 function autoMaybe(all){if(!S.cal||!S.cal.auto||calCheck())return;autoSchedule(calOpts(!!all));S.tz=S.tz||tzName()}
 function horarioCard(){
   const c=calDef(),err=c.auto?calCheck():'';
@@ -1458,14 +1463,15 @@ function horarioCard(){
   return `<div class="card" id="tt-horario"><h2>Horario de los partidos</h2>
   <p class="small">Pon cuándo se juega y, al hacer el sorteo, cada partido recibe su hora: nadie juega dos a la vez y hay descanso entre partido y partido. Después puedes cambiar cualquier hora en Partidos → Calendario.</p>
   <div class="chips"><div class="chip ${c.auto?'on':''}" data-click="setCal('auto',true)">Poner horarios al hacer el sorteo</div><div class="chip ${!c.auto?'on':''}" data-click="setCal('auto',false)">Sin horarios</div></div>
-  ${c.auto?`<div class="row"><div><label for="hc-d">Primer día</label><input id="hc-d" type="date" value="${esc(c.date)}" data-change="setCal('date',this.value)"></div>
-  <div><label for="hc-c">Campos o pistas a la vez</label>${sel('hc-c','courts',[1,2,3,4,5,6,8,10,12],c.courts)}</div></div>
-  <div class="row"><div><label for="hc-h">Empieza a las</label><input id="hc-h" type="time" value="${esc(c.time)}" data-change="setCal('time',this.value)"></div>
-  <div><label for="hc-u">Termina a las</label><input id="hc-u" type="time" value="${esc(c.until)}" data-change="setCal('until',this.value)"></div></div>
+  ${c.auto?`<label>Cuándo se juega</label><div class="chips"><div class="chip ${c.mode=='hoy'?'on':''}" data-click="setCal('mode','hoy')">Torneo de hoy (empieza al sortear)</div><div class="chip ${c.mode=='dias'?'on':''}" data-click="setCal('mode','dias')">Elegir días y horas</div></div>
+  ${c.mode=='hoy'?`<p class="small">Ideal para un rato con amigos: el primer partido empieza unos minutos después de hacer el sorteo y el resto van seguidos, con su descanso.</p>`:`<div class="row"><div><label for="hc-d">Primer día</label><input id="hc-d" type="date" value="${esc(c.date)}" data-change="setCal('date',this.value)"></div>
+  <div><label for="hc-h">Empieza a las</label><input id="hc-h" type="time" value="${esc(c.time)}" data-change="setCal('time',this.value)"></div></div>
+  <div class="row"><div><label for="hc-u">Termina a las</label><input id="hc-u" type="time" value="${esc(c.until)}" data-change="setCal('until',this.value)"></div><div></div></div>`}
+  <div class="row"><div><label for="hc-c">Campos, pistas o consolas a la vez</label>${sel('hc-c','courts',[1,2,3,4,5,6,8,10,12],c.courts)}</div><div></div></div>
   <div class="row"><div><label for="hc-m">Duración de cada partido</label>${sel('hc-m','dur',[10,15,20,25,30,40,45,50,60,70,80,90,120],c.dur,' min')}</div>
   <div><label for="hc-g">Descanso entre partidos</label>${sel('hc-g','gap',[0,5,10,15,20,30],c.gap,' min')}</div></div>
-  <label>Días en que se juega</label><div class="chips">${[1,2,3,4,5,6,0].map(d=>`<div class="chip ${c.days.includes(d)?'on':''}" role="checkbox" aria-checked="${c.days.includes(d)}" aria-label="${['domingo','lunes','martes','miércoles','jueves','viernes','sábado'][d]}" data-click="setCalDay(${d})">${DOW[d]}</div>`).join('')}</div>
-  ${err?`<p class="small bad">${esc(err)}</p>`:`<p class="small">Si no caben en un día, siguen el siguiente día de juego a la misma hora.</p>`}`:''}</div>`;
+  ${c.mode=='hoy'?'':`<label>Días en que se juega</label><div class="chips">${[1,2,3,4,5,6,0].map(d=>`<div class="chip ${c.days.includes(d)?'on':''}" role="checkbox" aria-checked="${c.days.includes(d)}" aria-label="${['domingo','lunes','martes','miércoles','jueves','viernes','sábado'][d]}" data-click="setCalDay(${d})">${DOW[d]}</div>`).join('')}</div>`}
+  ${err?`<p class="small bad">${esc(err)}</p>`:(c.mode=='hoy'?'':`<p class="small">Si no caben en un día, siguen el siguiente día de juego a la misma hora.</p>`)}`:''}</div>`;
 }
 
 /* ===== Calendario de partidos ===== */

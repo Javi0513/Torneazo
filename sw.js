@@ -3,7 +3,7 @@
      si no hay conexión, usa la copia guardada (la app abre sin internet).
    - Letras, iconos y librería: primero la copia guardada (no cambian).
    - Las llamadas a Supabase NO se tocan nunca. */
-const VERSION = "1.31.0";
+const VERSION = "1.32.0";
 const CACHE = "torneazo-" + VERSION;
 const SHELL = [
   "./",
@@ -120,4 +120,26 @@ self.addEventListener("fetch", (e) => {
       ),
     );
   }
+});
+
+// Avisos al móvil (push): muestra la notificación y abre el torneo al tocarla.
+self.addEventListener("push", (e) => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (_) { d = { title: "TORNEAZO", body: e.data ? e.data.text() : "" }; }
+  e.waitUntil(self.registration.showNotification(String(d.title || "TORNEAZO").slice(0, 80), {
+    body: String(d.body || "").slice(0, 200),
+    icon: "icon-192.png",
+    badge: "icon-192.png",
+    tag: d.tag || undefined,
+    renotify: !!d.tag,
+    data: { url: d.url || "./" },
+  }));
+});
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || "./";
+  e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+    for (const c of list) if (c.url.split("#")[0] === url && "focus" in c) return c.focus();
+    return self.clients.openWindow(url);
+  }));
 });

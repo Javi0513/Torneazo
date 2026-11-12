@@ -1,7 +1,7 @@
 /* TORNEAZO · lógica de la app.
    Los eventos se atienden aquí (data-click, data-change, data-input, data-focus) y no con código
    dentro del HTML, así la política de seguridad puede prohibir los scripts en línea. */
-const OK_FN=new Set(["accountHome", "orgInvite", "orgUnlink", "orgRemove", "orgLeave", "orgCopy", "tLeave", "setLvl", "refreshLvq", "setCal", "setCalDay", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave"]);
+const OK_FN=new Set(["accountHome", "avisosOn", "avisosOff", "orgInvite", "orgUnlink", "orgRemove", "orgLeave", "orgCopy", "tLeave", "setLvl", "refreshLvq", "setCal", "setCalDay", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave"]);
 function splitTop(t,sep){
   const out=[];let d=0,q=null,cur='';
   for(let k=0;k<t.length;k++){const c=t[k];
@@ -709,7 +709,7 @@ function viewMatches(){
   const hasRes=(S.matches||[]).length>0||!!S.liga;
   if(!hasRes)return phasesCard()+(RO?resSendCard():resPendCard())+viewCal();
   const seg=`<div class="chips seg"><div class="chip ${pv!='cal'?'on':''}" data-click="setPv('res')">Resultados</div><div class="chip ${pv=='cal'?'on':''}" data-click="setPv('cal')">Calendario</div></div>`;
-  return phasesCard()+nowCard()+(RO?resSendCard():resPendCard())+seg+(pv=='cal'?viewCal():viewMatchesBody()+statsCard());
+  return phasesCard()+nowCard()+(RO?avisosCard():'')+(RO?resSendCard():resPendCard())+seg+(pv=='cal'?viewCal():viewMatchesBody()+statsCard());
 }
 function viewMatchesBody(){
   if(S.format=='suizo')return viewSwiss();
@@ -791,6 +791,7 @@ function viewResumenRO(){
     <div style="margin-top:12px">${row('Juego o deporte',esc(S.game))}${row('Fechas',f?esc(f)+(g&&g!==f?' – '+esc(g):''):'')}${row('Participantes',n?String(n)+(+S.size>1?' equipos':''):'')}${row('Formato',esc(fmx))}
     ${row('Puntos',`${+r.win||0} por victoria${r.noDraw?', sin empates':`, ${+r.draw||0} por empate`}`)}${row('Organiza',esc(i.org))}${row('Contacto',esc(i.contact))}${row('Discord',link(i.discord))}${row('Web',link(i.web))}</div></div>
   ${newsPublic()}
+  ${avisosCard()}
   ${phasesCard()}
   ${nextCard()}
   ${regPublicCard()}
@@ -1580,6 +1581,53 @@ async function coorgJoin(){
   notice(d.dueno?'Este torneo ya es tuyo.':`Ya organizas «${d.name}». Puedes apuntar resultados desde aquí y los cambios se juntan con los del resto.`);
 }
 
+
+/* ===== Avisos al móvil (push) ===== */
+const pushOk=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
+const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const isStandalone=()=>(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+const b64uBytes=s=>{s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';const b=atob(s),o=new Uint8Array(b.length);for(let i=0;i<b.length;i++)o[i]=b.charCodeAt(i);return o};
+function avisosCard(){
+  if(!RO||!CFG.vapid||!(S.teams||[]).length)return '';
+  const mine=lsGet('torneazo_av_'+ROCODE),T=S.teams,me=mine!=null&&T[+mine]?T[+mine]:null;
+  let body;
+  if(me)body=`<p>Avisos activados para <b>${esc(me.name)}</b>. Te avisaremos cuando te toque jugar${(S.matches||[]).some(m=>m.t)?' y 15 minutos antes de cada partido':''}.</p><div class="row"><button class="sec" data-click="avisosOff()">Desactivar avisos</button></div>`;
+  else if(!pushOk()&&isIOS()&&!isStandalone())body=`<p class="small">En iPhone, primero añade TORNEAZO a tu pantalla de inicio: toca <b>Compartir</b> y luego <b>Añadir a pantalla de inicio</b>. Abre la app desde ahí y vuelve a esta página para activar los avisos.</p>`;
+  else if(!pushOk())body='<p class="small">Este navegador no admite avisos. Prueba con Chrome, Edge, Firefox o Safari actualizados.</p>';
+  else body=`<p class="small">Elige quién eres y te avisaremos en el móvil cuando te toque jugar, aunque tengas la app cerrada.</p>
+  <label for="av-t">Soy</label><select id="av-t">${T.map((t,i)=>`<option value="${i}">${esc(t.name)}</option>`).join('')}</select>
+  <div class="err" id="av-m" role="alert"></div><div class="row" style="margin-top:8px"><button data-click="avisosOn()">Activar avisos</button></div>`;
+  return `<div class="card regform" id="tt-avisos"><h2>Avisos en tu móvil</h2>${body}</div>`;
+}
+async function avisosOn(){
+  const m=$('av-m'),team=+(($('av-t')||{}).value||0);
+  try{
+    if(!pushOk())throw new Error('nosoporta');
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){if(m)m.textContent='Has bloqueado los avisos. Actívalos en los ajustes del navegador para esta web.';return}
+    const reg=await navigator.serviceWorker.ready;
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64uBytes(CFG.vapid)});
+    const j=sub.toJSON(),r=await sb.rpc('avisos_alta',{p_code:ROCODE,p_team:team,p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth}),d=r.data||{};
+    if(r.error||!d.ok)throw new Error(d.error||'rpc');
+    lsSet('torneazo_av_'+ROCODE,String(team));render();
+    try{reg.showNotification('Avisos activados',{body:'Te avisaremos cuando te toque jugar.',icon:'icon-192.png'})}catch(e){}
+  }catch(e){if(m)m.textContent='No se pudieron activar los avisos. Inténtalo de nuevo.'}
+}
+async function avisosOff(){
+  try{const reg=await navigator.serviceWorker.ready,sub=await reg.pushManager.getSubscription();if(sub)await sb.rpc('avisos_baja',{p_code:ROCODE,p_endpoint:sub.endpoint})}catch(e){}
+  try{localStorage.removeItem('torneazo_av_'+ROCODE)}catch(e){}render();
+}
+// Organizador: cuando cambia el turno actual, pide a la función que avise a los jugadores.
+let lastTurnKey=null;
+async function notifyTurn(){
+  if(!sb||!user||!curId||!S.pub||!S.pub.code||!CFG.vapid)return;
+  const L=allMatches().filter(x=>x.m.o&&!played(x.m)&&x.m.a!=null&&x.m.b!=null&&x.m.a!==-1&&x.m.b!==-1);if(!L.length)return;
+  const k=curId+':'+Math.min(...L.map(x=>x.m.o));if(k===lastTurnKey)return;lastTurnKey=k;
+  try{const s=await sb.auth.getSession(),tok=s.data&&s.data.session&&s.data.session.access_token;if(!tok)return;
+    await fetch(CFG.url+'/functions/v1/avisos',{method:'POST',headers:{'Content-Type':'application/json',apikey:CFG.key,Authorization:'Bearer '+tok},body:JSON.stringify({mode:'turno',tid:curId})})}catch(e){lastTurnKey=null}
+}
+
 /* ===== Calendario de partidos ===== */
 let pv='res',calF='all';
 const DAYS=['dom','lun','mar','mié','jue','vie','sáb'],MONTHS=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
@@ -1889,7 +1937,7 @@ async function modSet(code,hide){
 // Se rellena con los datos PÚBLICOS del proyecto Supabase (la clave "anon" es pública por diseño;
 // la seguridad real está en las reglas RLS de supabase/migrations). NUNCA pongas aquí la service_role.
 const _c=window.APP_CONFIG||{};
-const CFG={url:_c.supabaseUrl||'',key:_c.supabaseAnonKey||'',pro:_c.proUrl||'',proAnual:_c.proUrlAnual||'',portal:_c.portalUrl||'',captcha:_c.turnstileSiteKey||''};
+const CFG={url:_c.supabaseUrl||'',key:_c.supabaseAnonKey||'',pro:_c.proUrl||'',proAnual:_c.proUrlAnual||'',portal:_c.portalUrl||'',captcha:_c.turnstileSiteKey||'',vapid:_c.vapidPublicKey||''};
 const TERMS='2026-11-11';
 if(window.APP_CONFIG&&'serviceWorker' in navigator&&location.protocol.indexOf('http')==0)navigator.serviceWorker.register('sw.js').catch(()=>{});
 let sb=null,user=null,profile=null,authMode='login',authLock=0,saveT=null;
@@ -1939,7 +1987,7 @@ async function cloudPush(force){
         if(rem.data){const m=merge3(JSON.parse(curBase||'{}'),d,rem.data.data);applyRemote(m);row.data=m;
           r=await sb.from('tournaments').update(row).eq('id',cur.data.id).eq('updated_at',rem.data.updated_at).select('updated_at').maybeSingle()}
       }
-      if(r.data){curRev=r.data.updated_at;curBase=JSON.stringify(row.data)}
+      if(r.data){curRev=r.data.updated_at;curBase=JSON.stringify(row.data);notifyTurn()}
     }finally{pushing=false}
     return cur.data}
   const ins=await sb.from('tournaments').insert(row).select('id,public_code,updated_at').maybeSingle();
@@ -2187,7 +2235,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.31.0';
+const APP_VERSION='1.32.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

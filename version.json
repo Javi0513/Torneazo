@@ -1,6 +1,15 @@
 {
-  "version": "1.31.0",
+  "version": "1.32.0",
   "historial": [
+    {
+      "version": "1.32.0",
+      "fecha": "12/11/2026",
+      "cambios": [
+        "Avisos en el móvil: desde la página del torneo, cada jugador elige quién es y le avisamos cuando le toque jugar.",
+        "Con horario, recordatorio unos 15 minutos antes de cada partido.",
+        "En iPhone funcionan si añades TORNEAZO a la pantalla de inicio."
+      ]
+    },
     {
       "version": "1.31.0",
       "fecha": "12/11/2026",

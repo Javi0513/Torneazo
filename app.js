@@ -1,7 +1,7 @@
 /* TORNEAZO · lógica de la app.
    Los eventos se atienden aquí (data-click, data-change, data-input, data-focus) y no con código
    dentro del HTML, así la política de seguridad puede prohibir los scripts en línea. */
-const OK_FN=new Set(["accountHome", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave"]);
+const OK_FN=new Set(["accountHome", "setCal", "setCalDay", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave"]);
 function splitTop(t,sep){
   const out=[];let d=0,q=null,cur='';
   for(let k=0;k<t.length;k++){const c=t[k];
@@ -238,13 +238,23 @@ function formTeams(list,size,old){
   bk.forEach(b=>{while(b.length<size)b.push(rest.shift())});
   return bk.map((ps,i)=>mk(i,ps));
 }
+// Liga por jornadas (método del círculo): en cada jornada cada uno juega una vez; con impares, uno descansa.
+function rrRounds(ids){
+  const L=ids.slice();if(L.length%2)L.push(null);const n=L.length,R=[];let arr=L;
+  for(let r=0;r<n-1;r++){const pr=[];for(let i=0;i<n/2;i++){const a=arr[i],b=arr[n-1-i];if(a!=null&&b!=null)pr.push(r%2&&i==0?[b,a]:[a,b])}R.push(pr);arr=[arr[0],arr[n-1],...arr.slice(1,n-1)]}
+  return R;
+}
 function buildMatches(){
-  S.matches=[];const g=S.groupsList.length,ida=rl().ida;
-  const add=(x,y,a,b)=>{S.matches.push({g:x,h:y,a,b,sa:null,sb:null,v:0});if(ida)S.matches.push({g:x,h:y,a:b,b:a,sa:null,sb:null,v:1})};
+  S.matches=[];const g=S.groupsList.length,ida=rl().ida,M=[];
   if(S.pairing=='cruzado'&&g>1){
+    const raw=[];
     for(let x=0;x<g;x++)for(let y=x+1;y<g;y++){const A=S.groupsList[x],B=S.groupsList[y],k=Math.min(+S.rivals,B.length);
-      A.forEach((a,i)=>{for(let t=0;t<k;t++)add(x,y,a,B[(i+t)%B.length])})}
-  }else S.groupsList.forEach((ids,gi)=>{for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++)add(gi,gi,ids[i],ids[j])});
+      A.forEach((a,i)=>{for(let t=0;t<k;t++)raw.push({g:x,h:y,a,b:B[(i+t)%B.length]})})}
+    const J=[];raw.forEach(m=>{let j=0;while(J[j]&&(J[j].has(m.a)||J[j].has(m.b)))j++;(J[j]=J[j]||new Set()).add(m.a);J[j].add(m.b);m.j=j});
+    const nj=J.length;raw.forEach(m=>{M.push({...m,sa:null,sb:null,v:0});if(ida)M.push({g:m.g,h:m.h,a:m.b,b:m.a,j:m.j+nj,sa:null,sb:null,v:1})});
+  }else S.groupsList.forEach((ids,gi)=>{const R=rrRounds(ids),n=R.length;
+    R.forEach((pr,j)=>pr.forEach(([a,b])=>{M.push({g:gi,h:gi,a,b,j,sa:null,sb:null,v:0});if(ida)M.push({g:gi,h:gi,a:b,b:a,j:j+n,sa:null,sb:null,v:1})}))});
+  S.matches=M.sort((x,y)=>x.j-y.j||x.g-y.g);
 }
 function draw(){
   if(S.multi){S.multi.ph=0;S.multi.hist=[];syncPhase0();const e=planCheck(names().length/(+S.size||1));if(e)return notice(e)}
@@ -271,12 +281,12 @@ function draw(){
     }else buildMatches();
     S.step=1;
   }
-  save();render();
+  autoMaybe(true);save();render();
 }
 function moveTeam(id,to){
   to=+to;const from=S.groupsList.findIndex(g=>g.includes(id));if(from<0||from===to)return render();
   if(S.groupsList[from].length<=2){render();return notice('Cada grupo necesita al menos 2 equipos.')}
-  const doIt=()=>{S.groupsList[from]=S.groupsList[from].filter(x=>x!==id);S.groupsList[to].push(id);buildMatches();S.ko=null;S.de=null;S.liga=null;save();render()};
+  const doIt=()=>{S.groupsList[from]=S.groupsList[from].filter(x=>x!==id);S.groupsList[to].push(id);buildMatches();S.ko=null;S.de=null;S.liga=null;autoMaybe(true);save();render()};
   if(S.matches.some(m=>m.sa!=null||m.sb!=null)){render();confirmAct('Al cambiar un equipo de grupo se vuelven a crear los partidos y se pierden los resultados anotados.',doIt)}else doIt();
 }
 let tmpLogo,tmpColor;
@@ -373,11 +383,11 @@ function genRound(){
   if(!S.swiss||!swissLastDone()||swissRounded()>=swissTotal())return;
   const r=swissRounded(),{pairs,bye}=swissPair();
   pairs.forEach(([a,b])=>S.matches.push({g:0,h:0,a,b,sa:null,sb:null,v:0,r}));
-  S.swiss.bye.push(bye);S.step=2;save();render();
+  S.swiss.bye.push(bye);S.step=2;autoMaybe(false);save();render();
 }
 function swissToKO(){
   const n=+S.swissCut;if(!(n>=2)||!swissLastDone()||swissRounded()<swissTotal())return;
-  S.ko=buildKO(swissRows().slice(0,n).map(r=>r.id));S.step=3;save();render();
+  S.ko=buildKO(swissRows().slice(0,n).map(r=>r.id));S.step=3;autoMaybe(false);save();render();
 }
 function viewSwiss(){
   const rows=swissRows(),R=swissRounded(),T=swissTotal(),cut=+S.swissCut||0,fin=R>=T&&swissLastDone();
@@ -440,9 +450,9 @@ function genNext(){
   if(S.nextKind=='ko')S.ko=buildKO(ids);
   else if(S.nextKind=='doble')S.de=buildDE(ids);
   else{const ms=[];for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++){ms.push({a:ids[i],b:ids[j],sa:null,sb:null});if(rl().ida)ms.push({a:ids[j],b:ids[i],sa:null,sb:null})}S.liga={ids,matches:ms}}
-  S.step=3;save();render();
+  S.step=3;autoMaybe(false);save();render();
 }
-function ligaToKO(){const r=calc(S.liga.ids,S.liga.matches).slice(0,+S.koTop).map(x=>x.id);if(r.length<2)return notice('Hacen falta al menos 2 equipos.');S.ko=buildKO(r);save();render()}
+function ligaToKO(){const r=calc(S.liga.ids,S.liga.matches).slice(0,+S.koTop).map(x=>x.id);if(r.length<2)return notice('Hacen falta al menos 2 equipos.');S.ko=buildKO(r);autoMaybe(false);save();render()}
 function setLiga(i,side,v){const m=S.liga.matches[i];m[side]=v===''?null:Math.max(0,parseInt(v)||0);save();render()}
 function setKO(r,i,side,v){const m=S.ko[r][i];m[side]=v===''?null:Math.max(0,parseInt(v)||0);save();render()}
 function roundName(ri,total){const left=total-ri;return left==1?'Final':left==2?'Semifinales':left==3?'Cuartos de final':'Ronda '+(ri+1)}
@@ -659,7 +669,7 @@ function viewSetup(){
   <p class="small" id="count">${countText()}</p>
   <div class="row" style="margin-bottom:6px"><button class="sec" id="tt-lista" data-click="listaForm()">Pasar lista${allP().length?` (${names().length} de ${allP().length})`:''}</button></div>
   <div class="row" id="tt-sorteo"><button data-click="draw()">Hacer sorteo</button><button class="sec" data-click="reset()">Nuevo torneo</button></div></div>`;
-  return `${setupHero()}<div class="setup"><div class="scol smain">${datos}${reglas}<div class="duo">${pubCard()}${regCard()}</div>${infoCard()}<div class="duo">${newsCard()}${sponsCard()}</div></div><div class="scol sside">${part}</div></div>`;
+  return `${setupHero()}<div class="setup"><div class="scol smain">${datos}${reglas}${horarioCard()}<div class="duo">${pubCard()}${regCard()}</div>${infoCard()}<div class="duo">${newsCard()}${sponsCard()}</div></div><div class="scol sside">${part}</div></div>`;
 }
 function viewDraw(){
   const g=S.groupsList.length;
@@ -667,11 +677,16 @@ function viewDraw(){
   ${ids.map((id,k)=>`<div class="trow"${gi==0&&k==0?' id="tt-equipo"':''}><div style="min-width:0;flex:1">${tag(id)}${S.size>1?`<div class="small">${team(id).members.map(esc).join(', ')}</div>`:''}${team(id).lv?`<div class="small">Nivel: ${esc(lvLabel(team(id).lv))}</div>`:''}</div>
     ${g>1?`<select class="mini" aria-label="Grupo de ${esc(team(id).name)}" data-change="moveTeam(${id},this.value)">${S.groupsList.map((_,x)=>`<option value="${x}" ${x==gi?'selected':''}>${String.fromCharCode(65+x)}</option>`).join('')}</select>`:''}
     <button class="sec sm" data-click="teamForm(${id})">Editar</button></div>`).join('')}</div>`).join('')+'</div>'+
-  `<div class="row" style="margin-top:12px"><button class="sec" data-click="draw()">Repetir sorteo</button><button data-click="set('step',2)">Ver partidos →</button></div></div>`;
+  `<div class="row" style="margin-top:12px"><button class="sec" data-click="draw()">Repetir sorteo</button><button data-click="set('step',2)">Ver partidos →</button></div></div>`+croquis();
 }
 const gl=gi=>String.fromCharCode(65+gi);
-function matchList(ms,noTitle){
+function matchList(ms,noTitle,ids){
   const row=([m,i])=>matchRow(m,'setScore',i);
+  if(ms.length&&ms.every(([m])=>m.j!=null)){
+    const js=[...new Set(ms.map(([m])=>m.j))].sort((x,y)=>x-y);
+    return js.map(j=>{const L=ms.filter(([m])=>m.j==j),inJ=new Set(L.flatMap(([m])=>[m.a,m.b])),rest=(ids||[]).filter(id=>!inJ.has(id));
+      return `<h3 class="jor">Jornada ${j+1}${L[0]&&L[0][0].v?' (vuelta)':''}</h3>`+L.map(row).join('')+(rest.length?`<div class="small descansa">Descansa: ${rest.map(id=>esc(tnm(id))).join(', ')}</div>`:'')}).join('');
+  }
   if(!rl().ida)return (noTitle?'':'<h3>Partidos</h3>')+ms.map(row).join('');
   return '<h3>Ida</h3>'+ms.filter(([m])=>!m.v).map(row).join('')+'<h3>Vuelta</h3>'+ms.filter(([m])=>m.v).map(row).join('');
 }
@@ -692,7 +707,7 @@ function viewMatchesBody(){
   let h='';const cross=S.matches.some(m=>m.g!==m.h),nq=S.multi&&!multiLast()?(S.format=='liguilla'?(+S.multi.plan[S.multi.ph].pass||0):Math.ceil((+S.multi.plan[S.multi.ph].pass||0)/Math.max(1,S.groupsList.length))):S.format=='grupos'?+S.nextN:0;
   S.groupsList.forEach((_,gi)=>{
     h+=`<div class="card"${gi==0?' id="tt-tabla"':''}><h2>${S.format=='liguilla'?'Clasificación':'Grupo '+gl(gi)}</h2>${table(standings(gi),nq)}`;
-    if(!cross)h+=matchList(S.matches.map((m,i)=>[m,i]).filter(([m])=>m.g==gi));
+    if(!cross)h+=matchList(S.matches.map((m,i)=>[m,i]).filter(([m])=>m.g==gi),false,S.groupsList[gi]);
     h+=`</div>`});
   if(cross){
     for(let x=0;x<S.groupsList.length;x++)for(let y=x+1;y<S.groupsList.length;y++){
@@ -1292,7 +1307,7 @@ function nextPhase(){
     S.groupsList=Array.from({length:g},()=>[]);q.forEach((id,i)=>{const r=Math.floor(i/g),pos=i%g;S.groupsList[r%2?g-1-pos:pos].push(id)});
     S.pairing='dentro';buildMatches();S.step=g>1?1:2;
   }
-  save();render();scrollTo(0,0);
+  autoMaybe(false);save();render();scrollTo(0,0);
 }
 function phaseShow(i){
   const h=S.multi&&S.multi.hist[+i];if(!h)return;const Q=new Set(h.q);
@@ -1408,6 +1423,51 @@ function playerShow(i){
   <div class="row" style="margin-top:12px"><button data-click="playersRender()">Volver</button><button class="sec" data-click="closeModal()">Cerrar</button></div>`;
 }
 
+
+/* ===== Esquema del sorteo: quién juega contra quién ===== */
+function croquis(){
+  const M=S.matches||[];if(!M.length||M.some(m=>m.j==null))return '';
+  const cross=M.some(m=>m.g!==m.h),blocks=cross?[{t:'Partidos entre grupos',ms:M,ids:null}]:S.groupsList.map((ids,gi)=>({t:(S.groupsList.length>1?'Grupo '+gl(gi):'Todos contra todos'),ms:M.filter(m=>m.g==gi),ids}));
+  const short=t=>{const s=fmtWhen(t);return s?`<span class="cqt">${esc(s)}</span>`:''};
+  return `<div class="card" id="tt-croquis"><h2>Quién juega contra quién</h2><p class="small">Así queda el sorteo, jornada a jornada. En cada jornada cada uno juega una vez${S.cal&&S.cal.auto?' y ya tiene hora asignada':''}.</p>
+  <div class="cqwrap">${blocks.map(b=>{const js=[...new Set(b.ms.map(m=>m.j))].sort((x,y)=>x-y);
+    return `<div class="cqb"><h3>${esc(b.t)}</h3>${js.map(j=>{const L=b.ms.filter(m=>m.j==j),inJ=new Set(L.flatMap(m=>[m.a,m.b])),rest=(b.ids||[]).filter(id=>!inJ.has(id));
+      return `<div class="cqj"><b>J${j+1}</b><div class="cqm">${L.map(m=>`<span class="cqp">${tag(m.a)}<i>vs</i>${tag(m.b)}${short(m.t)}</span>`).join('')}${rest.length?`<span class="small">Descansa: ${rest.map(id=>esc(tnm(id))).join(', ')}</span>`:''}</div></div>`}).join('')}</div>`}).join('')}</div></div>`;
+}
+
+/* ===== Horario automático del torneo ===== */
+const DOW=['D','L','M','X','J','V','S'];
+function calDef(){return Object.assign({auto:false,date:fmtLocal(new Date()).slice(0,10),time:'10:00',until:'22:00',courts:1,dur:30,gap:10,days:[0,1,2,3,4,5,6]},S.cal||{})}
+function setCal(k,v){
+  const c=calDef();
+  if(k=='auto')c.auto=!!v;
+  else if(k=='date'&&/^\d{4}-\d{2}-\d{2}$/.test(v))c.date=v;
+  else if((k=='time'||k=='until')&&/^\d{2}:\d{2}$/.test(v))c[k]=v;
+  else if(k=='courts')c.courts=Math.max(1,Math.min(16,+v||1));
+  else if(k=='dur')c.dur=Math.max(5,Math.min(240,+v||30));
+  else if(k=='gap')c.gap=Math.max(0,Math.min(120,+v||0));
+  S.cal=c;save();render();
+}
+function setCalDay(d){const c=calDef();d=+d;const s=new Set(c.days);if(s.has(d)){if(s.size>1)s.delete(d)}else s.add(d);c.days=[...s].sort();S.cal=c;save();render()}
+const calOpts=all=>{const c=calDef();return {date:c.date,time:c.time,until:c.until,courts:c.courts,dur:c.dur,rest:c.gap,gap:c.gap,days:c.days,all}};
+function calCheck(){const c=calDef();if(c.until<=c.time)return 'La hora de fin debe ser posterior a la de inicio.';const mins=(+c.until.slice(0,2))*60+(+c.until.slice(3))-((+c.time.slice(0,2))*60+(+c.time.slice(3)));if(c.dur>mins)return 'Un partido no cabe en el horario de un día.';return ''}
+function autoMaybe(all){if(!S.cal||!S.cal.auto||calCheck())return;autoSchedule(calOpts(!!all));S.tz=S.tz||tzName()}
+function horarioCard(){
+  const c=calDef(),err=c.auto?calCheck():'';
+  const sel=(id,k,arr,v,suf)=>`<select id="${id}" data-change="setCal('${k}',this.value)">${arr.map(n=>`<option value="${n}" ${+v==n?'selected':''}>${n}${suf||''}</option>`).join('')}</select>`;
+  return `<div class="card" id="tt-horario"><h2>Horario de los partidos</h2>
+  <p class="small">Pon cuándo se juega y, al hacer el sorteo, cada partido recibe su hora: nadie juega dos a la vez y hay descanso entre partido y partido. Después puedes cambiar cualquier hora en Partidos → Calendario.</p>
+  <div class="chips"><div class="chip ${c.auto?'on':''}" data-click="setCal('auto',true)">Poner horarios al hacer el sorteo</div><div class="chip ${!c.auto?'on':''}" data-click="setCal('auto',false)">Sin horarios</div></div>
+  ${c.auto?`<div class="row"><div><label for="hc-d">Primer día</label><input id="hc-d" type="date" value="${esc(c.date)}" data-change="setCal('date',this.value)"></div>
+  <div><label for="hc-c">Campos o pistas a la vez</label>${sel('hc-c','courts',[1,2,3,4,5,6,8,10,12],c.courts)}</div></div>
+  <div class="row"><div><label for="hc-h">Empieza a las</label><input id="hc-h" type="time" value="${esc(c.time)}" data-change="setCal('time',this.value)"></div>
+  <div><label for="hc-u">Termina a las</label><input id="hc-u" type="time" value="${esc(c.until)}" data-change="setCal('until',this.value)"></div></div>
+  <div class="row"><div><label for="hc-m">Duración de cada partido</label>${sel('hc-m','dur',[10,15,20,25,30,40,45,50,60,70,80,90,120],c.dur,' min')}</div>
+  <div><label for="hc-g">Descanso entre partidos</label>${sel('hc-g','gap',[0,5,10,15,20,30],c.gap,' min')}</div></div>
+  <label>Días en que se juega</label><div class="chips">${[1,2,3,4,5,6,0].map(d=>`<div class="chip ${c.days.includes(d)?'on':''}" role="checkbox" aria-checked="${c.days.includes(d)}" aria-label="${['domingo','lunes','martes','miércoles','jueves','viernes','sábado'][d]}" data-click="setCalDay(${d})">${DOW[d]}</div>`).join('')}</div>
+  ${err?`<p class="small bad">${esc(err)}</p>`:`<p class="small">Si no caben en un día, siguen el siguiente día de juego a la misma hora.</p>`}`:''}</div>`;
+}
+
 /* ===== Calendario de partidos ===== */
 let pv='res',calF='all';
 const DAYS=['dom','lun','mar','mié','jue','vie','sáb'],MONTHS=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
@@ -1486,7 +1546,7 @@ function autoForm(){
   <div class="row"><div><label for="af-u">Última hora de cada día</label><input id="af-u" type="time" value="${esc(c.until||'22:00')}"></div>
   <div><label for="af-c">Partidos a la vez (campos)</label><select id="af-c">${[1,2,3,4,5,6,7,8].map(n=>`<option ${(c.courts||1)==n?'selected':''}>${n}</option>`).join('')}</select></div></div>
   <div class="row"><div><label for="af-m">Duración (minutos)</label><select id="af-m">${[10,15,20,30,40,45,60,75,90,120].map(n=>`<option ${(c.dur||30)==n?'selected':''}>${n}</option>`).join('')}</select></div>
-  <div><label for="af-r">Descanso del equipo (min)</label><select id="af-r">${[0,5,10,15,20,30,45,60].map(n=>`<option ${(c.rest??15)==n?'selected':''}>${n}</option>`).join('')}</select></div></div>
+  <div><label for="af-r">Descanso entre partidos (min)</label><select id="af-r">${[0,5,10,15,20,30,45,60].map(n=>`<option ${(c.gap??c.rest??10)==n?'selected':''}>${n}</option>`).join('')}</select></div></div>
   <label>Qué programar</label><div class="chips"><div class="chip ${c.all?'':'on'}" data-click="autoSet(false)">Solo los que no tienen fecha</div><div class="chip ${c.all?'on':''}" data-click="autoSet(true)">Todos (cambia las fechas)</div></div>
   <div class="err" id="af-m2" role="alert"></div>
   <div class="row" style="margin-top:12px"><button data-click="autoRun()">Programar</button><button class="sec" data-click="closeModal()">Cancelar</button></div>`;
@@ -1494,12 +1554,12 @@ function autoForm(){
 }
 function autoSet(v){S.cal=Object.assign({},S.cal||{},{all:!!v});autoForm()}
 function autoRun(){
-  const g=id=>($(id)||{}).value||'',o={date:g('af-d'),time:g('af-h'),until:g('af-u'),courts:+g('af-c')||1,dur:+g('af-m')||30,rest:+g('af-r')||0,all:!!(S.cal&&S.cal.all)};
+  const g=id=>($(id)||{}).value||'',o={date:g('af-d'),time:g('af-h'),until:g('af-u'),courts:+g('af-c')||1,dur:+g('af-m')||30,rest:+g('af-r')||0,gap:+g('af-r')||0,days:calDef().days,all:!!(S.cal&&S.cal.all)};
   const e=$('af-m2');
   if(!/^\d{4}-\d{2}-\d{2}$/.test(o.date)||!/^\d{2}:\d{2}$/.test(o.time)||!/^\d{2}:\d{2}$/.test(o.until)){if(e)e.textContent='Pon el primer día y las horas.';return}
   if(o.until<=o.time){if(e)e.textContent='La última hora debe ser posterior a la primera.';return}
   if(o.dur>((+o.until.slice(0,2))*60+(+o.until.slice(3)))-((+o.time.slice(0,2))*60+(+o.time.slice(3)))){if(e)e.textContent='Un partido no cabe en el horario de un día.';return}
-  S.cal={date:o.date,time:o.time,until:o.until,courts:o.courts,dur:o.dur,rest:o.rest,all:o.all};
+  S.cal=Object.assign(calDef(),{date:o.date,time:o.time,until:o.until,courts:o.courts,dur:o.dur,gap:o.gap,rest:o.rest,all:o.all});
   const n=autoSchedule(o);S.tz=S.tz||tzName();save();closeModal();render();
   if(!n)notice('No hay partidos que programar.');
 }
@@ -1509,6 +1569,7 @@ function autoSchedule(o){
   const dayStart=ms=>{const d=new Date(ms);d.setHours(sh,sm,0,0);return d.getTime()};
   const nextDay=ms=>{const d=new Date(ms);d.setDate(d.getDate()+1);d.setHours(sh,sm,0,0);return d.getTime()};
   const over=ms=>{const lim=new Date(ms);lim.setHours(uh,um,0,0);return ms+o.dur*60000>lim.getTime()};
+  const dayOk=ms=>!o.days||o.days.includes(new Date(ms).getDay()),step=(o.dur+(+o.gap||0))*60000;
   const [y,mo,d]=o.date.split('-').map(Number);let slot=new Date(y,mo-1,d,sh,sm,0,0).getTime(),phaseEnd=slot,count=0;
   const lastEnd={},tsOf=t=>new Date(t.replace('T',' ')+':00').getTime();
   allMatches().filter(x=>okDT(x.m.t)&&!items.includes(x)).forEach(x=>{
@@ -1517,7 +1578,7 @@ function autoSchedule(o){
     const pend=items.filter(x=>x.ph==ph);slot=Math.max(slot,phaseEnd);let guard=0;
     while(pend.length&&guard++<20000){
       if(slot<dayStart(slot)&&new Date(slot).getHours()*60+new Date(slot).getMinutes()<sh*60+sm)slot=dayStart(slot);
-      if(over(slot)){slot=nextDay(slot);continue}
+      if(over(slot)||!dayOk(slot)){slot=nextDay(slot);continue}
       const busy=new Set();let used=0;
       for(let i=0;i<pend.length&&used<o.courts;i++){
         const m=pend[i].m,a=m.a,b=m.b;
@@ -1526,7 +1587,7 @@ function autoSchedule(o){
         if(a!=null){busy.add(a);lastEnd[a]=slot+o.dur*60000}if(b!=null){busy.add(b);lastEnd[b]=slot+o.dur*60000}
         phaseEnd=Math.max(phaseEnd,slot+o.dur*60000);used++;count++;pend.splice(i,1);i--;
       }
-      slot+=o.dur*60000;
+      slot+=step;
     }
   });
   return count;
@@ -1997,7 +2058,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.28.2';
+const APP_VERSION='1.29.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

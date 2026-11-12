@@ -235,6 +235,17 @@ header{text-shadow:0 2px 10px rgba(0,0,0,.7)}
 .modal .stiles{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.modal .stile{padding:10px}.modal .stile b{font-size:19px}
 .qrimg{display:block;width:100%;max-width:340px;margin:8px auto 0;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
 .plyrow{cursor:pointer;transition:background .15s}.plyrow:hover{background:rgba(155,234,28,.06)}
+
+/* ===== Jornadas y croquis 1.29 ===== */
+h3.jor{margin:14px 0 4px;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--ac);font-family:Inter,sans-serif;font-style:normal}
+.descansa{margin:2px 0 6px;font-style:italic}
+.cqwrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.cqb{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:rgba(0,0,0,.2)}.cqb h3{margin:0 0 8px;font-size:15px;color:var(--ac)}
+.cqj{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-top:1px solid var(--line)}.cqj:first-of-type{border-top:0}
+.cqj>b{flex:none;width:30px;height:24px;display:grid;place-items:center;border-radius:7px;background:var(--line);font-size:12px;font-family:'Exo 2',Inter,sans-serif;font-style:italic}
+.cqm{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}.cqp{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:14px}.cqp i{font-style:normal;color:var(--mut);font-size:12px}
+.cqt{margin-left:auto;font-size:11px;color:var(--ac);white-space:nowrap}
+.view>#tt-croquis{grid-column:1/-1}
 @media (min-width:1240px){.wrap{max-width:1180px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 .hero{padding:22px 4px 8px}.hero h2{font-family:'Exo 2',Inter,sans-serif;font-style:italic;font-weight:800;font-size:30px;line-height:1.08;margin:0 0 10px}.hero h2 span{color:var(--ac)}.hero p{color:var(--mut);margin:0 0 16px}
@@ -291,7 +302,7 @@ button:active{transform:scale(.97)}button.sec:hover{background:#2c352a}
 .fmt.on::after{content:'';position:absolute;top:10px;right:10px;width:9px;height:9px;border-radius:50%;background:var(--ac);box-shadow:0 0 10px var(--ac)}
 /* reparto en columnas */
 .setup{display:flex;flex-direction:column}.scol,.duo{display:contents}
-@media (max-width:899px){#tt-datos{order:1}#tt-part{order:2}#tt-reglas{order:3}#tt-publico{order:4}#tt-inscr{order:5}#tt-info{order:6}#tt-noticias{order:7}#tt-patroc{order:8}}
+@media (max-width:899px){#tt-datos{order:1}#tt-part{order:2}#tt-reglas{order:3}#tt-horario{order:4}#tt-publico{order:5}#tt-inscr{order:6}#tt-info{order:7}#tt-noticias{order:8}#tt-patroc{order:9}}
 @media (min-width:900px){
   .setup{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(320px,1fr);gap:20px;align-items:start}
   .scol{display:flex;flex-direction:column;gap:18px}.scol>.card{margin:0}

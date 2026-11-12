@@ -1,6 +1,15 @@
 {
-  "version": "1.29.0",
+  "version": "1.29.1",
   "historial": [
+    {
+      "version": "1.29.1",
+      "fecha": "12/11/2026",
+      "cambios": [
+        "Torneo de hoy con o sin horas: con una sola consola puedes elegir «Solo el orden de juego» y los partidos se numeran por turnos.",
+        "Nuevo aviso «Ahora se juega» con el turno actual y el siguiente.",
+        "En «Cuándo se juega» eliges entre Torneo de hoy, Elegir días y horas o Sin horario."
+      ]
+    },
     {
       "version": "1.29.0",
       "fecha": "12/11/2026",

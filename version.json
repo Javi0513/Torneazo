@@ -1,6 +1,24 @@
 {
-  "version": "1.34.1",
+  "version": "1.36.0",
   "historial": [
+    {
+      "version": "1.36.0",
+      "fecha": "12/11/2026",
+      "cambios": [
+        "Nueva animación al abrir la app (tócala para saltarla).",
+        "La primera vez te damos la bienvenida: crea tu cuenta, entra o sigue como invitado.",
+        "Si haces un torneo sin cuenta y luego te registras o entras, se guarda en tu cuenta tal cual."
+      ]
+    },
+    {
+      "version": "1.35.0",
+      "fecha": "12/11/2026",
+      "cambios": [
+        "Botón «Atrás» en todas las pantallas para volver a la anterior.",
+        "Todas las ventanas se cierran con la X de arriba.",
+        "El gesto o botón de volver del móvil te lleva a la pantalla anterior en vez de salir de la app."
+      ]
+    },
     {
       "version": "1.34.1",
       "fecha": "12/11/2026",

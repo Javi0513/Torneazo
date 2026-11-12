@@ -7,7 +7,8 @@
       "cambios": [
         "Partidos repartidos por jornadas: cada uno juega una vez por jornada y, si son impares, uno descansa.",
         "Tras el sorteo ves un esquema de quién juega contra quién, jornada a jornada.",
-        "Horario automático: pon días, horas, campos, duración y descanso (10 min por defecto) y al hacer el sorteo cada partido tiene su hora."
+        "Horario automático: pon días, horas, campos, duración y descanso (10 min por defecto) y al hacer el sorteo cada partido tiene su hora.",
+        "Arreglado en iPhone: el cursor de escribir ya no aparece descolocado al tocar un campo."
       ]
     },
     {

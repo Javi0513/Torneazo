@@ -77,7 +77,7 @@ input,select,textarea{transition:border-color .2s,box-shadow .2s}
 input:focus,select:focus,textarea:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 3px #9BEA1C33}
 .match input:focus{transform:scale(1.08)}
 tr{transition:background .2s}tr:hover{background:#9BEA1C0d}
-.modal.on{animation:fade .2s both}.modal.on .card{animation:pop .3s var(--ease) both}
+.modal.on{animation:fade .2s both}.modal.on .card{animation:fade .25s ease both}
 .ad{animation:rise .6s var(--ease) .4s both}
 .acct{background:var(--card);color:var(--tx);border:1px solid var(--line);font:600 13px Inter,sans-serif;font-style:normal;padding:6px 12px;border-radius:99px;letter-spacing:0}
 .hdr-r{display:flex;align-items:center;gap:6px;flex:none;min-width:0}
@@ -197,7 +197,10 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;background:linear-gradi
 body.is-home::after{background:linear-gradient(180deg,rgba(7,8,7,.7) 0,rgba(7,8,7,.2) 14%,rgba(7,8,7,.35) 38%,rgba(7,8,7,.82) 70%,rgba(7,8,7,.94) 100%)}
 .tab{background-color:rgba(18,21,18,.85);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}.tab.on{background:var(--ac)}
 header{text-shadow:0 2px 10px rgba(0,0,0,.7)}
-.card,.sbar,.shero,.statusbar{background-color:rgba(18,21,18,.82);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+/* Sin backdrop-filter en tarjetas con campos: en Safari de iPhone descoloca el cursor de escribir */
+.card,.statusbar{background-color:rgba(18,21,18,.92)}
+.sbar,.shero{background-color:rgba(18,21,18,.82);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+input,textarea,select{caret-color:var(--ac)}
 .shero,.sbar{background-image:linear-gradient(120deg,rgba(16,21,16,.85),rgba(11,14,10,.85))}
 .is-home .hero{text-align:center;padding:24vh 4px 18px;max-width:820px;margin:0 auto}
 .is-home .hero h2{text-shadow:0 4px 24px rgba(0,0,0,.8)}.is-home .hero p{color:#cfd6cb;text-shadow:0 2px 12px rgba(0,0,0,.9)}

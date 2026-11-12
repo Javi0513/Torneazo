@@ -1,6 +1,14 @@
 {
-  "version": "1.35.0",
+  "version": "1.36.0",
   "historial": [
+    {
+      "version": "1.36.0",
+      "fecha": "12/11/2026",
+      "cambios": [
+        "Nueva animación al abrir la app (tócala para saltarla).",
+        "La primera vez te damos la bienvenida: crea tu cuenta, entra o sigue como invitado."
+      ]
+    },
     {
       "version": "1.35.0",
       "fecha": "12/11/2026",

@@ -1,7 +1,7 @@
 /* TORNEAZO · lógica de la app.
    Los eventos se atienden aquí (data-click, data-change, data-input, data-focus) y no con código
    dentro del HTML, así la política de seguridad puede prohibir los scripts en línea. */
-const OK_FN=new Set(["accountHome", "goBack", "modalX", "adminOpen", "setPlySort", "setBrandC", "brandClear", "brandLogo", "setMe", "waOpen", "waSend", "setSelfCk", "ckApply", "ckReset", "ckSend", "ckOther", "tvOpen", "tvClose", "tvFull", "tvNext", "dupT", "dupOk", "exportPdf", "openCode", "avisosOn", "avisosOff", "orgInvite", "orgUnlink", "orgRemove", "orgLeave", "orgCopy", "tLeave", "setLvl", "refreshLvq", "setCal", "setCalDay", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave"]);
+const OK_FN=new Set(["accountHome", "goBack", "modalX", "adminOpen", "setPlySort", "setBrandC", "brandClear", "brandLogo", "setMe", "waOpen", "waSend", "setSelfCk", "ckApply", "ckReset", "ckSend", "ckOther", "tvOpen", "tvClose", "tvFull", "tvNext", "dupT", "dupOk", "exportPdf", "openCode", "avisosOn", "avisosOff", "orgInvite", "orgUnlink", "orgRemove", "orgLeave", "orgCopy", "tLeave", "setLvl", "refreshLvq", "setCal", "setCalDay", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave", "welcomeGo"]);
 function splitTop(t,sep){
   const out=[];let d=0,q=null,cur='';
   for(let k=0;k<t.length;k++){const c=t[k];
@@ -2618,7 +2618,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.35.0';
+const APP_VERSION='1.36.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
@@ -2744,6 +2744,40 @@ async function startup(){
   setInterval(()=>checkUpdate(),18e5);
 }
 
+/* ===== Animación de inicio y pantalla de bienvenida ===== */
+const PLAIN=!RO&&!DIR&&!location.search;
+function splashShow(){
+  let skip=false;try{skip=sessionStorage.getItem('torneazo_splash')=='1';sessionStorage.setItem('torneazo_splash','1')}catch(e){}
+  if(skip||!PLAIN)return Promise.resolve();
+  const logo=(document.querySelector('header .brand img')||{}).src||'';
+  const d=document.createElement('div');d.id='splash';d.setAttribute('aria-hidden','true');
+  d.innerHTML=`<div class="sp-flash"></div><div class="sp-ring"></div><div class="sp-ring r2"></div><div class="sp-sparks">${Array.from({length:18},(_,i)=>`<i style="--a:${i*20}deg;--d:${(i%3)*40}ms"></i>`).join('')}</div>
+  <div class="sp-core">${logo?`<img src="${logo}" alt="">`:''}<div class="sp-t"><b>TORNE</b><em>AZO</em></div><div class="sp-by">by JAVI AI</div></div>`;
+  document.body.appendChild(d);
+  return new Promise(res=>{let done=false;const end=()=>{if(done)return;done=true;d.classList.add('out');setTimeout(()=>{d.remove();res()},360)};
+    d.addEventListener('click',end);setTimeout(end,matchMedia('(prefers-reduced-motion:reduce)').matches?700:1750)});
+}
+function welcomeShow(){
+  if(!PLAIN||lsGet('torneazo_welcome')||lsGet('torneazo_seen')||lsGet('torneazo_tuto')||user||!CFG.url)return;
+  const logo=(document.querySelector('header .brand img')||{}).src||'';
+  const ck='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const d=document.createElement('div');d.id='welcome';d.setAttribute('role','dialog');d.setAttribute('aria-modal','true');d.setAttribute('aria-labelledby','wl-t');
+  d.innerHTML=`<div class="wl-card">${logo?`<img class="wl-logo" src="${logo}" alt="">`:''}
+  <h1 id="wl-t"><b>TORNE</b><em>AZO</em></h1><p class="wl-sub">Organiza torneos de videojuegos y deportes en un minuto, desde el móvil.</p>
+  <ul class="wl-list"><li>${ck}Sorteo, partidos y clasificación automáticos</li><li>${ck}Página en directo para que todos lo sigan</li><li>${ck}Horarios, avisos al móvil y modo TV</li></ul>
+  <button data-click="welcomeGo('reg')">Crear cuenta gratis</button>
+  <button class="sec" data-click="welcomeGo('login')">Ya tengo cuenta · Entrar</button>
+  <button class="wl-guest" data-click="welcomeGo('guest')">Seguir como invitado</button>
+  <p class="wl-note">Como invitado puedes hacer tu torneo igual, pero se guarda solo en este móvil. Con cuenta lo tienes en todos tus dispositivos y puedes compartirlo con un enlace.</p></div>`;
+  document.body.appendChild(d);document.body.classList.add('wl-on');
+  setTimeout(()=>{const b=d.querySelector('button');if(b)b.focus()},50);
+}
+function welcomeGo(k){
+  lsSet('torneazo_welcome','1');const d=$('welcome');document.body.classList.remove('wl-on');
+  if(d){d.classList.add('out');setTimeout(()=>d.remove(),300)}
+  if(k=='reg'||k=='login'){authMode=k=='reg'?'register':'login';authForm();$('modal').classList.add('on')}
+}
+
 async function pagoOk(){
   if(!/[?&]pago=ok/.test(location.search))return;
   try{history.replaceState(null,'',location.pathname)}catch(e){}
@@ -2757,4 +2791,4 @@ async function pagoOk(){
   }
   const m=$('pg-m');if(m)m.textContent='El pago se está procesando. Tu Premium se activará en unos minutos; si no es así, escribe a '+esc((window.APP_CONFIG||{}).contactEmail||'')+'.';
 }
-render();if(DIR)initDir();else if(RO)initRO();else{initAuth();startup();pagoOk()}
+render();if(DIR)initDir();else if(RO)initRO();else{initAuth();startup();pagoOk();splashShow().then(welcomeShow)}

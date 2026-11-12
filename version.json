@@ -1,6 +1,13 @@
 {
-  "version": "1.28.1",
+  "version": "1.28.2",
   "historial": [
+    {
+      "version": "1.28.2",
+      "fecha": "12/11/2026",
+      "cambios": [
+        "Nuevo fondo de estadio con diseño propio."
+      ]
+    },
     {
       "version": "1.28.1",
       "fecha": "11/11/2026",

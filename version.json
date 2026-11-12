@@ -1,6 +1,14 @@
 {
-  "version": "1.28.0",
+  "version": "1.28.1",
   "historial": [
+    {
+      "version": "1.28.1",
+      "fecha": "11/11/2026",
+      "cambios": [
+        "Nuevas condiciones de uso y política de privacidad más completa.",
+        "Mejoras de accesibilidad en la fase final y de seguridad en la base de datos."
+      ]
+    },
     {
       "version": "1.28.0",
       "fecha": "11/11/2026",

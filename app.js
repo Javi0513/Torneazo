@@ -732,8 +732,8 @@ function viewKO(){
   h+='<div class="bracket">';
   R.forEach((r,ri)=>{h+=`<div class="card round"${ri==0?' id="tt-ko"':''}><h2>${roundName(ri,n)}</h2><div class="rms">`+r.map((m,i)=>m.bye?`<div class="ko">${nm(m.a??m.b)} <span class="small">· pasa directo</span></div>`:
     `<div class="ko">${whenLine(m)}<div class="match"><span class="a">${nm(m.a)}</span>
-    <input type="number" min="0" ${m.a==null||m.b==null?'disabled':''} value="${m.sa??''}" data-change="setKO(${ri},${i},'sa',this.value)"><span>-</span>
-    <input type="number" min="0" ${m.a==null||m.b==null?'disabled':''} value="${m.sb??''}" data-change="setKO(${ri},${i},'sb',this.value)"><span>${nm(m.b)}</span></div>
+    <input type="number" min="0" aria-label="Resultado de ${esc(tnm(m.a))}" ${m.a==null||m.b==null?'disabled':''} value="${m.sa??''}" data-change="setKO(${ri},${i},'sa',this.value)"><span>-</span>
+    <input type="number" min="0" aria-label="Resultado de ${esc(tnm(m.b))}" ${m.a==null||m.b==null?'disabled':''} value="${m.sb??''}" data-change="setKO(${ri},${i},'sb',this.value)"><span>${nm(m.b)}</span></div>
     ${m.sa!=null&&m.sa===m.sb?(rl().pen?`<div class="match pen"><span class="a small">Penaltis</span>
       <input type="number" min="0" aria-label="Penaltis ${esc(team(m.a).name)}" value="${m.pa??''}" data-change="setKO(${ri},${i},'pa',this.value)"><span>-</span>
       <input type="number" min="0" aria-label="Penaltis ${esc(team(m.b).name)}" value="${m.pb??''}" data-change="setKO(${ri},${i},'pb',this.value)"><span></span></div>${m.pa!=null&&m.pa===m.pb?'<div class="small" style="color:var(--ac)">Los penaltis no pueden acabar en empate.</div>':''}`:'<div class="small" style="color:var(--ac)">Empate: en esta eliminatoria no se permite. Cambia el marcador.</div>'):''}</div>`).join('')+`</div></div>`});
@@ -1716,7 +1716,7 @@ async function modSet(code,hide){
 // la seguridad real está en las reglas RLS de supabase/migrations). NUNCA pongas aquí la service_role.
 const _c=window.APP_CONFIG||{};
 const CFG={url:_c.supabaseUrl||'',key:_c.supabaseAnonKey||'',pro:_c.proUrl||'',proAnual:_c.proUrlAnual||'',portal:_c.portalUrl||'',captcha:_c.turnstileSiteKey||''};
-const TERMS='2026-11';
+const TERMS='2026-11-11';
 if(window.APP_CONFIG&&'serviceWorker' in navigator&&location.protocol.indexOf('http')==0)navigator.serviceWorker.register('sw.js').catch(()=>{});
 let sb=null,user=null,profile=null,authMode='login',authLock=0,saveT=null;
 const okAv=a=>typeof a=='string'&&a.length<40000&&/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(a);
@@ -1827,7 +1827,7 @@ function authForm(msg=''){
   ${reg?'<label for="au-n">Apodo</label><input id="au-n" maxlength="24" autocomplete="nickname">':''}
   <label for="au-e">Email</label><input id="au-e" type="email" maxlength="254" autocomplete="email">
   <label for="au-p">Contraseña ${reg?'(mínimo 10 caracteres)':''}</label><input id="au-p" type="password" maxlength="72" autocomplete="${reg?'new-password':'current-password'}">
-  ${reg?'<label style="display:flex;gap:8px;align-items:flex-start;color:var(--tx)"><input id="au-t" type="checkbox" style="width:auto;margin-top:3px"><span>Acepto los términos y la <a href="privacidad.html" target="_blank" rel="noopener" style="color:var(--ac)">política de privacidad</a></span></label>':''}
+  ${reg?'<label style="display:flex;gap:8px;align-items:flex-start;color:var(--tx)"><input id="au-t" type="checkbox" style="width:auto;margin-top:3px"><span>Tengo 14 años o más y acepto las <a href="condiciones.html" target="_blank" rel="noopener" style="color:var(--ac)">condiciones de uso</a> y la <a href="privacidad.html" target="_blank" rel="noopener" style="color:var(--ac)">política de privacidad</a></span></label>':''}
   <div id="au-c" style="margin-top:8px"></div>
   <div class="err" id="au-m" role="alert">${msg}</div>
   <div class="row"><button data-click="doAuth()">${reg?'Registrarme':'Entrar'}</button><button class="sec" data-click="closeModal()">Cancelar</button></div>
@@ -1880,7 +1880,7 @@ async function doAuth(){
   if(Date.now()<authLock){m.textContent='Espera unos segundos antes de reintentar.';return}
   if(!okEmail(e)){m.textContent='Escribe un email válido.';return}
   if(reg&&!okPw(p)){m.textContent='La contraseña necesita 10 o más caracteres, con letras y números.';return}
-  if(reg&&!$('au-t').checked){m.textContent='Para crear la cuenta debes aceptar los términos y la política de privacidad.';return}
+  if(reg&&!$('au-t').checked){m.textContent='Para crear la cuenta debes tener 14 años o más y aceptar las condiciones de uso y la política de privacidad.';return}
   if(reg&&await pwned(p)){m.textContent=PW_LEAK;return}
   authLock=Date.now()+3000;
   try{
@@ -1915,7 +1915,7 @@ function accountHome(){
   <div class="row"><button class="sec" data-click="logout()">Cerrar sesión</button><button class="sec" data-click="logout(true)">Salir en todos los dispositivos</button></div>
   ${profile&&profile.is_admin?'<div class="row" style="margin-top:8px"><button class="sec" data-click="modForm()">Moderación</button></div>':''}
   <div class="row" style="margin-top:10px"><button data-click="closeModal()">Cerrar</button></div>
-  <p class="small" style="margin-top:14px"><a href="#" style="color:#ff8a80" data-click="askDelete();return false">Borrar mi cuenta y mis datos</a> · <a href="privacidad.html" target="_blank" rel="noopener" style="color:var(--mut)">Privacidad</a> · <a href="#" style="color:var(--mut)" data-click="tutoOpen(0);return false">Tutorial</a> · <a href="#" style="color:var(--mut)" data-click="showNews(true);return false">Novedades</a></p>`;
+  <p class="small" style="margin-top:14px"><a href="#" style="color:#ff8a80" data-click="askDelete();return false">Borrar mi cuenta y mis datos</a> · <a href="privacidad.html" target="_blank" rel="noopener" style="color:var(--mut)">Privacidad</a> · <a href="condiciones.html" target="_blank" rel="noopener" style="color:var(--mut)">Condiciones</a> · <a href="#" style="color:var(--mut)" data-click="tutoOpen(0);return false">Tutorial</a> · <a href="#" style="color:var(--mut)" data-click="showNews(true);return false">Novedades</a></p>`;
 }
 function profForm(){
   pendAv=undefined;
@@ -1997,7 +1997,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.28.0';
+const APP_VERSION='1.28.1';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

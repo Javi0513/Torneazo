@@ -1,7 +1,7 @@
 /* TORNEAZO · lógica de la app.
    Los eventos se atienden aquí (data-click, data-change, data-input, data-focus) y no con código
    dentro del HTML, así la política de seguridad puede prohibir los scripts en línea. */
-const OK_FN=new Set(["accountHome", "setCal", "setCalDay", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave"]);
+const OK_FN=new Set(["accountHome", "setLvl", "refreshLvq", "setCal", "setCalDay", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave"]);
 function splitTop(t,sep){
   const out=[];let d=0,q=null,cur='';
   for(let k=0;k<t.length;k++){const c=t[k];
@@ -120,6 +120,7 @@ const G=[
  {k:'dardos',n:'Dardos / Billar',al:['dardos','billar','pool','futbolin'],cat:'Deporte de precisión',size:1,win:2,draw:0,nd:1,u:'partidas',lv:'dep'}];
 const lvList=()=>LV[S.lvScheme||'gen']||LV.gen;
 const lvN=()=>lvList().length;
+const lvBadge=v=>{if(!v)return '';const N=lvN(),p=N>1?(Math.round(v)-1)/(N-1):1,c=p>=.85?'#9BEA1C':p>=.6?'#F2CF5B':p>=.3?'#4FD1C5':'#9AA595';return `<b class="lvb" style="--lc:${c}" title="Nivel">${esc(lvLabel(v))}</b>`};
 const lvLabel=v=>{const L=lvList(),i=Math.min(L.length,Math.max(1,Math.round(v)));return L[i-1]+(v%1?` (${v.toFixed(1)})`:'')};
 const uAbbr=()=>(UN[S.unit]||UN.goles)[0];
 const modeName=n=>MODES[n]||`Equipos de ${n}`;
@@ -161,7 +162,7 @@ function allP(){
     if(m){const q=m[2].trim();let idx=parseInt(q,10);
       if(!(idx>=1&&idx<=lvN()))idx=lvList().findIndex(x=>norm(x).startsWith(norm(q)))+1;
       if(idx>=1&&norm(q)){lv=idx;t=m[1].trim()}}
-    if(!lv)lv=(S.lvl||{})[t.toLowerCase()]||0;
+    const ov=(S.lvl||{})[t.toLowerCase()];if(ov)lv=ov;
     return {n:t,seed,lv}}).filter(p=>p.n);
 }
 function lvlForm(){
@@ -665,8 +666,9 @@ function viewSetup(){
   <label>Sorteo</label><div class="chips"><div class="chip ${!S.manual&&!S.balance?'on':''}" data-click="setDrawMode('r')">Al azar</div><div class="chip ${S.balance?'on':''}" data-click="setDrawMode('b')">Equilibrado por nivel</div><div class="chip ${S.manual?'on':''}" data-click="setDrawMode('m')">Lo armo yo</div></div>
   <p class="small">${S.manual?'Los equipos se forman siguiendo el orden de tu lista y los grupos se reparten en orden. Después puedes mover cada equipo de grupo.':S.balance?'Reparte a los mejores y a los menos expertos para que todos los equipos y grupos queden parejos. Asigna los niveles abajo.':'Pon un * al final de un nombre para marcarlo como cabeza de serie: el sorteo no los junta en el mismo grupo ni equipo.'}</p>
   <div class="row" style="margin-bottom:6px"><button class="sec" id="tt-niveles" data-click="lvlForm()">Asignar niveles (${plist().filter(p=>p.lv).length} de ${names().length})</button></div><p class="small">Uno por línea (o separados por comas). ${S.premium?'Hasta 256.':`Gratis: hasta ${FREE.maxPlayers}.`} ${S.size>1?`Con ${modeName(S.size)} se forman equipos de ${S.size}.`:''}</p>
-  <textarea data-input="setText(this.value)" placeholder="Baruc&#10;Javi&#10;Willy&#10;...">${esc(S.players)}</textarea>
+  <textarea data-input="setText(this.value)" data-change="refreshLvq()" placeholder="Baruc&#10;Javi&#10;Willy&#10;...">${esc(S.players)}</textarea>
   <p class="small" id="count">${countText()}</p>
+  <div id="tt-lvq">${lvQuick()}</div>
   <div class="row" style="margin-bottom:6px"><button class="sec" id="tt-lista" data-click="listaForm()">Pasar lista${allP().length?` (${names().length} de ${allP().length})`:''}</button></div>
   <div class="row" id="tt-sorteo"><button data-click="draw()">Hacer sorteo</button><button class="sec" data-click="reset()">Nuevo torneo</button></div></div>`;
   return `${setupHero()}<div class="setup"><div class="scol smain">${datos}${reglas}${horarioCard()}<div class="duo">${pubCard()}${regCard()}</div>${infoCard()}<div class="duo">${newsCard()}${sponsCard()}</div></div><div class="scol sside">${part}</div></div>`;
@@ -674,7 +676,7 @@ function viewSetup(){
 function viewDraw(){
   const g=S.groupsList.length;
   return phasesCard()+`<div class="card" id="tt-sort"><h2>${RO?'Participantes':'Resultado del sorteo'}</h2>${RO?'':`<p class="small">Toca «Editar» para cambiar el nombre, el color y el escudo, o marcar un cabeza de serie.${g>1?' Con el selector de la derecha cambias un equipo de grupo.':''}</p>`}<div class="gwrap">`+S.groupsList.map((ids,gi)=>`<div class="gbox"><h3>${S.format=='liguilla'?'Liguilla':S.format=='suizo'?'Participantes':'Grupo '+String.fromCharCode(65+gi)}</h3>
-  ${ids.map((id,k)=>`<div class="trow"${gi==0&&k==0?' id="tt-equipo"':''}><div style="min-width:0;flex:1">${tag(id)}${S.size>1?`<div class="small">${team(id).members.map(esc).join(', ')}</div>`:''}${team(id).lv?`<div class="small">Nivel: ${esc(lvLabel(team(id).lv))}</div>`:''}</div>
+  ${ids.map((id,k)=>`<div class="trow"${gi==0&&k==0?' id="tt-equipo"':''}><div style="min-width:0;flex:1">${tag(id)}${S.size>1?`<div class="small">${team(id).members.map(esc).join(', ')}</div>`:''}${team(id).lv?`<div>${lvBadge(team(id).lv)}</div>`:''}</div>
     ${g>1?`<select class="mini" aria-label="Grupo de ${esc(team(id).name)}" data-change="moveTeam(${id},this.value)">${S.groupsList.map((_,x)=>`<option value="${x}" ${x==gi?'selected':''}>${String.fromCharCode(65+x)}</option>`).join('')}</select>`:''}
     <button class="sec sm" data-click="teamForm(${id})">Editar</button></div>`).join('')}</div>`).join('')+'</div>'+
   `<div class="row" style="margin-top:12px"><button class="sec" data-click="draw()">Repetir sorteo</button><button data-click="set('step',2)">Ver partidos →</button></div></div>`+croquis();
@@ -801,7 +803,7 @@ function nextCard(){
 function viewTeamsRO(){
   const T=S.teams||[],g=(S.groupsList||[]).length;
   return `<div class="card"><h2>Participantes (${T.length})</h2>${T.map(t=>{const gi=g>1?S.groupsList.findIndex(x=>x.includes(t.id)):-1;
-    return `<div class="trow"><div style="min-width:0;flex:1">${tag(t.id)}${+S.size>1?`<div class="small">${(t.members||[]).map(esc).join(', ')}</div>`:''}${t.lv?`<div class="small">Nivel: ${esc(lvLabel(t.lv))}</div>`:''}</div>${gi>=0?`<span class="small">Grupo ${String.fromCharCode(65+gi)}</span>`:''}</div>`}).join('')}</div>`;
+    return `<div class="trow"><div style="min-width:0;flex:1">${tag(t.id)}${+S.size>1?`<div class="small">${(t.members||[]).map(esc).join(', ')}</div>`:''}${t.lv?`<div>${lvBadge(t.lv)}</div>`:''}</div>${gi>=0?`<span class="small">Grupo ${String.fromCharCode(65+gi)}</span>`:''}</div>`}).join('')}</div>`;
 }
 function viewPrizesRO(){
   const L=prz();
@@ -1492,6 +1494,17 @@ function horarioCard(){
   ${err?`<p class="small bad">${esc(err)}</p>`:(c.mode=='hoy'?'':`<p class="small">Si no caben en un día, siguen el siguiente día de juego a la misma hora.</p>`)}`:''}</div>`;
 }
 
+
+/* ===== Nivel junto a cada jugador ===== */
+function lvQuick(){
+  const ps=allP();if(!ps.length)return '';const L=lvList();
+  return `<details class="lvq" ${S.balance||ps.some(p=>p.lv)?'open':''}><summary>Nivel de cada jugador <span class="small">(opcional · ${ps.filter(p=>p.lv).length} de ${ps.length})</span></summary>
+  <div class="lvqlist">${ps.map((p,i)=>`<div class="lvqrow"><span class="lvqn">${esc(p.n)}</span>${lvBadge(p.lv)}<select class="mini" aria-label="Nivel de ${esc(p.n)}" data-change="setLvl(${i},this.value)"><option value="0">Sin nivel</option>${L.map((x,k)=>`<option value="${k+1}" ${Math.round(p.lv)==k+1?'selected':''}>${esc(x)}</option>`).join('')}</select></div>`).join('')}</div>
+  <p class="small" style="margin:6px 0 0">Elige «Equilibrado por nivel» en Sorteo para que los grupos queden parejos.</p></details>`;
+}
+function refreshLvq(){const b=$('tt-lvq');if(b)b.innerHTML=lvQuick()}
+function setLvl(i,v){const p=allP()[+i];if(!p)return;S.lvl=S.lvl||{};const k=p.n.toLowerCase();if(+v>0)S.lvl[k]=+v;else delete S.lvl[k];save();render()}
+
 /* ===== Calendario de partidos ===== */
 let pv='res',calF='all';
 const DAYS=['dom','lun','mar','mié','jue','vie','sáb'],MONTHS=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
@@ -2083,7 +2096,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.29.1';
+const APP_VERSION='1.30.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

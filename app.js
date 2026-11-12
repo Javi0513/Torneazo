@@ -2582,7 +2582,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.34.0';
+const APP_VERSION='1.34.1';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
@@ -2677,7 +2677,7 @@ function tutShow(){
     hole.style.cssText=`display:block;top:${r.top-pad}px;left:${r.left-pad}px;width:${r.width+pad*2}px;height:${r.height+pad*2}px`;
     box.classList.add('on-el');if(r.top+r.height/2>innerHeight/2)card.classList.add('top');
   }else{hole.style.display='none';box.classList.remove('on-el')}
-  card.innerHTML=`<div class="kicker">Paso ${tutI+1} de ${TOUR.length}</div><h2 id="tutT">${esc(s.t)}</h2><p>${esc(s.p)}</p>
+  card.innerHTML=`<button class="tut-x" data-tut="skip" aria-label="Cerrar el tutorial"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button><div class="kicker">Paso ${tutI+1} de ${TOUR.length}</div><h2 id="tutT">${esc(s.t)}</h2><p>${esc(s.p)}</p>
     <div class="tut-dots" aria-hidden="true">${TOUR.map((_,k)=>`<i class="${k==tutI?'on':''}"></i>`).join('')}</div>
     <div class="tut-btns">${tutI?'<button class="sec" data-tut="prev">Atrás</button>':'<button class="sec" data-tut="skip">Saltar</button>'}<span></span><button data-tut="next">${last?'Empezar':'Siguiente'}</button></div>`;
   card.querySelector('[data-tut="next"]').focus({preventScroll:true});

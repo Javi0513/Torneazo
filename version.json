@@ -1,6 +1,13 @@
 {
-  "version": "1.34.0",
+  "version": "1.34.1",
   "historial": [
+    {
+      "version": "1.34.1",
+      "fecha": "12/11/2026",
+      "cambios": [
+        "El tutorial se puede cerrar en cualquier paso con la X de arriba."
+      ]
+    },
     {
       "version": "1.34.0",
       "fecha": "12/11/2026",

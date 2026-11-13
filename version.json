@@ -1,6 +1,13 @@
 {
-  "version": "1.37.1",
+  "version": "1.38.0",
   "historial": [
+    {
+      "version": "1.38.0",
+      "fecha": "13/11/2026",
+      "cambios": [
+        "Nuevo diseño de las tarjetas de juegos y deportes: cada una tiene su propia ilustración y sus colores, para reconocerla de un vistazo."
+      ]
+    },
     {
       "version": "1.37.1",
       "fecha": "13/11/2026",

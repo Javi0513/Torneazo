@@ -1,6 +1,13 @@
 {
-  "version": "1.36.0",
+  "version": "1.37.0",
   "historial": [
+    {
+      "version": "1.37.0",
+      "fecha": "13/11/2026",
+      "cambios": [
+        "Streamers oficiales: apunta quién retransmite el torneo y en la página pública y en el modo TV sale «En directo» en rojo cuando está emitiendo en Twitch, para que la gente entre a verle."
+      ]
+    },
     {
       "version": "1.36.0",
       "fecha": "12/11/2026",

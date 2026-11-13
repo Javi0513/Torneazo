@@ -1,7 +1,7 @@
 /* TORNEAZO · lógica de la app.
    Los eventos se atienden aquí (data-click, data-change, data-input, data-focus) y no con código
    dentro del HTML, así la política de seguridad puede prohibir los scripts en línea. */
-const OK_FN=new Set(["accountHome", "askAccount", "askGo", "guestLater", "guestKeep", "guestDrop", "goBack", "modalX", "adminOpen", "setPlySort", "setBrandC", "brandClear", "brandLogo", "setMe", "waOpen", "waSend", "setSelfCk", "ckApply", "ckReset", "ckSend", "ckOther", "tvOpen", "tvClose", "tvFull", "tvNext", "dupT", "dupOk", "exportPdf", "openCode", "avisosOn", "avisosOff", "orgInvite", "orgUnlink", "orgRemove", "orgLeave", "orgCopy", "tLeave", "setLvl", "refreshLvq", "setCal", "setCalDay", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave", "welcomeGo"]);
+const OK_FN=new Set(["accountHome", "strAdd", "strDel", "askAccount", "askGo", "guestLater", "guestKeep", "guestDrop", "goBack", "modalX", "adminOpen", "setPlySort", "setBrandC", "brandClear", "brandLogo", "setMe", "waOpen", "waSend", "setSelfCk", "ckApply", "ckReset", "ckSend", "ckOther", "tvOpen", "tvClose", "tvFull", "tvNext", "dupT", "dupOk", "exportPdf", "openCode", "avisosOn", "avisosOff", "orgInvite", "orgUnlink", "orgRemove", "orgLeave", "orgCopy", "tLeave", "setLvl", "refreshLvq", "setCal", "setCalDay", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave", "welcomeGo"]);
 function splitTop(t,sep){
   const out=[];let d=0,q=null,cur='';
   for(let k=0;k<t.length;k++){const c=t[k];
@@ -504,6 +504,7 @@ function infoCard(){
   <div><label for="i-w">Web (enlace)</label><input id="i-w" maxlength="120" placeholder="https://…" value="${esc(i.web)}" data-change="setInfo('web',this.value)"></div></div>
   <label for="i-st">Directo (Twitch, YouTube, Kick…)</label><input id="i-st" maxlength="160" placeholder="https://twitch.tv/…" value="${esc(i.stream)}" data-change="setInfo('stream',this.value)">
   ${i.stream&&!okUrl(i.stream)?'<p class="small bad">El enlace tiene que empezar por https://</p>':''}
+  ${strEditor()}
   <label for="i-r">Reglas del torneo</label><textarea id="i-r" maxlength="800" style="min-height:90px" placeholder="Ej.: partidos de 10 minutos, sin trampas, el resultado lo anota el organizador…" data-change="setInfo('rules',this.value)">${esc(i.rules)}</textarea></div>`;
 }
 /* ===== Premios ===== */
@@ -805,9 +806,11 @@ function viewResumenRO(){
     ${i.desc?`<p style="margin:12px 0 0;white-space:pre-line">${esc(i.desc)}</p>`:''}
     <div style="margin-top:12px">${row('Juego o deporte',esc(S.game))}${row('Fechas',f?esc(f)+(g&&g!==f?' – '+esc(g):''):'')}${row('Participantes',n?String(n)+(+S.size>1?' equipos':''):'')}${row('Formato',esc(fmx))}
     ${row('Puntos',`${+r.win||0} por victoria${r.noDraw?', sin empates':`, ${+r.draw||0} por empate`}`)}${row('Organiza',esc(i.org))}${row('Contacto',esc(i.contact))}${row('Directo',link(i.stream))}${row('Discord',link(i.discord))}${row('Web',link(i.web))}</div></div>
+  ${liveBanner()}
   ${okUrl(i.stream)&&e.c!='done'?`<a class="card livecard" href="${esc(i.stream)}" target="_blank" rel="noopener noreferrer"><span class="dot"></span><b>Ver el directo</b><span class="small">${esc(i.stream.replace(/^https?:\/\/(www\.)?/,'').slice(0,40))}</span></a>`:''}
   ${newsPublic()}
   ${selfCkCard()}
+  ${streamersCard()}
   ${myCard()}
   ${avisosCard()}
   <div class="card tvcta keepro"><div><b>Compártelo</b><p class="small" style="margin:2px 0 0">Manda los resultados al grupo o ponlo en grande en una tele o un proyector.</p></div><div class="row" style="width:auto;flex-wrap:nowrap"><button class="sec" data-click="waOpen()">Mandar por WhatsApp</button><button class="sec" data-click="tvOpen()">Ver en modo TV</button></div></div>
@@ -850,7 +853,7 @@ async function loadRO(){
 async function initRO(){
   if(!CFG.url||!window.supabase){roState='missing';return render()}
   sb=window.supabase.createClient(CFG.url,CFG.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
-  await loadRO();setInterval(loadRO,TVQ?15000:30000);if(TVQ&&roState=='ok')tvOpen();
+  await loadRO();liveLoad();setInterval(loadRO,TVQ?15000:30000);if(TVQ&&roState=='ok')tvOpen();
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadRO()});
 }
 
@@ -1763,7 +1766,7 @@ function openCode(){
 
 
 /* ===== Duplicar torneo ===== */
-const DUP_KEYS=['game','preset','lvScheme','unit','rules','size','ent','format','groups','pairing','rivals','nextN','nextExtra','nextKind','koTop','swissRounds','swissCut','third','players','lvl','balance','manual','info','prizes','spons','cal','tz','selfRep','brand'];
+const DUP_KEYS=['game','preset','lvScheme','unit','rules','size','ent','format','groups','pairing','rivals','nextN','nextExtra','nextKind','koTop','swissRounds','swissCut','third','players','lvl','balance','manual','info','prizes','spons','cal','tz','selfRep','brand','streams'];
 function dupData(src){
   const d=def(),J=x=>x==null?x:JSON.parse(JSON.stringify(x));
   DUP_KEYS.forEach(k=>{if(src[k]!==undefined)d[k]=J(src[k])});
@@ -1938,6 +1941,49 @@ async function adminOpen(){
   <div class="row" style="margin-top:12px"><button class="sec" data-click="modForm()">Moderación</button><button class="sec" data-click="closeModal()">Cerrar</button></div>`;
 }
 
+/* ===== Streamers oficiales: quién está en directo ===== */
+const strs=()=>Array.isArray(S.streams)?S.streams.filter(s=>s&&okUrl(s.u)).slice(0,8):[];
+function plat(u){const h=String(u).toLowerCase();return /twitch\.tv\//.test(h)?'Twitch':/youtube\.com\/|youtu\.be\//.test(h)?'YouTube':/kick\.com\//.test(h)?'Kick':'Directo'}
+const twLogin=u=>{const m=/^https?:\/\/(?:www\.|m\.)?twitch\.tv\/([A-Za-z0-9_]{3,25})(?:[/?#].*)?$/i.exec(String(u||'').trim());return m?m[1].toLowerCase():null};
+let liveS={},liveAt=0,liveBusy=false,liveOk=false;
+const liveOf=s=>{const l=twLogin(s.u);return l&&liveS[l]?liveS[l]:null};
+function strAdd(){
+  const n=(($('st-n')||{}).value||'').trim().slice(0,30),u=(($('st-u')||{}).value||'').trim().slice(0,160),m=$('st-m');
+  if(!n||!okUrl(u)){if(m)m.textContent='Pon el nombre y el enlace del canal (empieza por https://).';return}
+  if(strs().length>=8){if(m)m.textContent='Como máximo 8 streamers.';return}
+  S.streams=strs().concat([{n,u}]);save();liveAt=0;render();liveLoad();
+}
+function strDel(i){S.streams=strs().filter((_,k)=>k!==+i);save();render()}
+function strEditor(){
+  const L=strs();
+  return `<label>Streamers oficiales</label><p class="small" style="margin-top:0">Quien retransmita el torneo. En la página pública y en el modo TV saldrá «En directo» cuando esté emitiendo en Twitch.</p>
+  ${L.map((s,i)=>`<div class="trow"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis"><b>${esc(s.n)}</b> <span class="small">· ${plat(s.u)}</span>${liveOf(s)?' <span class="lvtag">En directo</span>':''}</span><button class="sec sm" aria-label="Quitar a ${esc(s.n)}" data-click="strDel(${i})">Quitar</button></div>`).join('')}
+  ${L.length<8?`<div class="row"><div><label for="st-n" class="small">Nombre</label><input id="st-n" maxlength="30" placeholder="Ej.: Baruc"></div><div><label for="st-u" class="small">Enlace del canal</label><input id="st-u" maxlength="160" placeholder="https://twitch.tv/…"></div></div>
+  <div class="row" style="margin-top:6px"><button class="sec" data-click="strAdd()">Añadir streamer</button></div><div class="small" id="st-m" role="status"></div>`:''}`;
+}
+async function liveLoad(){
+  const code=RO?ROCODE:(S.pub&&S.pub.code);
+  if(!CFG.url||!code||liveBusy||!strs().some(s=>twLogin(s.u))||Date.now()-liveAt<45000)return;liveBusy=true;
+  try{const r=await fetch(CFG.url+'/functions/v1/directos',{method:'POST',headers:{'Content-Type':'application/json',apikey:CFG.key},body:JSON.stringify({code})});
+    liveAt=Date.now();const j=await r.json().catch(()=>({}));const n=j&&j.live&&typeof j.live=='object'?j.live:{};liveOk=!!(j&&j.ok);
+    if(JSON.stringify(n)!==JSON.stringify(liveS)){liveS=n;const a=document.activeElement;if(!(a&&a.closest&&a.closest('#app')&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)))render();else if(TV)tvRender()}
+  }catch(e){}finally{liveBusy=false}
+}
+setInterval(()=>{if(!document.hidden&&(RO||TV||(!DIR&&S.step==0)))liveLoad()},15000);
+function strSorted(){return strs().map(s=>({s,l:liveOf(s)})).sort((a,b)=>(b.l?1:0)-(a.l?1:0)||((b.l&&b.l.v)||0)-((a.l&&a.l.v)||0))}
+function streamersCard(){
+  const L=strSorted();if(!L.length)return '';
+  const on=L.filter(x=>x.l).length;
+  return `<div class="card" id="tt-streamers"><h2>Streamers oficiales${on?` <span class="lvtag">${on} en directo</span>`:''}</h2>
+  ${L.map(({s,l})=>`<a class="strow${l?' on':''}" href="${esc(s.u)}" target="_blank" rel="noopener noreferrer"><span class="sdot" aria-hidden="true"></span>
+  <span class="sname"><b>${esc(s.n)}</b><span class="small">${l?esc(l.t||'En directo'):plat(s.u)}</span></span>
+  <span class="sstate">${l?`En directo<small>${(+l.v||0).toLocaleString('es-ES')} viendo</small>`:plat(s.u)=='Twitch'&&liveOk?'Desconectado':'Ver canal'}</span></a>`).join('')}</div>`;
+}
+function liveBanner(){
+  const L=strSorted().filter(x=>x.l);if(!L.length)return '';
+  const t=L[0];return `<a class="card livecard" href="${esc(t.s.u)}" target="_blank" rel="noopener noreferrer"><span class="dot"></span><b>${esc(t.s.n)} está en directo</b><span class="small">${L.length>1?`y ${L.length-1} más`:esc(plat(t.s.u))}</span></a>`;
+}
+
 /* ===== Modo TV: pantalla grande para la tele o el proyector ===== */
 const TVQ=(()=>{try{return new URLSearchParams(location.search).get('tv')==='1'}catch(e){return false}})();
 let TV=false,tvPage=0,tvRot=null,tvClk=null,tvQR='';
@@ -1947,7 +1993,7 @@ async function tvOpen(){
   const u=tvUrl();tvQR='';if(u){try{await loadQR();const q=qrcode(0,'M');q.addData(u);q.make();tvQR=q.createDataURL(6,2)}catch(e){tvQR=''}}
   clearInterval(tvRot);tvRot=setInterval(()=>{tvPage++;tvRender()},12000);
   clearInterval(tvClk);tvClk=setInterval(()=>{const c=$('tv-clk');if(c)c.textContent=tvTime()},1000);
-  document.body.classList.add('tv-on');applyBrand();tvRender();navSync();
+  document.body.classList.add('tv-on');applyBrand();tvRender();navSync();liveLoad();
 }
 function tvClose(){TV=false;setTimeout(applyBrand,0);clearInterval(tvRot);clearInterval(tvClk);const t=$('tv');if(t)t.remove();document.body.classList.remove('tv-on');try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}}
 function tvFull(){try{const d=document.documentElement;if(document.fullscreenElement)document.exitFullscreen();else if(d.requestFullscreen)d.requestFullscreen()}catch(e){}}
@@ -1990,7 +2036,8 @@ function tvSide(){
   else{const sc=pend.filter(x=>okDT(x.m.t)).sort(byTime),list=(sc.length?sc:pend).slice(0,tvQR?3:5);now=list.map(x=>tvMatch(x.m,okDT(x.m.t)?x.m.t.slice(11)+(x.m.c?' · '+x.m.c:''):x.lab)).join('')}
   const rec=done.slice().sort((x,y)=>(okDT(y.m.t)&&okDT(x.m.t)?(y.m.t>x.m.t?1:y.m.t<x.m.t?-1:0):0)||((+y.m.o||0)-(+x.m.o||0))||0);
   const last=(rec.some(x=>okDT(x.m.t)||x.m.o)?rec:done.slice().reverse()).slice(0,tvQR?3:5);
-  return `<div class="tvbox"><h3>${esc(title)}</h3>${now||'<p class="tvmut">No quedan partidos pendientes</p>'}</div>
+  const lv=strSorted().filter(x=>x.l).slice(0,2);
+  return `${lv.length?`<div class="tvbox tvlive"><h3>En directo</h3>${lv.map(x=>`<div class="tvls"><span class="sdot"></span><b>${esc(x.s.n)}</b><span>${(+x.l.v||0).toLocaleString('es-ES')} viendo · ${esc(plat(x.s.u).toLowerCase()=='twitch'?x.s.u.replace(/^https?:\/\/(www\.)?/,''):plat(x.s.u))}</span></div>`).join('')}</div>`:''}<div class="tvbox"><h3>${esc(title)}</h3>${now||'<p class="tvmut">No quedan partidos pendientes</p>'}</div>
   <div class="tvbox"><h3>Últimos resultados</h3>${last.map(x=>tvMatch(x.m,x.lab)).join('')||'<p class="tvmut">Aún no hay resultados</p>'}</div>`;
 }
 function tvRender(){
@@ -2619,7 +2666,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.36.0';
+const APP_VERSION='1.37.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

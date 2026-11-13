@@ -1,6 +1,14 @@
 {
-  "version": "1.37.0",
+  "version": "1.37.1",
   "historial": [
+    {
+      "version": "1.37.1",
+      "fecha": "13/11/2026",
+      "cambios": [
+        "Arreglado: en iPhone, al pulsar «Actualizar» la app ya no se queda en negro.",
+        "Si la app tarda en abrir, sale «Cargando…» con un botón para volver a intentarlo."
+      ]
+    },
     {
       "version": "1.37.0",
       "fecha": "13/11/2026",

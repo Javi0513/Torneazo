@@ -323,6 +323,14 @@ body.tv-on{overflow:hidden}body.tv-on #ad{display:none!important}
 .elo{font:italic 800 18px 'Exo 2',sans-serif;color:var(--ac);margin-left:8px}
 .adbars{display:flex;align-items:flex-end;gap:4px;height:120px;padding:6px 0 18px;border-bottom:1px solid var(--line)}.adday{flex:1;height:100%;display:flex;align-items:flex-end;gap:1px;position:relative}.adday i{flex:1;background:var(--ac);border-radius:3px 3px 0 0;min-height:2px}.adday i.u{background:#5b6b56}.adday span{position:absolute;bottom:-17px;left:0;right:0;text-align:center;font-size:10px;color:var(--mut)}
 .adk{display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--ac);margin:0 4px 0 8px}.adk.u{background:#5b6b56}.adbar{display:grid;grid-template-columns:110px 1fr 40px;gap:8px;align-items:center;margin:4px 0;font-size:14px}.adbar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.adbar i{height:10px;background:var(--ac);border-radius:5px}.adbar b{text-align:right}
+.lvtag{display:inline-block;background:#ff3b3b;color:#fff;font:700 11px Inter,sans-serif;letter-spacing:.04em;text-transform:uppercase;padding:3px 7px;border-radius:6px;vertical-align:middle;font-style:normal}
+.strow{display:flex;align-items:center;gap:12px;padding:10px 4px;border-top:1px solid var(--line);color:inherit;text-decoration:none}.strow:first-of-type{border-top:0}
+.sdot{width:12px;height:12px;border-radius:50%;background:#5b6359;flex-shrink:0}.strow.on .sdot,.tvls .sdot{background:#ff3b3b;animation:lvp 1.6s infinite}
+.sname{flex:1;min-width:0;display:flex;flex-direction:column}.sname .small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sstate{font-weight:700;font-size:13px;color:var(--mut);text-align:right;display:flex;flex-direction:column}.strow.on .sstate{color:#ff5a5a}.sstate small{font-weight:500;color:var(--mut)}
+.strow:hover b,.strow:focus-visible b{color:var(--ac)}
+.tvlive{border-color:rgba(255,59,59,.55)!important}.tvlive h3{color:#ff5a5a!important}.tvls{display:grid;grid-template-columns:auto 1fr;gap:.1em .6em;align-items:center;padding:.3em 0}.tvls span:last-child{grid-column:2;color:#9AA595;font-size:.85em}
+@media (prefers-reduced-motion:reduce){.strow.on .sdot,.tvls .sdot{animation:none}}
 .ckbox{border:1px solid var(--line,rgba(255,255,255,.12));border-radius:12px;padding:10px 12px;margin:0 0 12px}.ckcard{border-color:var(--ac)}
 .tvcta{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap}.tvcta button{width:auto;margin:0}
 /* Animación de inicio */

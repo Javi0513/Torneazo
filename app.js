@@ -2666,7 +2666,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.37.0';
+const APP_VERSION='1.37.1';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
@@ -2686,9 +2686,20 @@ function showUpdateBar(v){
   document.body.appendChild(d);
 }
 async function applyUpdate(){
-  try{const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.update()))}catch(e){}
-  try{const ks=await caches.keys();await Promise.all(ks.filter(k=>k.indexOf('torneazo-')==0).map(k=>caches.delete(k)))}catch(e){}
-  location.reload();
+  /* Espera a que la versión nueva esté instalada del todo antes de recargar: si se recarga mientras se instala,
+     en iPhone se cortan las descargas y la app se queda en negro. */
+  const b=$('upd');if(b)b.innerHTML='<span>Actualizando TORNEAZO…</span>';
+  let done=false;const go=()=>{if(done)return;done=true;location.reload()};
+  try{
+    const reg='serviceWorker' in navigator?await navigator.serviceWorker.getRegistration():null;
+    if(reg){
+      navigator.serviceWorker.addEventListener('controllerchange',()=>setTimeout(go,300),{once:true});
+      await reg.update().catch(()=>{});
+      if(reg.waiting)reg.waiting.postMessage('skip');
+      if(reg.installing||reg.waiting){setTimeout(go,12000);return}
+    }
+  }catch(e){}
+  go();
 }
 function newsHtml(list){return list.map(e=>`<h3>Versión ${esc(e.version)} · ${esc(e.fecha||'')}</h3><ul>${(e.cambios||[]).map(c=>`<li>${esc(c)}</li>`).join('')}</ul>`).join('')}
 function showNews(all,pending){

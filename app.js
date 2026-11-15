@@ -93,6 +93,7 @@ if(LANG==='en'){
   const start=()=>{trTree(document.body);obs.observe(document.body,{childList:true,subtree:true,characterData:true});try{document.title=trS(document.title)}catch(e){}};
   if(document.body)start();else document.addEventListener('DOMContentLoaded',start);
 }
+const LEGAL=LANG==='en'?{priv:'privacy.html',terms:'terms.html'}:{priv:'privacidad.html',terms:'condiciones.html'};
 function setLang(l){lsSet('torneazo_lang',l==='en'?'en':'es');location.reload()}
 const langLink=()=>`<a href="#" style="color:var(--mut)" data-click="setLang('${LANG==='en'?'es':'en'}');return false" data-notr>${LANG==='en'?'Español':'English'}</a>`;
 
@@ -2873,7 +2874,7 @@ function authForm(msg=''){
   ${reg?'<label for="au-n">Apodo</label><input id="au-n" maxlength="24" autocomplete="nickname">':''}
   <label for="au-e">Email</label><input id="au-e" type="email" maxlength="254" autocomplete="email">
   <label for="au-p">Contraseña ${reg?'(mínimo 10 caracteres)':''}</label><input id="au-p" type="password" maxlength="72" autocomplete="${reg?'new-password':'current-password'}">
-  ${reg?'<label style="display:flex;gap:8px;align-items:flex-start;color:var(--tx)"><input id="au-t" type="checkbox" style="width:auto;margin-top:3px"><span>Tengo 14 años o más y acepto las <a href="condiciones.html" target="_blank" rel="noopener" style="color:var(--ac)">condiciones de uso</a> y la <a href="privacidad.html" target="_blank" rel="noopener" style="color:var(--ac)">política de privacidad</a></span></label>':''}
+  ${reg?'<label style="display:flex;gap:8px;align-items:flex-start;color:var(--tx)"><input id="au-t" type="checkbox" style="width:auto;margin-top:3px"><span>Tengo 14 años o más y acepto las <a href="'+LEGAL.terms+'" target="_blank" rel="noopener" style="color:var(--ac)">condiciones de uso</a> y la <a href="'+LEGAL.priv+'" target="_blank" rel="noopener" style="color:var(--ac)">política de privacidad</a></span></label>':''}
   <div id="au-c" style="margin-top:8px"></div>
   <div class="err" id="au-m" role="alert">${msg}</div>
   <div class="row"><button data-click="doAuth()">${reg?'Registrarme':'Entrar'}</button><button class="sec" data-click="closeModal()">Cancelar</button></div>
@@ -2961,7 +2962,7 @@ function accountHome(){
   <div class="row"><button class="sec" data-click="logout()">Cerrar sesión</button><button class="sec" data-click="logout(true)">Salir en todos los dispositivos</button></div>
   ${profile&&profile.is_admin?'<div class="row" style="margin-top:8px"><button class="sec" data-click="adminOpen()">Panel de administración</button><button class="sec" data-click="modForm()">Moderación</button></div>':''}
   <div class="row" style="margin-top:10px"><button data-click="closeModal()">Cerrar</button></div>
-  <p class="small" style="margin-top:14px"><a href="#" style="color:#ff8a80" data-click="askDelete();return false">Borrar mi cuenta y mis datos</a> · <a href="privacidad.html" target="_blank" rel="noopener" style="color:var(--mut)">Privacidad</a> · <a href="condiciones.html" target="_blank" rel="noopener" style="color:var(--mut)">Condiciones</a> · <a href="#" style="color:var(--mut)" data-click="tutoOpen(0);return false">Tutorial</a> · <a href="#" style="color:var(--mut)" data-click="showNews(true);return false">Novedades</a></p>`;
+  <p class="small" style="margin-top:14px"><a href="#" style="color:#ff8a80" data-click="askDelete();return false">Borrar mi cuenta y mis datos</a> · <a href="${LEGAL.priv}" target="_blank" rel="noopener" style="color:var(--mut)">Privacidad</a> · <a href="${LEGAL.terms}" target="_blank" rel="noopener" style="color:var(--mut)">Condiciones</a> · <a href="#" style="color:var(--mut)" data-click="tutoOpen(0);return false">Tutorial</a> · <a href="#" style="color:var(--mut)" data-click="showNews(true);return false">Novedades</a></p>`;
 }
 function profForm(){
   pendAv=undefined;
@@ -3044,7 +3045,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.41.0';
+const APP_VERSION='1.41.1';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

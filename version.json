@@ -1,6 +1,14 @@
 {
-  "version": "1.41.0",
+  "version": "1.41.1",
   "historial": [
+    {
+      "version": "1.41.1",
+      "fecha": "15/11/2026",
+      "cambios": [
+        "Política de privacidad actualizada con las funciones nuevas (avisos para organizadores, Discord, Twitch, asistencia por QR y árbitros).",
+        "Privacidad, condiciones y borrado de datos también en inglés."
+      ]
+    },
     {
       "version": "1.41.0",
       "fecha": "15/11/2026",

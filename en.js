@@ -896,7 +896,9 @@ window.TZ_EN={
 "En la pestaña «Premios» pones lo que se lleva cada uno: por posición (campeón, subcampeón…), por objetivos (más goles, mejor defensa…) o lo que tú quieras, como «mejor jugador». Los de posición y objetivos se asignan solos con los resultados.": "In the «Prizes» tab you set what each one wins: by position (champion, runner-up…), by goal (most goals, best defence…) or anything you like, such as «best player». Position and goal prizes are assigned automatically from the results.",
 "En «Partidos › Calendario» ves todos los partidos ordenados por día y hora. Pulsa «Programar automáticamente» y la app reparte los partidos en el tiempo, sin que nadie juegue dos a la vez y con descanso entre partidos. También puedes poner la fecha de cada partido a mano, o añadirlos a tu calendario del móvil.": "In «Matches › Calendar» you see all matches sorted by day and time. Tap «Schedule automatically» and the app spreads the matches over time, with nobody playing two at once and a break between matches. You can also set each match date by hand, or add them to your phone calendar.",
 "TORNEAZO ya está en inglés: si tu móvil está en otro idioma se abre en inglés, y abajo puedes cambiar entre «English» y «Español».": "TORNEAZO is now in English: if your phone is in another language it opens in English, and at the bottom you can switch between «English» and «Español».",
-"Arreglado: la etiqueta «Publicidad» del anuncio se veía cortada.": "Fixed: the «Advertising» label on the ad was cut off."
+"Arreglado: la etiqueta «Publicidad» del anuncio se veía cortada.": "Fixed: the «Advertising» label on the ad was cut off.",
+"Política de privacidad actualizada con las funciones nuevas (avisos para organizadores, Discord, Twitch, asistencia por QR y árbitros).": "Privacy policy updated with the new features (organizer alerts, Discord, Twitch, QR check-in and referees).",
+"Privacidad, condiciones y borrado de datos también en inglés.": "Privacy, terms and data deletion pages are now also in English."
 };
 window.TZ_ENRX=[
  [/^Grupo de (.+)$/,'Team $1'],

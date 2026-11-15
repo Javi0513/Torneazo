@@ -1,7 +1,7 @@
 /* TORNEAZO · lógica de la app.
    Los eventos se atienden aquí (data-click, data-change, data-input, data-focus) y no con código
    dentro del HTML, así la política de seguridad puede prohibir los scripts en línea. */
-const OK_FN=new Set(["accountHome", "strAdd", "strDel", "askAccount", "askGo", "guestLater", "guestKeep", "guestDrop", "goBack", "modalX", "adminOpen", "setPlySort", "setBrandC", "brandClear", "brandLogo", "setMe", "waOpen", "waSend", "setSelfCk", "ckApply", "ckReset", "ckSend", "ckOther", "tvOpen", "tvClose", "tvFull", "tvNext", "dupT", "dupOk", "exportPdf", "openCode", "avisosOn", "avisosOff", "orgInvite", "orgUnlink", "orgRemove", "orgLeave", "orgCopy", "tLeave", "setLvl", "refreshLvq", "setCal", "setCalDay", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave", "welcomeGo"]);
+const OK_FN=new Set(["accountHome", "setSeason", "seasonOpen", "oavOn", "oavOff", "dcSave", "dcOff", "dcTest", "drawGo", "dfxEnd", "strAdd", "strDel", "askAccount", "askGo", "guestLater", "guestKeep", "guestDrop", "goBack", "modalX", "adminOpen", "setPlySort", "setBrandC", "brandClear", "brandLogo", "setMe", "waOpen", "waSend", "setSelfCk", "ckApply", "ckReset", "ckSend", "ckOther", "tvOpen", "tvClose", "tvFull", "tvNext", "dupT", "dupOk", "exportPdf", "openCode", "avisosOn", "avisosOff", "orgInvite", "orgUnlink", "orgRemove", "orgLeave", "orgCopy", "tLeave", "setLvl", "refreshLvq", "setCal", "setCalDay", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave", "welcomeGo"]);
 function splitTop(t,sep){
   const out=[];let d=0,q=null,cur='';
   for(let k=0;k<t.length;k++){const c=t[k];
@@ -647,6 +647,7 @@ function render(){
   const ap=document.getElementById('app'),key=S.step+':'+(S.drawn||0);
   ap.classList.toggle('anim',key!==lastKey);ap.classList.toggle('ro',RO);lastKey=key;ap.innerHTML=h;afterRender();
   applyBrand();if(TV)tvRender();navSync();
+  if(!RO&&!DIR&&S.season&&user&&tournamentDone()&&S._szDone!==S.drawn){S._szDone=S.drawn;setTimeout(()=>seasonAuto(),500)}
   let ad=document.getElementById('ad');
   if(!S.premium){if(!ad){ad=document.createElement('div');ad.id='ad';ad.className='ad';document.body.appendChild(ad)}
     houseAd(ad)}
@@ -656,6 +657,7 @@ function viewSetup(){
   const datos=`<div class="card" id="tt-datos"><h2><span class="stepn">1</span>Juego y formato</h2>
   <div class="row"><div><label for="tt-nombre">Nombre</label><input id="tt-nombre" value="${esc(S.name)}" data-change="setName(this.value)"></div>
   <div><label for="g-in">Juego o deporte</label><input id="g-in" list="juegos" value="${esc(S.game)}" data-change="setGame(this.value)"><datalist id="juegos">${G.map(g=>`<option value="${esc(g.n)}">`).join('')}</datalist></div></div>
+  ${seasonField()}
   ${gameBanner()}
   <label>Modo de juego</label><div class="chips" id="tt-modo">${Object.entries(MODES).map(([n,l])=>`<div class="chip ${S.size==n?'on':''}" data-click="pickMode(${n})">${l}${!S.premium&&!FREE.modes.includes(+n)?LOCK:''}</div>`).join('')}
   <select class="mini" aria-label="Otro tamaño de equipo" data-change="pickModeVal(this.value)"><option value="">Otro tamaño…</option>${[6,7,8,9,10,11,12,13,14,15].map(n=>`<option value="${n}" ${S.size==n?'selected':''}>Equipos de ${n}</option>`).join('')}</select></div>
@@ -686,9 +688,9 @@ function viewSetup(){
   <p class="small" id="count">${countText()}</p>
   <div id="tt-lvq">${lvQuick()}</div>
   <div class="row" style="margin-bottom:6px"><button class="sec" id="tt-lista" data-click="listaForm()">Pasar lista${allP().length?` (${names().length} de ${allP().length})`:''}${S.selfCk&&cks.length?` · ${ckSet().size} por QR`:''}</button></div>
-  <div class="row" id="tt-sorteo"><button data-click="draw()">Hacer sorteo</button><button class="sec" data-click="reset()">Nuevo torneo</button></div>
+  <div class="row" id="tt-sorteo"><button data-click="drawGo()">Hacer sorteo</button><button class="sec" data-click="reset()">Nuevo torneo</button></div>
   <div class="row" style="margin-top:8px"><button class="sec" data-click="dupT()">Duplicar torneo</button></div></div>`;
-  return `${setupHero()}<div class="setup"><div class="scol smain">${datos}${reglas}${horarioCard()}<div class="duo">${pubCard()}${regCard()}</div>${orgCard()}${infoCard()}<div class="duo">${newsCard()}${sponsCard()}</div></div><div class="scol sside">${part}</div></div>`;
+  return `${setupHero()}<div class="setup"><div class="scol smain">${datos}${reglas}${horarioCard()}<div class="duo">${pubCard()}${regCard()}</div>${orgCard()}${alertsCard()}${infoCard()}<div class="duo">${newsCard()}${sponsCard()}</div></div><div class="scol sside">${part}</div></div>`;
 }
 function viewDraw(){
   const g=S.groupsList.length;
@@ -696,7 +698,7 @@ function viewDraw(){
   ${ids.map((id,k)=>`<div class="trow"${gi==0&&k==0?' id="tt-equipo"':''}><div style="min-width:0;flex:1">${tag(id)}${S.size>1?`<div class="small">${team(id).members.map(esc).join(', ')}</div>`:''}${team(id).lv?`<div>${lvBadge(team(id).lv)}</div>`:''}</div>
     ${g>1?`<select class="mini" aria-label="Grupo de ${esc(team(id).name)}" data-change="moveTeam(${id},this.value)">${S.groupsList.map((_,x)=>`<option value="${x}" ${x==gi?'selected':''}>${String.fromCharCode(65+x)}</option>`).join('')}</select>`:''}
     <button class="sec sm" data-click="teamForm(${id})">Editar</button></div>`).join('')}</div>`).join('')+'</div>'+
-  `<div class="row" style="margin-top:12px"><button class="sec" data-click="draw()">Repetir sorteo</button><button data-click="set('step',2)">Ver partidos →</button></div></div>`+croquis();
+  `<div class="row" style="margin-top:12px"><button class="sec" data-click="drawGo()">Repetir sorteo</button><button data-click="set('step',2)">Ver partidos →</button></div></div>`+croquis();
 }
 const gl=gi=>String.fromCharCode(65+gi);
 function matchList(ms,noTitle,ids){
@@ -810,6 +812,7 @@ function viewResumenRO(){
   ${okUrl(i.stream)&&e.c!='done'?`<a class="card livecard" href="${esc(i.stream)}" target="_blank" rel="noopener noreferrer"><span class="dot"></span><b>Ver el directo</b><span class="small">${esc(i.stream.replace(/^https?:\/\/(www\.)?/,'').slice(0,40))}</span></a>`:''}
   ${newsPublic()}
   ${selfCkCard()}
+  ${seasonCard()}
   ${streamersCard()}
   ${myCard()}
   ${avisosCard()}
@@ -845,9 +848,10 @@ async function loadRO(){
     if(r.error||!r.data){roState='missing';render();return}
     const cambioInsc=await loadRegInfo();
     if(roStamp===r.data.updated_at&&roState=='ok'){if(cambioInsc&&S.step==10)render();return}
-    roStamp=r.data.updated_at;const keep=S.step>=2||S.step==10||S.step==11?S.step:10;
+    roStamp=r.data.updated_at;const keep=S.step>=2||S.step==10||S.step==11?S.step:10;const prevDrawn=roState=='ok'?(S.drawn||0):null;
     S=Object.assign(def(),r.data.data||{});S.name=S.name||r.data.name;S.size=+S.size||1;S.nextN=+S.nextN||2;S.premium=false;S.step=roState=='ok'?keep:10;roState='ok';
     document.title=String(S.name).slice(0,60)+' · TORNEAZO';render();
+    if(TV&&prevDrawn!=null&&(S.drawn||0)>prevDrawn&&(S.teams||[]).length)drawAnim();
   }catch(e){roState='missing';render()}
 }
 async function initRO(){
@@ -1241,6 +1245,7 @@ function backLabel(){
 function backBtn(){const l=backLabel();return l?`<button class="backbtn" data-click="goBack()" aria-label="Volver a ${esc(l)}"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Atrás<span>· ${esc(l)}</span></button>`:''}
 function modalX(){if($('modalBody').querySelector('[data-click^="closeNews"]'))return closeNews();closeModal()}
 function goBack(){
+  if($('dfx')){dfxEnd();return true}
   if(tutI>=0){tutoEnd();return true}
   if(TV){tvClose();return true}
   if(modalOn()){
@@ -1827,7 +1832,7 @@ function openCode(){
 
 
 /* ===== Duplicar torneo ===== */
-const DUP_KEYS=['game','preset','lvScheme','unit','rules','size','ent','format','groups','pairing','rivals','nextN','nextExtra','nextKind','koTop','swissRounds','swissCut','third','players','lvl','balance','manual','info','prizes','spons','cal','tz','selfRep','brand','streams'];
+const DUP_KEYS=['game','preset','lvScheme','unit','rules','size','ent','format','groups','pairing','rivals','nextN','nextExtra','nextKind','koTop','swissRounds','swissCut','third','players','lvl','balance','manual','info','prizes','spons','cal','tz','selfRep','brand','streams','season'];
 function dupData(src){
   const d=def(),J=x=>x==null?x:JSON.parse(JSON.stringify(x));
   DUP_KEYS.forEach(k=>{if(src[k]!==undefined)d[k]=J(src[k])});
@@ -2045,6 +2050,174 @@ function liveBanner(){
   const t=L[0];return `<a class="card livecard" href="${esc(t.s.u)}" target="_blank" rel="noopener noreferrer"><span class="dot"></span><b>${esc(t.s.n)} está en directo</b><span class="small">${L.length>1?`y ${L.length-1} más`:esc(plat(t.s.u))}</span></a>`;
 }
 
+/* ===== Sorteo animado (también en el modo TV) ===== */
+let dfxT=null,dfxSeen=null;
+function drawGo(){const before=S.drawn||0;draw();if((S.drawn||0)!==before)drawAnim()}
+function dfxPlan(){
+  const T=S.teams||[],nm=id=>id==null||id===-1?'Pasa directo':((T.find(t=>t.id===id)||T[id]||{}).name||'?');
+  if(S.ko||S.de||S.format=='suizo'){
+    let pairs=[];
+    if(S.ko)pairs=(S.ko[0]||[]).map(m=>[m.a,m.b]);
+    else if(S.de)pairs=S.de.m.filter(m=>m.sec=='w'&&m.r===0).map(m=>[m.a,m.b]);
+    else pairs=(S.matches||[]).filter(m=>(+m.r||0)===0).map(m=>[m.a,m.b]);
+    return {mode:'pairs',cols:[{t:S.format=='suizo'?'Ronda 1':'Cruces',n:pairs.length}],steps:pairs.map((p,i)=>({c:0,i,txt:[nm(p[0]),nm(p[1])]}))};
+  }
+  const G=S.groupsList||[],where={};G.forEach((g,gi)=>g.forEach((id,pos)=>where[id]=[gi,pos]));
+  return {mode:'groups',cols:G.map((g,gi)=>({t:G.length>1?'Grupo '+gl(gi):'Participantes',n:g.length})),steps:T.filter(t=>where[t.id]).map(t=>({c:where[t.id][0],i:where[t.id][1],txt:[t.name]}))};
+}
+function drawAnim(){
+  const P=dfxPlan();if(!P.steps.length)return;
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  clearTimeout(dfxT);let el=$('dfx');if(el)el.remove();
+  el=document.createElement('div');el.id='dfx';el.setAttribute('role','dialog');el.setAttribute('aria-label','Sorteo');
+  const pool=P.steps.flatMap(s=>s.txt).filter(x=>x!='Pasa directo');
+  el.innerHTML=`<div class="dfx-top"><span class="dfx-k">Sorteo en directo</span><h2>${esc(S.name)}</h2></div>
+  <div class="dfx-drum"><div class="dfx-ring"></div><div class="dfx-name" id="dfx-n">?</div></div>
+  <div class="dfx-cols ${P.mode}">${P.cols.map((c,ci)=>`<div class="dfx-col"><h3>${esc(c.t)}</h3>${Array.from({length:c.n},(_,i)=>`<div class="dfx-slot" id="dfx-${ci}-${i}"></div>`).join('')}</div>`).join('')}</div>
+  <div class="dfx-btns"><button class="sec" data-click="dfxEnd()" id="dfx-b">Saltar</button></div>`;
+  document.body.appendChild(el);document.body.classList.add('dfx-on');
+  const per=Math.max(140,Math.min(650,7000/P.steps.length));let k=0;
+  const nameEl=$('dfx-n');
+  const next=()=>{
+    if(!$('dfx'))return;
+    if(k>=P.steps.length){nameEl.textContent='¡Sorteo hecho!';nameEl.classList.add('done');const b=$('dfx-b');if(b){b.textContent='Ver el sorteo';b.className=''}if(TV)dfxT=setTimeout(dfxEnd,4000);return}
+    const s=P.steps[k++];let spins=Math.max(3,Math.round(per/45)),j=0;
+    const spin=()=>{if(!$('dfx'))return;
+      if(j++<spins){nameEl.textContent=pool[Math.floor(Math.random()*pool.length)]||'?';nameEl.classList.remove('hit');dfxT=setTimeout(spin,40);return}
+      nameEl.textContent=s.txt.join(' vs ');nameEl.classList.add('hit');
+      const slot=$('dfx-'+s.c+'-'+s.i);if(slot){slot.innerHTML=s.txt.length>1?`<b>${esc(s.txt[0])}</b><i>vs</i><b>${esc(s.txt[1])}</b>`:`<b>${esc(s.txt[0])}</b>`;slot.classList.add('in');slot.scrollIntoView({block:'nearest'})}
+      dfxT=setTimeout(next,Math.max(80,per*.35))};
+    spin();
+  };
+  dfxT=setTimeout(next,500);
+}
+function dfxEnd(){clearTimeout(dfxT);const el=$('dfx');if(el){el.classList.add('out');setTimeout(()=>el.remove(),250)}document.body.classList.remove('dfx-on')}
+
+/* ===== Avisos al móvil del organizador ===== */
+let oav={on:null,busy:false};
+async function oavCheck(){
+  if(oav.busy||oav.on!==null||!sb||!user||!pushOk())return;oav.busy=true;
+  try{const reg=await navigator.serviceWorker.getRegistration();const sub=reg&&await reg.pushManager.getSubscription();
+    if(!sub){oav.on=false}else{const r=await sb.rpc('org_avisos_estado',{p_endpoint:sub.endpoint});oav.on=!!(r.data&&r.data.on)}}catch(e){oav.on=false}finally{oav.busy=false}
+  render();
+}
+async function oavOn(){
+  const m=$('oav-m');
+  try{
+    if(!pushOk())throw new Error('nosoporta');
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){if(m)m.textContent='Has bloqueado los avisos. Actívalos en los ajustes del navegador para esta web.';return}
+    const reg=await navigator.serviceWorker.ready;let sub=await reg.pushManager.getSubscription();
+    if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64uBytes(CFG.vapid)});
+    const j=sub.toJSON(),r=await sb.rpc('org_avisos_alta',{p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth}),d=r.data||{};
+    if(r.error||!d.ok)throw new Error(d.error||'rpc');
+    oav.on=true;render();
+    try{reg.showNotification('Avisos activados',{body:'Te avisaremos de inscripciones, resultados enviados y asistencias.',icon:'icon-192.png'})}catch(e){}
+  }catch(e){if(m)m.textContent='No se pudieron activar los avisos. Inténtalo de nuevo.'}
+}
+async function oavOff(){
+  try{const reg=await navigator.serviceWorker.ready,sub=await reg.pushManager.getSubscription();if(sub)await sb.rpc('org_avisos_baja',{p_endpoint:sub.endpoint})}catch(e){}
+  oav.on=false;render();
+}
+/* ===== Discord: resultados automáticos en el canal ===== */
+let dc={tid:null,on:null,busy:false,t:null};
+const dcKey=()=>'torneazo_dc_'+curId;
+async function dcCheck(){
+  if(!sb||!user||!curId||dc.busy||(dc.tid===curId&&dc.on!==null))return;dc.busy=true;const id=curId;
+  try{const r=await sb.rpc('discord_estado',{p_tid:id});dc.tid=id;dc.on=!!(r.data&&r.data.on)}catch(e){}finally{dc.busy=false}
+  render();
+}
+function dcSnap(){const m={};allMatches().forEach(x=>{if(played(x.m)&&x.m.a!=null&&x.m.b!=null)m[x.key]=`${x.m.a}-${x.m.b}:${x.m.sa}-${x.m.sb}`});const c=placeIds(1);return {m,d:S.drawn||0,c:c.done?c.ids.join(','):''}}
+async function dcSave(){
+  const u=(($('dc-u')||{}).value||'').trim(),m=$('dc-m');
+  if(!/^https:\/\/(discord|discordapp)\.com\/api\/webhooks\/\d{5,30}\/[\w-]{20,100}$/.test(u)){if(m)m.textContent='Ese enlace no es de Discord. Cópialo en Discord: Editar canal → Integraciones → Webhooks → Copiar URL del webhook.';return}
+  if(!curId){await flushT();if(!curId){if(m)m.textContent='Primero guarda el torneo en tu cuenta.';return}}
+  const r=await sb.rpc('discord_guardar',{p_tid:curId,p_url:u}),d=r.data||{};
+  if(r.error||!d.ok){if(m)m.textContent=d.error=='permiso'?'Solo el organizador puede conectar Discord.':'No se pudo guardar. Revisa el enlace.';return}
+  dc.tid=curId;dc.on=true;lsSet(dcKey(),JSON.stringify(dcSnap()));render();
+  dcSend([{title:`TORNEAZO conectado a «${S.name}»`,desc:'A partir de ahora publicaré aquí el sorteo, los resultados y el campeón.',color:0x9BEA1C}],true);
+}
+function dcTest(){dcSend([{title:'Prueba de TORNEAZO',desc:`Todo funciona. Aquí saldrán los resultados de «${S.name}».`}],true)}
+async function dcOff(){if(!confirm('¿Dejar de publicar en Discord?'))return;await sb.rpc('discord_guardar',{p_tid:curId,p_url:''});dc.on=false;render()}
+async function dcSend(embeds,notify){
+  if(!sb||!user||!curId||!embeds.length)return false;
+  try{const {data}=await sb.auth.getSession();const tok=data&&data.session&&data.session.access_token;
+    const r=await fetch(CFG.url+'/functions/v1/discord',{method:'POST',headers:{'Content-Type':'application/json',apikey:CFG.key,Authorization:'Bearer '+tok},body:JSON.stringify({tid:curId,embeds})});
+    if(r.status==404||r.status==410){dc.on=false;render()}
+    if(notify)notice(r.ok?'Listo: mira tu canal de Discord, te he dejado un mensaje de prueba.':'No se pudo publicar en Discord. Revisa que el webhook siga existiendo.');
+    return r.ok;
+  }catch(e){if(notify)notice('No se pudo publicar en Discord.');return false}
+}
+function dcSync(){
+  if(!dc.on||dc.tid!==curId)return;clearTimeout(dc.t);
+  dc.t=setTimeout(async()=>{
+    let old={};try{old=JSON.parse(localStorage.getItem(dcKey())||'{}')}catch(e){}
+    const now=dcSnap(),E=[],T=S.teams||[],nm=id=>((T.find(t=>t.id===id)||T[id]||{}).name||'?'),link=S.pub&&S.pub.code?pubUrl(S.pub.code):undefined;
+    if(now.d&&now.d!==old.d&&T.length){
+      const G=S.groupsList||[];
+      E.push({title:`Sorteo hecho · ${S.name}`,url:link,color:0x3DA5FF,desc:G.length&&!S.ko&&!S.de?'':(S.ko?(S.ko[0]||[]).map(m=>`${m.a==null||m.a===-1?'Pasa directo':nm(m.a)} vs ${m.b==null||m.b===-1?'Pasa directo':nm(m.b)}`).join('\n'):'Ya está el cuadro.'),
+        fields:G.length&&!S.ko&&!S.de?G.slice(0,9).map((g,i)=>({name:G.length>1?'Grupo '+gl(i):'Participantes',value:g.map(nm).join('\n').slice(0,1000),inline:true})):[]});
+    }
+    {
+      const L=allMatches().filter(x=>now.m[x.key]&&now.m[x.key]!==(old.m||{})[x.key]);
+      if(L.length)E.push({title:L.length==1?'Nuevo resultado':`${L.length} resultados nuevos`,url:link,color:0x9BEA1C,desc:L.slice(0,25).map(x=>`**${nm(x.m.a)}** ${x.m.sa} - ${x.m.sb} **${nm(x.m.b)}**${x.lab?` · ${x.lab}`:''}`).join('\n')});
+      if(L.length&&(S.groupsList||[]).length&&(S.matches||[]).length&&!S.ko&&!S.de){const G=S.groupsList;E.push({title:'Clasificación',color:0x22D3EE,fields:G.slice(0,6).map((_,gi)=>({name:G.length>1?'Grupo '+gl(gi):'General',value:standings(gi).slice(0,8).map((r,i)=>`${i+1}. ${nm(r.id)} · ${r.pts} pts`).join('\n'),inline:G.length>1}))})}
+    }
+    if(now.c&&now.c!==old.c)E.push({title:`Campeón: ${now.c.split(',').map(x=>nm(+x)).join(', ')}`,url:link,color:0xFFB020,desc:`¡Enhorabuena! Así ha terminado «${S.name}».`});
+    if(!E.length){lsSet(dcKey(),JSON.stringify(now));return}
+    if(await dcSend(E,false))lsSet(dcKey(),JSON.stringify(now));
+  },15000);
+}
+function alertsCard(){
+  if(!CFG.url)return '';
+  if(!user)return '';
+  if(oav.on===null)setTimeout(oavCheck,0);
+  if(curId&&(dc.tid!==curId))setTimeout(dcCheck,0);
+  let av;
+  if(!CFG.vapid)av='';
+  else if(!pushOk()&&isIOS()&&!isStandalone())av='<p class="small">En iPhone los avisos funcionan desde la app: <b>Compartir</b> → <b>Añadir a pantalla de inicio</b>, y ábrela desde el icono.</p>';
+  else if(!pushOk())av='<p class="small">Este navegador no admite avisos.</p>';
+  else av=oav.on?'<p class="small"><b class="ok">Activados en este móvil.</b> Te avisamos de cada inscripción, de los resultados que envíen los jugadores y de quién confirma por QR.</p><div class="row"><button class="sec" data-click="oavOff()">Desactivar</button></div>':'<p class="small">Recibe un aviso cuando alguien se inscriba, envíe un resultado o confirme por QR, aunque tengas la app cerrada.</p><div class="row"><button data-click="oavOn()">Activar avisos en este móvil</button></div><div class="small" id="oav-m" role="status"></div>';
+  const dcb=!curId?'<p class="small">Guarda el torneo en tu cuenta para conectarlo con Discord.</p>':dc.on?`<p class="small"><b class="ok">Conectado.</b> Publico en tu canal el sorteo, cada resultado, la clasificación y el campeón.</p><div class="row"><button class="sec" data-click="dcTest()">Enviar prueba</button><button class="sec" data-click="dcOff()">Desconectar</button></div>`:`<p class="small">Pega el enlace del webhook de tu canal (en Discord: Editar canal → Integraciones → Webhooks → Nuevo webhook → Copiar URL). Es secreto: solo lo guardamos en el servidor.</p>
+    <input id="dc-u" type="url" inputmode="url" autocomplete="off" placeholder="https://discord.com/api/webhooks/…" aria-label="Webhook de Discord"><div class="row" style="margin-top:8px"><button data-click="dcSave()">Conectar Discord</button></div><div class="small" id="dc-m" role="status"></div>`;
+  return `<div class="card" id="tt-alertas"><h2>Avisos y Discord</h2>${av?`<h3 style="margin:0 0 6px">Avisos para ti</h3>${av}`:''}<h3 style="margin:14px 0 6px">Resultados en Discord</h3>${dcb}</div>`;
+}
+
+/* ===== Ligas por temporadas: puntos acumulados de varios torneos ===== */
+const SEASON_PTS=[10,7,5,3];
+function setSeason(v){S.season=String(v||'').trim().slice(0,40);if(S.season){let L=[];try{L=JSON.parse(lsGet('torneazo_seasons')||'[]')}catch(e){}L=[S.season].concat(L.filter(x=>x!==S.season)).slice(0,10);lsSet('torneazo_seasons',JSON.stringify(L))}else S.seasonTable=null;save();render()}
+function seasonField(){let L=[];try{L=JSON.parse(lsGet('torneazo_seasons')||'[]')}catch(e){}
+  return `<label for="tt-season">Temporada o liga (opcional)</label><input id="tt-season" maxlength="40" list="seasons" placeholder="Ej.: Liga de los viernes · Otoño" value="${esc(S.season||'')}" data-change="setSeason(this.value)"><datalist id="seasons">${L.map(x=>`<option value="${esc(x)}">`).join('')}</datalist>
+  ${S.season?`<p class="small" style="margin:4px 0 0">Los torneos con la misma temporada suman puntos para una clasificación conjunta. <a href="#" style="color:var(--ac)" data-click="seasonOpen();return false">Ver clasificación</a></p>`:''}`}
+function seasonRows(d){
+  return withS(d,()=>{const T=S.teams||[];if(!T.length)return null;const done=tournamentDone(),pos={};
+    if(done)for(let n=1;n<=4;n++){const p=placeIds(n);(p.ids||[]).forEach(id=>{if(pos[id]==null)pos[id]=n})}
+    return T.map(t=>({name:String(t.name||'').trim(),pos:pos[t.id]||0,done})).filter(x=>x.name)});
+}
+async function seasonCompute(){
+  let list=[];
+  if(sb&&user){await flushT();const r=await sb.from('tournaments').select('id,name,data,updated_at').order('updated_at',{ascending:true});list=(r.data||[]).filter(x=>x.data&&x.data.season===S.season).map(x=>({d:x.data,n:x.name}))}
+  else list=[{d:JSON.parse(JSON.stringify(S)),n:S.name}];
+  const by={};let nt=0;
+  list.forEach(t=>{const R=seasonRows(t.d);if(!R)return;nt++;R.forEach(r=>{const k=r.name.toLowerCase(),P=by[k]||(by[k]={n:r.name,p:0,t:0,w:0});P.t++;P.p+=r.pos?SEASON_PTS[r.pos-1]:1;if(r.pos==1)P.w++})});
+  const rows=Object.values(by).sort((a,b)=>b.p-a.p||b.w-a.w||b.t-a.t||a.n.localeCompare(b.n));
+  S.seasonTable=rows.slice(0,40);S.seasonN=nt;save();return {rows,nt};
+}
+async function seasonOpen(){
+  if(!S.season)return;
+  $('modalBody').innerHTML=`<h2>${esc(S.season)}</h2><p class="small">Calculando…</p>`;$('modal').classList.add('on');
+  const {rows,nt}=await seasonCompute();
+  $('modalBody').innerHTML=`<h2>${esc(S.season)}</h2><p class="small">${nt} torneo${nt==1?'':'s'} en esta temporada. Puntos: 1.º ${SEASON_PTS[0]}, 2.º ${SEASON_PTS[1]}, 3.º ${SEASON_PTS[2]}, 4.º ${SEASON_PTS[3]} y 1 por jugar.${user?'':' Entra en tu cuenta para sumar todos tus torneos.'}</p>
+  ${rows.length?seasonTableHtml(rows):'<p>Todavía no hay participantes.</p>'}
+  <p class="small">La clasificación sale también en la página pública del torneo y en el modo TV.</p><div class="row"><button class="sec" data-click="closeModal()">Cerrar</button></div>`;
+}
+async function seasonAuto(){try{await seasonCompute();render()}catch(e){}}
+function seasonTableHtml(rows){return `<table class="sztab"><tr><th>#</th><th class="l">Jugador</th><th>Torneos</th><th>Títulos</th><th>Puntos</th></tr>${rows.slice(0,40).map((r,i)=>`<tr class="${i<3?'q':''}"><td>${i+1}</td><td class="l">${esc(r.n)}</td><td>${+r.t||0}</td><td>${+r.w||0}</td><td><b>${+r.p||0}</b></td></tr>`).join('')}</table>`}
+function seasonCard(){
+  if(!S.season||!Array.isArray(S.seasonTable)||!S.seasonTable.length)return '';
+  return `<div class="card" id="tt-temporada"><h2>${esc(S.season)}</h2><p class="small">Clasificación de la temporada${S.seasonN?` · ${+S.seasonN} torneos`:''}</p>${seasonTableHtml(S.seasonTable.slice(0,15))}</div>`;
+}
+
 /* ===== Modo TV: pantalla grande para la tele o el proyector ===== */
 const TVQ=(()=>{try{return new URLSearchParams(location.search).get('tv')==='1'}catch(e){return false}})();
 let TV=false,tvPage=0,tvRot=null,tvClk=null,tvQR='';
@@ -2082,6 +2255,7 @@ function tvPages(){
     P.push(`<div class="tvbr">${R.slice(from).map((r,k)=>`<div class="tvcol"><h3>${esc(roundName(from+k,N))}</h3>${r.filter(m=>!m.bye).map(m=>tvMatch(m)).join('')}</div>`).join('')}</div>`)}
   if(S.de){const L=allMatches().filter(x=>x.key[0]=='d'),pend=L.filter(x=>!played(x.m)&&x.m.a!=null&&x.m.b!=null),last=L.filter(x=>played(x.m)).slice(-6).reverse();
     P.push(`<div class="tvgrid two"><div class="tvbox"><h3>Próximos · doble eliminación</h3>${pend.slice(0,6).map(x=>tvMatch(x.m,x.lab)).join('')||'<p class="tvmut">Sin partidos pendientes</p>'}</div><div class="tvbox"><h3>Últimos resultados</h3>${last.map(x=>tvMatch(x.m,x.lab)).join('')||'<p class="tvmut">Aún no hay resultados</p>'}</div></div>`)}
+  if(S.season&&Array.isArray(S.seasonTable)&&S.seasonTable.length)P.push(`<div class="tvbox"><h3>${esc(S.season)} · temporada</h3><table class="tvt"><tr><th>#</th><th class="l">Jugador</th><th>Torneos</th><th>Títulos</th><th>Pts</th></tr>${S.seasonTable.slice(0,10).map((r,i)=>`<tr class="${i<3?'q':''}"><td>${i+1}</td><td class="l">${esc(r.n)}</td><td>${+r.t||0}</td><td>${+r.w||0}</td><td><b>${+r.p||0}</b></td></tr>`).join('')}</table></div>`);
   const pr=prz();if(pr.length)P.push(`<div class="tvbox tvprz"><h3>Premios</h3>${pr.slice(0,8).map(p=>{const w=prizeWho(p),who=w.text?esc(w.text):(w.ids||[]).map(tvN).join(', ');return `<div class="tvp"><b>${esc(prizeTitle(p))}</b><span>${esc(p.text||'')}</span><i>${who||''}</i></div>`}).join('')}</div>`);
   const sp=spn();if(sp.length)P.push(`<div class="tvbox tvsp"><h3>Patrocinadores</h3><div class="tvspl">${sp.slice(0,8).map(s=>`<div>${s.i&&/^data:image\//.test(s.i)?`<img src="${esc(s.i)}" alt="">`:''}<span>${esc(s.n)}</span></div>`).join('')}</div></div>`);
   if(!P.length)P.push(`<div class="tvchamp"><span>${esc(estado().t)}</span><h1>${esc(S.name)}</h1><p>${(S.teams||[]).length||names().length} participantes · Escanea el QR para seguirlo en el móvil</p></div>`);
@@ -2477,7 +2651,7 @@ async function cloudPush(force){
         if(rem.data){const m=merge3(JSON.parse(curBase||'{}'),d,rem.data.data);applyRemote(m);row.data=m;
           r=await sb.from('tournaments').update(row).eq('id',cur.data.id).eq('updated_at',rem.data.updated_at).select('updated_at').maybeSingle()}
       }
-      if(r.data){curRev=r.data.updated_at;curBase=JSON.stringify(row.data);notifyTurn()}
+      if(r.data){curRev=r.data.updated_at;curBase=JSON.stringify(row.data);notifyTurn();dcSync()}
     }finally{pushing=false}
     return cur.data}
   const ins=await sb.from('tournaments').insert(row).select('id,public_code,updated_at').maybeSingle();
@@ -2727,7 +2901,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.38.0';
+const APP_VERSION='1.39.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

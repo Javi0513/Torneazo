@@ -2,6 +2,8 @@
 //  - mode "turno" (lo llama la app del organizador al apuntar un resultado): avisa al turno actual ("Te toca jugar")
 //    y al siguiente ("Prepárate"). Solo si quien llama puede ver el torneo (dueño o co-organizador).
 //  - mode "cron" (lo llama pg_cron cada 5 minutos): recordatorio ~15 minutos antes de los partidos con hora.
+//  - mode "org" (lo llama la base de datos al llegar una inscripción, un resultado de jugador o una asistencia):
+//    avisa al organizador y a los co-organizadores. No se fía del aviso: busca él mismo lo nuevo del torneo.
 // Cada aviso se envía una sola vez (tabla push_sent). Necesita los secretos VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY y VAPID_SUBJECT.
 // Desplegar con "Verify JWT" DESACTIVADO (pg_cron no manda token de usuario).
 import { send } from "./webpush.js";
@@ -13,7 +15,7 @@ const SITE = "https://torneazo.monetizaplus.com/";
 const VAPID = {
   pub: Deno.env.get("VAPID_PUBLIC_KEY") ?? "",
   priv: Deno.env.get("VAPID_PRIVATE_KEY") ?? "",
-  subject: Deno.env.get("VAPID_SUBJECT") ?? "mailto:javiadsense@gmail.com",
+  subject: Deno.env.get("VAPID_SUBJECT") ?? "https://torneazo.monetizaplus.com",
 };
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -111,6 +113,51 @@ async function recordatorios() {
   return n;
 }
 
+// Avisos al organizador: inscripciones, resultados de jugadores y asistencias nuevas (últimos 15 min) de un torneo.
+async function organizador(tid: string) {
+  const tr = await rest(`tournaments?id=eq.${tid}&select=id,name,owner_id,public_code`);
+  const t = tr.ok ? (await tr.json())[0] : null;
+  if (!t) return 0;
+  const er = await rest(`tournament_editors?tournament_id=eq.${tid}&select=user_id`);
+  const users = [t.owner_id, ...((er.ok ? await er.json() : []) as any[]).map((x) => x.user_id)].filter(Boolean);
+  if (!users.length) return 0;
+  const sr = await rest(`org_push?user_id=in.(${users.join(",")})&select=id,endpoint,p256dh,auth`);
+  const subs = sr.ok ? await sr.json() : [];
+  if (!subs.length) return 0;
+  const desde = new Date(Date.now() - 15 * 60000).toISOString();
+  const q = (path: string) => rest(path).then((r) => (r.ok ? r.json() : [])).catch(() => []);
+  const [regs, res, cks] = await Promise.all([
+    q(`registrations?tournament_id=eq.${tid}&created_at=gte.${desde}&select=id,name,status&order=created_at`),
+    q(`result_reports?tournament_id=eq.${tid}&created_at=gte.${desde}&status=eq.pending&select=id,name,score_a,score_b&order=created_at`),
+    q(`checkins?tournament_id=eq.${tid}&created_at=gte.${desde}&select=name&order=created_at`),
+  ]);
+  const tn = String(t.name || "Tu torneo").slice(0, 40);
+  const url = SITE;
+  const enviar = async (key: string, title: string, body: string, tag: string) => {
+    if (!(await marcar(tid, key))) return 0;
+    let n = 0;
+    for (const s of subs) {
+      try {
+        const st = await send(s, { title, body, url, tag }, VAPID);
+        if (st === 404 || st === 410) await rest(`org_push?id=eq.${s.id}`, { method: "DELETE" });
+        else if (st < 300) n++;
+      } catch (e) { console.error(e) }
+    }
+    return n;
+  };
+  let n = 0;
+  for (const r of regs as any[]) n += await enviar(`org:reg:${r.id}`, `Nueva inscripción · ${tn}`, `${String(r.name).slice(0, 40)} se ha apuntado${r.status == "pending" ? ". Revísala en la app." : "."}`, `reg-${tid}`);
+  for (const r of res as any[]) n += await enviar(`org:res:${r.id}`, `Resultado enviado · ${tn}`, `${String(r.name).slice(0, 40)} envía ${r.score_a}-${r.score_b}. Acéptalo o recházalo en «Partidos».`, `res-${r.id}`);
+  const nuevos: string[] = [];
+  for (const c of cks as any[]) if (await marcar(tid, `org:ck:${String(c.name).slice(0, 60)}`)) nuevos.push(String(c.name));
+  if (nuevos.length) {
+    const tot = await q(`checkins?tournament_id=eq.${tid}&select=name`);
+    const k = `org:ckb:${Date.now()}`;
+    n += await enviar(k, `Han llegado · ${tn}`, `${nuevos.slice(0, 3).join(", ")}${nuevos.length > 3 ? ` y ${nuevos.length - 3} más` : ""} ${nuevos.length == 1 ? "ha" : "han"} confirmado. Ya son ${(tot as any[]).length}.`, `ck-${tid}`);
+  }
+  return n;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return new Response("ok", { headers: CORS });
@@ -118,6 +165,12 @@ Deno.serve(async (req) => {
   let body: any = {};
   try { body = await req.json() } catch { /* vacío */ }
   try {
+    if (body.mode === "org") {
+      const tid = String(body.tid || "");
+      if (!UUID.test(tid)) return new Response(JSON.stringify({ error: "torneo" }), { status: 400, headers: CORS });
+      const n = await organizador(tid);
+      return new Response(JSON.stringify({ ok: true, enviados: n }), { headers: { ...CORS, "Content-Type": "application/json" } });
+    }
     if (body.mode === "turno") {
       const tid = String(body.tid || "");
       if (!UUID.test(tid)) return new Response(JSON.stringify({ error: "torneo" }), { status: 400, headers: CORS });

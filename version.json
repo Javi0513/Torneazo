@@ -1,6 +1,16 @@
 {
-  "version": "1.38.0",
+  "version": "1.39.0",
   "historial": [
+    {
+      "version": "1.39.0",
+      "fecha": "15/11/2026",
+      "cambios": [
+        "Sorteo en directo: al hacer el sorteo, los nombres salen del bombo y caen uno a uno en su grupo o en su cruce. También se ve en el modo TV.",
+        "Avisos para el organizador: te llega un aviso al móvil cuando alguien se inscribe, envía un resultado o confirma por QR.",
+        "Discord: conecta el canal de tu comunidad y la app publica sola el sorteo, los resultados, la clasificación y el campeón.",
+        "Ligas por temporadas: pon el mismo nombre de temporada a varios torneos y se suman los puntos en una clasificación conjunta, también en la página pública y en el modo TV."
+      ]
+    },
     {
       "version": "1.38.0",
       "fecha": "13/11/2026",

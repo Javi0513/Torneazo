@@ -1,7 +1,7 @@
 /* TORNEAZO · lógica de la app.
    Los eventos se atienden aquí (data-click, data-change, data-input, data-focus) y no con código
    dentro del HTML, así la política de seguridad puede prohibir los scripts en línea. */
-const OK_FN=new Set(["accountHome", "setSeason", "seasonOpen", "oavOn", "oavOff", "dcSave", "dcOff", "dcTest", "drawGo", "dfxEnd", "strAdd", "strDel", "askAccount", "askGo", "guestLater", "guestKeep", "guestDrop", "goBack", "modalX", "adminOpen", "setPlySort", "setBrandC", "brandClear", "brandLogo", "setMe", "waOpen", "waSend", "setSelfCk", "ckApply", "ckReset", "ckSend", "ckOther", "tvOpen", "tvClose", "tvFull", "tvNext", "dupT", "dupOk", "exportPdf", "openCode", "avisosOn", "avisosOff", "orgInvite", "orgUnlink", "orgRemove", "orgLeave", "orgCopy", "tLeave", "setLvl", "refreshLvq", "setCal", "setCalDay", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave", "welcomeGo"]);
+const OK_FN=new Set(["accountHome", "pubPlayer", "pubPlayerShare", "arbOn", "arbOff", "arbCopy", "arbQR", "setArbCourt", "arbName", "arbSend", "setSeason", "seasonOpen", "oavOn", "oavOff", "dcSave", "dcOff", "dcTest", "drawGo", "dfxEnd", "strAdd", "strDel", "askAccount", "askGo", "guestLater", "guestKeep", "guestDrop", "goBack", "modalX", "adminOpen", "setPlySort", "setBrandC", "brandClear", "brandLogo", "setMe", "waOpen", "waSend", "setSelfCk", "ckApply", "ckReset", "ckSend", "ckOther", "tvOpen", "tvClose", "tvFull", "tvNext", "dupT", "dupOk", "exportPdf", "openCode", "avisosOn", "avisosOff", "orgInvite", "orgUnlink", "orgRemove", "orgLeave", "orgCopy", "tLeave", "setLvl", "refreshLvq", "setCal", "setCalDay", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave", "welcomeGo"]);
 function splitTop(t,sep){
   const out=[];let d=0,q=null,cur='';
   for(let k=0;k<t.length;k++){const c=t[k];
@@ -830,7 +830,7 @@ function nextCard(){
 function viewTeamsRO(){
   const T=S.teams||[],g=(S.groupsList||[]).length;
   return `<div class="card"><h2>Participantes (${T.length})</h2>${T.map(t=>{const gi=g>1?S.groupsList.findIndex(x=>x.includes(t.id)):-1;
-    return `<div class="trow"><div style="min-width:0;flex:1">${tag(t.id)}${+S.size>1?`<div class="small">${(t.members||[]).map(esc).join(', ')}</div>`:''}${t.lv?`<div>${lvBadge(t.lv)}</div>`:''}</div>${gi>=0?`<span class="small">Grupo ${String.fromCharCode(65+gi)}</span>`:''}</div>`}).join('')}</div>`;
+    return `<div class="trow plyrow" role="button" tabindex="0" data-click="pubPlayer(${t.id})" aria-label="Ver perfil de ${esc(t.name)}"><div style="min-width:0;flex:1">${tag(t.id)}${+S.size>1?`<div class="small">${(t.members||[]).map(esc).join(', ')}</div>`:''}${t.lv?`<div>${lvBadge(t.lv)}</div>`:''}</div>${gi>=0?`<span class="small">Grupo ${String.fromCharCode(65+gi)}</span>`:''}</div>`}).join('')}</div>`;
 }
 function viewPrizesRO(){
   const L=prz();
@@ -840,7 +840,7 @@ function viewRO(){
   if(roState=='load')return '<div class="card"><p>Cargando el torneo…</p></div>';
   if(roState=='missing')return '<div class="card"><h2>Torneo no disponible</h2><p class="small">El enlace no es válido o el organizador ha dejado de compartirlo.</p><a href="'+esc(location.pathname)+'"><button>Crear mi torneo</button></a></div>';
   const st=S.step;
-  return st==10?viewResumenRO():st==11?viewTeamsRO():st==2?viewMatches():st==3?(S.ko||S.liga||S.de?viewKO():'<div class="card"><p class="small">La fase final aún no ha empezado.</p></div>'):viewPrizesRO();
+  return arbView()+(st==10?viewResumenRO():st==11?viewTeamsRO():st==2?viewMatches():st==3?(S.ko||S.liga||S.de?viewKO():'<div class="card"><p class="small">La fase final aún no ha empezado.</p></div>'):viewPrizesRO());
 }
 async function loadRO(){
   try{
@@ -852,6 +852,7 @@ async function loadRO(){
     S=Object.assign(def(),r.data.data||{});S.name=S.name||r.data.name;S.size=+S.size||1;S.nextN=+S.nextN||2;S.premium=false;S.step=roState=='ok'?keep:10;roState='ok';
     document.title=String(S.name).slice(0,60)+' · TORNEAZO';render();
     if(TV&&prevDrawn!=null&&(S.drawn||0)>prevDrawn&&(S.teams||[]).length)drawAnim();
+    if(PJ!=null&&!pjShown&&(S.teams||[]).length&&!TV){pjShown=true;setTimeout(()=>pubPlayer(PJ),300)}
   }catch(e){roState='missing';render()}
 }
 async function initRO(){
@@ -1012,11 +1013,16 @@ function spLogo(inp){
 let rres=[],rresAt=0,rresBusy=false,resLock=0;
 function setSelfRep(v){S.selfRep=!!v;save();if(v){rresAt=0;loadRes()}render()}
 async function loadRes(){
-  if(!sb||!user||!S.pub||!S.pub.id||!S.selfRep||rresBusy)return;rresBusy=true;
+  if(!sb||!user||!S.pub||!S.pub.id||!(S.selfRep||S.arbOn)||rresBusy)return;rresBusy=true;
   try{
-    const r=await sb.from('result_reports').select('id,match_key,team_a,team_b,score_a,score_b,name,created_at').eq('tournament_id',S.pub.id).eq('status','pending').order('created_at',{ascending:true}).limit(100);
+    const r=await sb.from('result_reports').select('id,match_key,team_a,team_b,score_a,score_b,name,created_at,trusted').eq('tournament_id',S.pub.id).eq('status','pending').order('created_at',{ascending:true}).limit(100);
     rresAt=Date.now();
-    if(!r.error){const nuevo=r.data||[],cambio=JSON.stringify(nuevo)!==JSON.stringify(rres);rres=nuevo;
+    if(!r.error){let nuevo=r.data||[];
+      const tr=nuevo.filter(x=>x.trusted);
+      if(tr.length){const ok=[],no=[];tr.forEach(x=>{if(resValid(x)){applyScore(x.match_key,x.score_a,x.score_b);ok.push(x.id)}else no.push(x.id)});
+        if(ok.length)await sb.from('result_reports').update({status:'accepted'}).in('id',ok);if(no.length)await sb.from('result_reports').update({status:'rejected'}).in('id',no);
+        nuevo=nuevo.filter(x=>!x.trusted)}
+      const cambio=JSON.stringify(nuevo)!==JSON.stringify(rres)||tr.length>0;rres=nuevo;
       const a=document.activeElement;if(cambio&&!RO&&S.step==2&&!(a&&a.closest&&a.closest('#app')&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)))render()}
   }catch(e){}finally{rresBusy=false}
 }
@@ -1227,6 +1233,7 @@ async function ckSend(){
   }catch(e){notice('No se pudo confirmar. Revisa la conexión y vuelve a probar.')}
 }
 setInterval(()=>{if(!RO&&!DIR&&S.selfCk&&S.step<=1&&!document.hidden)ckLoad()},20000);
+setInterval(()=>{if(!RO&&!DIR&&S.arbOn&&!document.hidden&&Date.now()-rresAt>15000)loadRes()},20000);
 
 
 /* ===== Volver atrás: botón «Atrás», X en las ventanas y el gesto o botón de volver del móvil ===== */
@@ -1951,7 +1958,8 @@ function myCard(){
   return `<div class="card keepro" id="tt-mios"><h2>Mis partidos</h2>${pick}
   ${pend.length?`<h3 style="margin-top:12px">Próximos</h3>${pend.slice(0,6).map(x=>`<div class="irow"><span>contra <b>${rv(x)}</b>${x.lab?`<span class="small"> · ${esc(x.lab)}</span>`:''}</span><span class="small">${okDT(x.m.t)?esc(fmtWhen(x.m.t)):x.m.o?'Turno '+(+x.m.o):''}${x.m.c?' · '+esc(String(x.m.c).slice(0,20)):''}</span></div>`).join('')}`:'<p class="small" style="margin-top:10px">No te quedan partidos pendientes.</p>'}
   ${done.length?`<h3 style="margin-top:12px">Jugados</h3>${done.slice(-6).reverse().map(x=>`<div class="irow"><span>contra <b>${rv(x)}</b></span><span>${res(x)}</span></div>`).join('')}`:''}
-  ${timed?`<div class="row" style="margin-top:10px"><button class="sec" data-click="exportIcs(${me})">Añadir mis partidos al calendario</button></div>`:''}</div>`;
+  ${timed?`<h3 style="margin-top:12px">Mis partidos en el calendario</h3>${calSubBtns(me)}<p class="small" style="margin:6px 0 0"><a href="#" style="color:var(--mut)" data-click="exportIcs(${me});return false">O descarga el archivo (no se actualiza)</a></p>`:''}
+  <div class="row" style="margin-top:10px"><button class="sec" data-click="pubPlayer(${me})">Ver mi perfil</button></div></div>`;
 }
 
 
@@ -2216,6 +2224,98 @@ function seasonTableHtml(rows){return `<table class="sztab"><tr><th>#</th><th cl
 function seasonCard(){
   if(!S.season||!Array.isArray(S.seasonTable)||!S.seasonTable.length)return '';
   return `<div class="card" id="tt-temporada"><h2>${esc(S.season)}</h2><p class="small">Clasificación de la temporada${S.seasonN?` · ${+S.seasonN} torneos`:''}</p>${seasonTableHtml(S.seasonTable.slice(0,15))}</div>`;
+}
+
+/* ===== Árbitros: enlace secreto para apuntar resultados sin cuenta ===== */
+const ARB=(()=>{try{const c=new URLSearchParams(location.search).get('arb')||'';return ROCODE&&/^[a-z0-9]{16}$/.test(c)?c:''}catch(e){return ''}})();
+let arbS={tid:null,token:null,busy:false},arbList=[],arbSent={},arbCourt='';
+async function arbCheck(){
+  if(!sb||!user||!curId||arbS.busy||arbS.tid===curId)return;arbS.busy=true;const id=curId;
+  try{const r=await sb.rpc('arbitro_estado',{p_tid:id});arbS.tid=id;arbS.token=r.data&&r.data.token||null}catch(e){}finally{arbS.busy=false}
+  render();
+}
+const arbUrl=()=>S.pub&&S.pub.code&&arbS.token?pubUrl(S.pub.code)+'&arb='+arbS.token:'';
+async function arbOn(){
+  if(!(S.pub&&S.pub.code))return notice('Primero crea el enlace público del torneo.');
+  if(!curId)await flushT();
+  const r=await sb.rpc('arbitro_enlace',{p_tid:curId,p_on:true}),d=r.data||{};
+  if(r.error||!d.ok)return notice(d.error=='permiso'?'Solo el organizador puede crear el enlace de árbitro.':'No se pudo crear el enlace. Inténtalo de nuevo.');
+  arbS={tid:curId,token:d.token,busy:false};S.arbOn=true;save();render();
+}
+async function arbOff(){
+  if(!confirm('¿Quitar el enlace de árbitro? Quien lo tenga ya no podrá apuntar resultados.'))return;
+  await sb.rpc('arbitro_enlace',{p_tid:curId,p_on:false});arbS.token=null;S.arbOn=false;save();render();
+}
+function arbCopy(){const u=arbUrl();if(!u)return;(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>notice('Enlace de árbitro copiado. Pásaselo solo a quien vaya a apuntar resultados.'),()=>prompt('Copia el enlace:',u))}
+async function arbQR(){
+  const u=arbUrl();if(!u)return;try{await loadQR()}catch(e){return}
+  const c=qrCanvas(u,'Árbitro · '+S.name);
+  $('modalBody').innerHTML=`<h2>QR del árbitro</h2><p class="small">Quien lo escanee podrá apuntar resultados de este torneo. No lo enseñes en público.</p><img class="qrimg" src="${c.toDataURL('image/png')}" alt="Código QR del árbitro"><div class="row" style="margin-top:12px"><button class="sec" data-click="closeModal()">Cerrar</button></div>`;
+  $('modal').classList.add('on');
+}
+function arbCard(){
+  if(!CFG.url||!user)return '';
+  if(S.arbOn&&arbS.tid!==curId)setTimeout(arbCheck,0);
+  const u=arbUrl();
+  return `<div class="arbbox"><label>Árbitros</label>${u?`<p class="small" style="margin-top:0">Con este enlace, quien lo tenga apunta resultados sin cuenta (puede elegir su pista o consola) y se aplican solos. No puede cambiar nada más.</p>
+  <div class="row"><button class="sec" data-click="arbCopy()">Copiar enlace de árbitro</button><button class="sec" data-click="arbQR()">QR</button><button class="sec" data-click="arbOff()">Quitar</button></div>`:`<p class="small" style="margin-top:0">Crea un enlace para que otra persona apunte los resultados de su pista o consola desde su móvil, sin cuenta.</p><div class="row"><button class="sec" data-click="arbOn()">Crear enlace de árbitro</button></div>`}</div>`;
+}
+/* Pantalla del árbitro (página pública con &arb=) */
+function setArbCourt(v){arbCourt=String(v||'');render()}
+function arbView(){
+  if(!ARB||roState!='ok')return '';
+  const L=allMatches().filter(x=>x.m.a!=null&&x.m.b!=null&&x.m.a!==-1&&x.m.b!==-1&&!played(x.m));
+  const courts=[...new Set(L.map(x=>x.m.c).filter(Boolean))];
+  const list=L.filter(x=>!arbCourt||x.m.c===arbCourt).sort((a,b)=>okDT(a.m.t)&&okDT(b.m.t)?byTime(a,b):(+a.m.o||0)-(+b.m.o||0)).slice(0,30);
+  arbList=list.map(x=>({key:x.key,a:x.m.a,b:x.m.b}));
+  return `<div class="card regform arbcard" id="tt-arbitro"><h2>Modo árbitro</h2><p class="small">Apunta el resultado de cada partido al terminar. Se aplica solo en el torneo.</p>
+  <label for="arb-n">Tu nombre</label><input id="arb-n" maxlength="30" value="${esc(lsGet('torneazo_arbn')||'')}" data-change="arbName(this.value)" placeholder="Ej.: Mesa 1">
+  ${courts.length>1?`<label>Mi pista o consola</label><div class="chips"><div class="chip ${!arbCourt?'on':''}" data-click="setArbCourt('')">Todas</div>${courts.map(c=>`<div class="chip ${arbCourt===c?'on':''}" data-click="setArbCourt('${esc(c).replace(/'/g,'')}')">${esc(c)}</div>`).join('')}</div>`:''}
+  ${list.length?list.map((x,i)=>{const s=arbSent[x.key];return `<div class="arbrow"><div class="small">${[x.lab,okDT(x.m.t)?fmtWhen(x.m.t):x.m.o?'Turno '+(+x.m.o):'',x.m.c].filter(Boolean).map(esc).join(' · ')}</div>
+    <div class="arbm"><span>${esc(tnm(x.m.a))}</span><input type="number" min="0" max="999" inputmode="numeric" id="arb-a-${i}" aria-label="Resultado de ${esc(tnm(x.m.a))}" value="${s?s[0]:''}"><i>-</i><input type="number" min="0" max="999" inputmode="numeric" id="arb-b-${i}" aria-label="Resultado de ${esc(tnm(x.m.b))}" value="${s?s[1]:''}"><span>${esc(tnm(x.m.b))}</span></div>
+    ${s?'<p class="small ok" style="margin:4px 0 0">Enviado. Se verá en el torneo en unos segundos.</p>':`<button class="sm" style="margin-top:6px" data-click="arbSend(${i})">Guardar resultado</button>`}</div>`}).join(''):'<p>No quedan partidos por jugar'+(arbCourt?' en esta pista':'')+'.</p>'}
+  <p class="small" style="margin-top:10px">Te has equivocado: avisa al organizador para que lo corrija.</p></div>`;
+}
+function arbName(v){lsSet('torneazo_arbn',String(v||'').trim().slice(0,30))}
+async function arbSend(i){
+  const x=arbList[+i];if(!x||!sb)return;const a=$('arb-a-'+i),b=$('arb-b-'+i);
+  const sa=a&&a.value!==''?+a.value:NaN,sb2=b&&b.value!==''?+b.value:NaN;
+  if(!(sa>=0&&sa<=999&&sb2>=0&&sb2<=999)||sa%1||sb2%1)return notice('Pon los dos resultados (números enteros).');
+  const r=await sb.rpc('arbitro_resultado',{p_code:ROCODE,p_token:ARB,p_key:x.key,p_a:x.a,p_b:x.b,p_sa:sa,p_sb:sb2,p_name:lsGet('torneazo_arbn')||'Árbitro'}),d=r.data||{};
+  if(r.error||!d.ok)return notice(({enlace:'Este enlace de árbitro ya no vale. Pide uno nuevo al organizador.',partido:'Ese partido ha cambiado. Recarga la página.',limite:'Demasiados resultados seguidos. Espera un poco.'})[d.error]||'No se pudo guardar. Revisa la conexión.');
+  arbSent[x.key]=[sa,sb2];render();setTimeout(()=>{roStamp=null;loadRO()},5000);
+}
+
+/* ===== Calendario que se actualiza solo (suscripción) ===== */
+const calFeed=(j)=>CFG.url&&ROCODE?CFG.url.replace(/^https:/,'webcal:')+'/functions/v1/calendario?t='+ROCODE+(j!=null?'&j='+j:''):'';
+function calSubBtns(j){const f=calFeed(j);if(!f)return '';
+  return `<div class="row" style="margin-top:8px"><a class="btnlink" href="${esc(f)}">Suscribirme (iPhone y Mac)</a><a class="btnlink" href="https://calendar.google.com/calendar/r?cid=${encodeURIComponent(f)}" target="_blank" rel="noopener noreferrer">Google Calendar</a></div>
+  <p class="small" style="margin:6px 0 0">Si el organizador cambia una hora, se actualiza sola en tu calendario.</p>`}
+/* ===== Perfil público de jugador ===== */
+const PJ=(()=>{try{const v=new URLSearchParams(location.search).get('j');return v!=null&&/^\d{1,4}$/.test(v)?+v:null}catch(e){return null}})();
+let pjShown=false;
+function pubPlayer(id){
+  const T=S.teams||[],t=T.find(x=>x.id===+id)||T[+id];if(!t)return;id=t.id;
+  const L=allMatches().filter(x=>x.m.a===id||x.m.b===id),done=L.filter(x=>played(x.m)),pend=L.filter(x=>!played(x.m)&&x.m.a!=null&&x.m.b!=null&&x.m.a!==-1&&x.m.b!==-1);
+  let g=0,e=0,p=0,gf=0,gc=0;done.forEach(x=>{const me=x.m.a===id,f=me?x.m.sa:x.m.sb,c=me?x.m.sb:x.m.sa;gf+=f;gc+=c;if(f>c)g++;else if(f<c)p++;else e++});
+  let pos='';(S.groupsList||[]).forEach((G,gi)=>{if(G.includes(id)&&(S.matches||[]).length){const k=standings(gi).findIndex(r=>r.id===id);if(k>=0)pos=`${k+1}.º ${S.groupsList.length>1?'del grupo '+gl(gi):'en la clasificación'}`}});
+  const pl=[1,2,3].find(n=>{const r=placeIds(n);return r.done&&(r.ids||[]).includes(id)});
+  const sz=S.season&&Array.isArray(S.seasonTable)?S.seasonTable.findIndex(r=>String(r.n).toLowerCase()==String(t.name).toLowerCase()):-1;
+  const rv=x=>{const o=x.m.a===id?x.m.b:x.m.a;return esc(tnm(o))};
+  const tile=(v,l)=>`<div class="stile"><b>${v}</b><span>${l}</span></div>`;
+  $('modalBody').innerHTML=`<h2>${esc(t.name)}</h2>${t.lv?`<div style="margin:-4px 0 8px">${lvBadge(t.lv)}</div>`:''}
+  ${pl?`<p class="pjmedal">${pl==1?'Campeón':pl==2?'Subcampeón':'Tercer puesto'} de ${esc(S.name)}</p>`:''}
+  <div class="stiles">${tile(done.length,'partidos')}${tile(g,'victorias')}${tile(e,'empates')}${tile(p,'derrotas')}${tile(gf+'-'+gc,'a favor y en contra')}${pos?tile(esc(pos),'posición'):''}${sz>=0?tile(+S.seasonTable[sz].p||0,'puntos de '+esc(S.season)):''}</div>
+  ${pend.length?`<h3 style="margin:14px 0 6px">Próximos</h3>${pend.slice(0,6).map(x=>`<div class="irow"><span>contra <b>${rv(x)}</b></span><span class="small">${okDT(x.m.t)?esc(fmtWhen(x.m.t)):x.m.o?'Turno '+(+x.m.o):esc(x.lab||'')}</span></div>`).join('')}`:''}
+  ${done.length?`<h3 style="margin:14px 0 6px">Resultados</h3>${done.slice(-10).reverse().map(x=>{const me=x.m.a===id,f=me?x.m.sa:x.m.sb,c=me?x.m.sb:x.m.sa;return `<div class="irow"><span>contra <b>${rv(x)}</b>${x.lab?`<span class="small"> · ${esc(x.lab)}</span>`:''}</span><span><span class="st ${f>c?'live':f<c?'':'next'}">${f>c?'Ganado':f<c?'Perdido':'Empate'}</span> ${f}-${c}</span></div>`}).join('')}`:''}
+  <div class="row" style="margin-top:12px"><button data-click="pubPlayerShare(${id})">Compartir perfil</button><button class="sec" data-click="closeModal()">Cerrar</button></div>`;
+  $('modal').classList.add('on');
+}
+async function pubPlayerShare(id){
+  const T=S.teams||[],t=T.find(x=>x.id===+id)||T[+id];if(!t)return;
+  const u=pubUrl(RO?ROCODE:(S.pub&&S.pub.code)||'')+'&j='+t.id,txt=`${t.name} en ${S.name}`;
+  try{if(navigator.share){await navigator.share({title:txt,text:txt,url:u});return}}catch(e){if(e&&e.name=='AbortError')return}
+  (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>notice('Enlace del perfil copiado.'),()=>prompt('Copia el enlace:',u));
 }
 
 /* ===== Modo TV: pantalla grande para la tele o el proyector ===== */
@@ -2707,6 +2807,7 @@ function pubCard(){
     ${brandCard()}
     <label>Resultados de los jugadores</label><div class="chips"><div class="chip ${S.selfRep?'on':''}" data-click="setSelfRep(true)">Pueden enviarlos</div><div class="chip ${!S.selfRep?'on':''}" data-click="setSelfRep(false)">Solo yo</div></div>
     <p class="small">Si lo activas, desde la página pública cualquiera puede enviar el resultado de un partido. No cuenta hasta que tú lo aceptes en «Partidos».</p>
+    ${arbCard()}
     ${S.pub.hidden?`<p class="small bad">Tu torneo está oculto porque ha recibido denuncias y está en revisión. Escribe a ${esc((window.APP_CONFIG||{}).contactEmail||'soporte')}.</p>`:''}
     <details style="margin:10px 0"><summary class="small" style="cursor:pointer">Insertar en tu web</summary>
     <p class="small">Pega este código en tu web o blog y el torneo se verá dentro, actualizado solo.</p>
@@ -2888,7 +2989,7 @@ function afterRender(){
   if(RO)document.querySelectorAll('#app input,#app select,#app textarea,#app button').forEach(e=>{if(!e.classList.contains('backbtn')&&!e.closest('.regform')&&(!e.closest('.keepro')||e.classList.contains('noro')))e.disabled=true});
   if(!RO&&S.step==0&&sb&&user&&S.pub&&S.pub.id&&Date.now()-regAt>20000)loadRegs();
   if(!RO&&!DIR&&sb&&user&&curId&&curOwn&&Date.now()-orgAt>30000)orgLoad();
-  if(!RO&&S.step==2&&sb&&user&&S.pub&&S.pub.id&&S.selfRep&&Date.now()-rresAt>20000)loadRes();
+  if(!RO&&(S.step==2||S.step==3)&&sb&&user&&S.pub&&S.pub.id&&(S.selfRep||S.arbOn)&&Date.now()-rresAt>20000)loadRes();
 }
 function confetti(){
   if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
@@ -2901,7 +3002,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.39.0';
+const APP_VERSION='1.40.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

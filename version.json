@@ -1,6 +1,15 @@
 {
-  "version": "1.39.0",
+  "version": "1.40.0",
   "historial": [
+    {
+      "version": "1.40.0",
+      "fecha": "15/11/2026",
+      "cambios": [
+        "Árbitros: crea un enlace para que otra persona apunte los resultados de su pista o consola desde su móvil, sin cuenta. Se aplican solos.",
+        "Perfil de jugador: en la página del torneo, toca un participante para ver sus partidos, resultados y puntos, y comparte su perfil.",
+        "Calendario que se actualiza solo: suscríbete a tus partidos en el iPhone o en Google Calendar y los cambios de hora te llegan solos."
+      ]
+    },
     {
       "version": "1.39.0",
       "fecha": "15/11/2026",

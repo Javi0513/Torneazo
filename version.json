@@ -1,6 +1,14 @@
 {
-  "version": "1.40.0",
+  "version": "1.41.0",
   "historial": [
+    {
+      "version": "1.41.0",
+      "fecha": "15/11/2026",
+      "cambios": [
+        "TORNEAZO ya está en inglés: si tu móvil está en otro idioma se abre en inglés, y abajo puedes cambiar entre «English» y «Español».",
+        "Arreglado: la etiqueta «Publicidad» del anuncio se veía cortada."
+      ]
+    },
     {
       "version": "1.40.0",
       "fecha": "15/11/2026",

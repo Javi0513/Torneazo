@@ -1,7 +1,7 @@
 /* TORNEAZO · lógica de la app.
    Los eventos se atienden aquí (data-click, data-change, data-input, data-focus) y no con código
    dentro del HTML, así la política de seguridad puede prohibir los scripts en línea. */
-const OK_FN=new Set(["accountHome", "pubPlayer", "pubPlayerShare", "arbOn", "arbOff", "arbCopy", "arbQR", "setArbCourt", "arbName", "arbSend", "setSeason", "seasonOpen", "oavOn", "oavOff", "dcSave", "dcOff", "dcTest", "drawGo", "dfxEnd", "strAdd", "strDel", "askAccount", "askGo", "guestLater", "guestKeep", "guestDrop", "goBack", "modalX", "adminOpen", "setPlySort", "setBrandC", "brandClear", "brandLogo", "setMe", "waOpen", "waSend", "setSelfCk", "ckApply", "ckReset", "ckSend", "ckOther", "tvOpen", "tvClose", "tvFull", "tvNext", "dupT", "dupOk", "exportPdf", "openCode", "avisosOn", "avisosOff", "orgInvite", "orgUnlink", "orgRemove", "orgLeave", "orgCopy", "tLeave", "setLvl", "refreshLvq", "setCal", "setCalDay", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave", "welcomeGo"]);
+const OK_FN=new Set(["accountHome", "setLang", "pubPlayer", "pubPlayerShare", "arbOn", "arbOff", "arbCopy", "arbQR", "setArbCourt", "arbName", "arbSend", "setSeason", "seasonOpen", "oavOn", "oavOff", "dcSave", "dcOff", "dcTest", "drawGo", "dfxEnd", "strAdd", "strDel", "askAccount", "askGo", "guestLater", "guestKeep", "guestDrop", "goBack", "modalX", "adminOpen", "setPlySort", "setBrandC", "brandClear", "brandLogo", "setMe", "waOpen", "waSend", "setSelfCk", "ckApply", "ckReset", "ckSend", "ckOther", "tvOpen", "tvClose", "tvFull", "tvNext", "dupT", "dupOk", "exportPdf", "openCode", "avisosOn", "avisosOff", "orgInvite", "orgUnlink", "orgRemove", "orgLeave", "orgCopy", "tLeave", "setLvl", "refreshLvq", "setCal", "setCalDay", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave", "welcomeGo"]);
 function splitTop(t,sep){
   const out=[];let d=0,q=null,cur='';
   for(let k=0;k<t.length;k++){const c=t[k];
@@ -47,13 +47,55 @@ document.addEventListener('focusin',e=>{const el=e.target.closest&&e.target.clos
 const MODES={1:'Individual',2:'Dúo',3:'Trío',4:'Escuadrón (4)',5:'Equipos de 5'};
 const FREE={maxPlayers:32,modes:[1,2]};
 const FORMATS={grupos:'Grupos + eliminatoria',liguilla:'Liguilla (todos contra todos)',suizo:'Sistema suizo (por rondas)',eliminacion:'Eliminación directa',doble:'Doble eliminación',fases:'Por fases'};
-const def=()=>({premium:false,step:0,name:'Torneo del viernes',game:'FIFA',size:1,format:'grupos',groups:2,
+const def=()=>({premium:false,step:0,name:typeof LANG!='undefined'&&LANG==='en'?'Friday tournament':'Torneo del viernes',game:'FIFA',size:1,format:'grupos',groups:2,
   players:'',teams:[],groupsList:[],matches:[],ko:null,pairing:'dentro',rivals:2,nextN:2,nextExtra:0,nextKind:'ko',liga:null,koTop:2,prizes:[],info:{desc:'',rules:'',start:'',end:'',org:'',contact:'',discord:'',web:''},pub:null,reg:{open:false,deadline:'',max:0,contact:false,level:false,auto:false,msg:''},swissRounds:0,swissCut:0,swiss:null,manual:false,balance:false,preset:null,lvScheme:null,unit:null,lvl:{},rules:{win:3,draw:1,ida:false,pen:true,noDraw:false}});
 const ROCODE=(()=>{try{const c=new URLSearchParams(location.search).get('t')||'';return /^[a-z0-9]{10,16}$/.test(c)?c:''}catch(e){return ''}})();
 // En la página de un torneo, el icono de la pantalla de inicio abre ese torneo (manifiesto sin start_url).
 if(ROCODE)try{const l=document.querySelector('link[rel=manifest]');if(l)l.href='manifest-torneo.webmanifest'}catch(e){}
 const DIR=!ROCODE&&(()=>{try{return new URLSearchParams(location.search).has('directorio')}catch(e){return false}})();
 let RO=!!ROCODE,roStamp=null,roState='load';
+/* ===== Idioma: español o inglés =====
+   La app se escribe en español y la capa de traducción cambia al inglés lo que se ve en pantalla
+   (textos, botones, ventanas, avisos y atributos) con el diccionario de en.js. */
+const LANG=(()=>{try{const s=localStorage.getItem('torneazo_lang');if(s==='es'||s==='en')return s}catch(e){}
+  const l=String(navigator.language||'es').toLowerCase();return /^(es|ca|gl|eu)/.test(l)?'es':'en'})();
+try{document.documentElement.lang=LANG}catch(e){}
+const EN=(window.TZ_EN&&typeof window.TZ_EN=='object')?window.TZ_EN:{},ENRX=Array.isArray(window.TZ_ENRX)?window.TZ_ENRX:[];
+const ENV=new Set(Object.values(EN));
+const I18N_SKIP=new Set(['SCRIPT','STYLE','TEXTAREA','INPUT','CODE','svg','text']);
+const i18nKey=s=>s.replace(/\d+(?:[.,]\d+)?/g,'#');
+function trS(s){
+  if(LANG!=='en'||s==null)return s;s=String(s);
+  const m=s.match(/^(\s*)([\s\S]*?)(\s*)$/),core=m[2];
+  if(!core||!/[A-Za-zÁÉÍÓÚáéíóúÑñ]/.test(core)||ENV.has(core))return s;
+  let e=EN[core];if(e!=null)return m[1]+e+m[3];
+  const k=i18nKey(core);e=EN[k];
+  if(e!=null){const nums=core.match(/\d+(?:[.,]\d+)?/g)||[];let i=0;return m[1]+e.replace(/#/g,()=>nums[i++]??'')+m[3]}
+  for(const [re,f] of ENRX){if(re.test(core))return m[1]+core.replace(re,f)+m[3]}
+  if(core.startsWith('· ')&&core.length>2){const r=trS(core.slice(2));if(r!==core.slice(2))return m[1]+'· '+r+m[3]}
+  if(core.includes(' · ')){const P=core.split(' · '),T=P.map(x=>trS(x));if(T.some((x,i)=>x!==P[i]))return m[1]+T.join(' · ')+m[3]}
+  if(window.__i18nMiss)window.__i18nMiss.add(core);
+  return s;
+}
+function trTree(root){
+  if(LANG!=='en'||!root)return;
+  if(root.nodeType===3){const p=root.parentNode;if(p&&!I18N_SKIP.has(p.nodeName)&&!(p.closest&&p.closest('[data-notr]'))){const v=root.nodeValue,t=trS(v);if(t!==v)root.nodeValue=t}return}
+  if(root.nodeType!==1)return;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>{const p=n.parentNode;return p&&!I18N_SKIP.has(p.nodeName)&&!(p.closest&&p.closest('[data-notr]'))?1:2}});
+  let n;while((n=w.nextNode())){const v=n.nodeValue,t=trS(v);if(t!==v)n.nodeValue=t}
+  const els=[root,...root.querySelectorAll('[placeholder],[aria-label],[title],[alt]')];
+  for(const el of els)for(const a of ['placeholder','aria-label','title','alt']){const v=el.getAttribute&&el.getAttribute(a);if(v){const t=trS(v);if(t!==v)el.setAttribute(a,t)}}
+}
+if(LANG==='en'){
+  const _c=window.confirm.bind(window),_a=window.alert.bind(window),_p=window.prompt.bind(window);
+  window.confirm=m=>_c(trS(m));window.alert=m=>_a(trS(m));window.prompt=(m,d)=>_p(trS(m),d);
+  const obs=new MutationObserver(L=>{for(const r of L){if(r.type==='characterData')trTree(r.target);else r.addedNodes.forEach(trTree)}});
+  const start=()=>{trTree(document.body);obs.observe(document.body,{childList:true,subtree:true,characterData:true});try{document.title=trS(document.title)}catch(e){}};
+  if(document.body)start();else document.addEventListener('DOMContentLoaded',start);
+}
+function setLang(l){lsSet('torneazo_lang',l==='en'?'en':'es');location.reload()}
+const langLink=()=>`<a href="#" style="color:var(--mut)" data-click="setLang('${LANG==='en'?'es':'en'}');return false" data-notr>${LANG==='en'?'Español':'English'}</a>`;
+
 let S=def(),demoBackup=null,demoBase=null;
 try{const s=JSON.parse(localStorage.getItem('torneazo')||'null');if(s)S=Object.assign(def(),s)}catch(e){}
 const save=()=>{if(demoBackup||RO||DIR)return;try{localStorage.setItem('torneazo',JSON.stringify(S));if(!user&&CFG.url&&window.__authReady)localStorage.setItem('torneazo_guest','1')}catch(e){}if(typeof cloudSave=='function')cloudSave()};
@@ -640,9 +682,9 @@ function render(){
   let body='';
   try{body=DIR?viewDir():RO?viewRO():HOME?viewHome():S.step==0?viewSetup():S.step==1?viewDraw():S.step==2?viewMatches():S.step==4?viewPrizes():viewKO()}catch(e){body='<div class="card"><p class="small">No se pudo mostrar esta pantalla.</p></div>'}
   h+=`<div class="view ${DIR?'vDir':HOME&&!RO?'vHome':'v'+S.step}">${body}</div>`;
-  if(DIR)h+=`<p class="small" style="text-align:center;margin-bottom:4px"><a href="${esc(location.pathname)}" style="color:var(--ac)">Crea tu propio torneo con TORNEAZO</a> · v${APP_VERSION}</p>`;
-  else if(RO)h+=`<p class="small" style="text-align:center;margin-bottom:4px"><a href="${esc(location.pathname)}" style="color:var(--ac)">Crea tu propio torneo con TORNEAZO</a> · <a href="${esc(location.pathname)}?directorio" style="color:var(--mut)">Torneos públicos</a> · <a href="#" style="color:var(--mut)" data-click="reportOpen();return false">Denunciar</a> · v${APP_VERSION}</p>`;
-  else h+=`<p class="small" style="text-align:center;margin-bottom:4px"><a href="#" style="color:var(--mut)" data-click="showNews(true);return false">Novedades</a> · <a href="#" style="color:var(--mut)" data-click="tutoOpen(0);return false">Tutorial</a> · <a href="#" style="color:var(--mut)" data-click="playersOpen();return false">Jugadores</a> · <a href="${esc(location.pathname)}?directorio" style="color:var(--mut)">Torneos públicos</a> · v${APP_VERSION}</p>`;
+  if(DIR)h+=`<p class="small" style="text-align:center;margin-bottom:4px"><a href="${esc(location.pathname)}" style="color:var(--ac)">Crea tu propio torneo con TORNEAZO</a> · v${APP_VERSION} · ${langLink()}</p>`;
+  else if(RO)h+=`<p class="small" style="text-align:center;margin-bottom:4px"><a href="${esc(location.pathname)}" style="color:var(--ac)">Crea tu propio torneo con TORNEAZO</a> · <a href="${esc(location.pathname)}?directorio" style="color:var(--mut)">Torneos públicos</a> · <a href="#" style="color:var(--mut)" data-click="reportOpen();return false">Denunciar</a> · v${APP_VERSION} · ${langLink()}</p>`;
+  else h+=`<p class="small" style="text-align:center;margin-bottom:4px"><a href="#" style="color:var(--mut)" data-click="showNews(true);return false">Novedades</a> · <a href="#" style="color:var(--mut)" data-click="tutoOpen(0);return false">Tutorial</a> · <a href="#" style="color:var(--mut)" data-click="playersOpen();return false">Jugadores</a> · <a href="${esc(location.pathname)}?directorio" style="color:var(--mut)">Torneos públicos</a> · v${APP_VERSION} · ${langLink()}</p>`;
   if(!RO&&!DIR)h+=`<p class="small" style="text-align:center">${S.premium?(CFG.url?'':'<a href="#" style="color:var(--mut)" data-click="setPremium(false);return false">Volver a versión gratuita (demo)</a>'):'<a href="#" style="color:var(--ac)" data-click="paywall(\'Quita los anuncios y desbloquea todo.\');return false">Probar Premium</a>'}</p>`;
   const ap=document.getElementById('app'),key=S.step+':'+(S.drawn||0);
   ap.classList.toggle('anim',key!==lastKey);ap.classList.toggle('ro',RO);lastKey=key;ap.innerHTML=h;afterRender();
@@ -1371,7 +1413,7 @@ function homeStart(k){
 function homeStartOk(k){
   const g=k?G.find(x=>x.k==k):null;
   if(busyT()&&!(user&&S.premium)){const p=S.premium;S=def();S.premium=p}
-  if(g){S.game=g.n;S.name=(homeKind(g)=='dep'?'Torneo de ':'Copa de ')+shortName(g);applyPreset(g)}
+  if(g){S.game=g.n;S.name=LANG==='en'?trS(shortName(g))+(homeKind(g)=='dep'?' tournament':' cup'):(homeKind(g)=='dep'?'Torneo de ':'Copa de ')+shortName(g);applyPreset(g)}
   HOME=false;homeTouched=true;S.step=0;closeModal();save();render();scrollTo(0,0);
   if(tutPending){tutPending=false;setTimeout(()=>tutoOpen(0),400)}
 }
@@ -1393,7 +1435,7 @@ function viewHome(){
   if(homeFeat==null)homeFeatLoad();
   const list=G.filter(g=>homeCat=='all'||homeKind(g)==homeCat),cur=busyT();
   const feat=(homeFeat&&homeFeat.length?homeFeat.slice(0,6).map(featCard):PROMOS.map(promoCard)).join('');
-  return `${cur?guestCard():''}<section class="hero"><h2>Compite en torneos de tus <span>juegos</span> y <span>deportes</span> favoritos</h2>
+  return `${cur?guestCard():''}<section class="hero"><h2>${LANG==='en'?'Compete in tournaments of your favourite <span>games</span> and <span>sports</span>':'Compite en torneos de tus <span>juegos</span> y <span>deportes</span> favoritos'}</h2>
   <p>Elige qué se juega, apunta a los participantes y TORNEAZO hace el sorteo, los partidos y la clasificación.</p>
   <div class="row"><button data-click="homeStart('')">Crear torneo</button>${cur?`<button class="sec" data-click="homeResume()">Seguir con «${esc(String(S.name).slice(0,28))}»</button>`:`<a class="btnlink sec" href="${esc(location.pathname)}?directorio">Ver torneos públicos</a>`}</div></section>
   <section class="opencode"><label for="oc-i">¿Tienes el enlace o el código de un torneo?</label><div class="row"><input id="oc-i" placeholder="Pega aquí el enlace o el código" autocomplete="off"><button class="sec" data-click="openCode()">Abrir</button></div><div class="err" id="oc-m" role="alert"></div></section>
@@ -2009,7 +2051,7 @@ async function adminOpen(){
   <div class="stiles">${tile(d.usuarios,'usuarios')}${tile(d.usuarios_7d,'nuevos en 7 días')}${tile(d.premium,'Premium')}${tile(d.torneos,'torneos')}${tile(d.activos_7d,'activos en 7 días')}${tile(d.publicos,'con enlace público')}</div>
   <h3 style="margin:16px 0 6px">Últimos 14 días</h3>
   <div class="adbars" role="img" aria-label="Torneos y usuarios nuevos por día">${D.map(x=>`<div class="adday" title="${esc(fmtDate(x.dia))}: ${+x.torneos||0} torneos, ${+x.usuarios||0} usuarios"><i style="height:${Math.round((+x.torneos||0)*100/mx)}%"></i><i class="u" style="height:${Math.round((+x.usuarios||0)*100/mx)}%"></i><span>${esc(String(x.dia).slice(8))}</span></div>`).join('')}</div>
-  <p class="small"><span class="adk"></span> Torneos nuevos <span class="adk u"></span> Usuarios nuevos</p>
+  <p class="small"><span class="adleg"></span> Torneos nuevos <span class="adleg u"></span> Usuarios nuevos</p>
   <h3 style="margin:16px 0 6px">Juegos más usados</h3>${J.map(x=>`<div class="adbar"><span>${esc(x.juego)}</span><i style="width:${Math.max(4,Math.round((+x.n||0)*100/mj))}%"></i><b>${n(x.n)}</b></div>`).join('')||'<p class="small">Sin datos.</p>'}
   <h3 style="margin:16px 0 6px">Uso de funciones</h3><div class="stiles">${tile(d.inscripciones,'inscripciones')}${tile(d.resultados_jugadores,'resultados enviados')}${tile(d.avisos,'móviles con avisos')}${tile(d.coorganizadores,'co-organizadores')}${tile(d.asistencias,'asistencias por QR')}${tile(d.directorio,'en el directorio')}${tile(d.ocultos,'ocultos por denuncias')}${tile(d.usuarios_30d,'usuarios en 30 días')}${tile(d.torneos_7d,'torneos nuevos en 7 días')}</div>
   <div class="row" style="margin-top:12px"><button class="sec" data-click="modForm()">Moderación</button><button class="sec" data-click="closeModal()">Cerrar</button></div>`;
@@ -2388,7 +2430,7 @@ function tvRender(){
 
 /* ===== Calendario de partidos ===== */
 let pv='res',calF='all';
-const DAYS=['dom','lun','mar','mié','jue','vie','sáb'],MONTHS=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const DAYS=LANG==='en'?['Sun','Mon','Tue','Wed','Thu','Fri','Sat']:['dom','lun','mar','mié','jue','vie','sáb'],MONTHS=LANG==='en'?['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']:['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 const okDT=v=>/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(v||'');
 const p2=n=>String(n).padStart(2,'0');
 const fmtLocal=d=>`${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}T${p2(d.getHours())}:${p2(d.getMinutes())}`;
@@ -3002,7 +3044,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.40.0';
+const APP_VERSION='1.41.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
@@ -3163,6 +3205,7 @@ function welcomeShow(){
   <button data-click="welcomeGo('reg')">Crear cuenta gratis</button>
   <button class="sec" data-click="welcomeGo('login')">Ya tengo cuenta · Entrar</button>
   <button class="wl-guest" data-click="welcomeGo('guest')">Seguir como invitado</button>
+  <p class="wl-note" style="margin-bottom:4px">${langLink()}</p>
   <p class="wl-note">Como invitado puedes hacer tu torneo igual, pero se guarda solo en este móvil. Con cuenta lo tienes en todos tus dispositivos y puedes compartirlo con un enlace.</p></div>`;
   document.body.appendChild(d);document.body.classList.add('wl-on');
   setTimeout(()=>{const b=d.querySelector('button');if(b)b.focus()},50);

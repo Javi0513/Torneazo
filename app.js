@@ -1,7 +1,7 @@
 /* TORNEAZO · lógica de la app.
    Los eventos se atienden aquí (data-click, data-change, data-input, data-focus) y no con código
    dentro del HTML, así la política de seguridad puede prohibir los scripts en línea. */
-const OK_FN=new Set(["accountHome", "setLang", "pubPlayer", "pubPlayerShare", "arbOn", "arbOff", "arbCopy", "arbQR", "setArbCourt", "arbName", "arbSend", "setSeason", "seasonOpen", "oavOn", "oavOff", "dcSave", "dcOff", "dcTest", "drawGo", "dfxEnd", "strAdd", "strDel", "askAccount", "askGo", "guestLater", "guestKeep", "guestDrop", "goBack", "modalX", "adminOpen", "setPlySort", "setBrandC", "brandClear", "brandLogo", "setMe", "waOpen", "waSend", "setSelfCk", "ckApply", "ckReset", "ckSend", "ckOther", "tvOpen", "tvClose", "tvFull", "tvNext", "dupT", "dupOk", "exportPdf", "openCode", "avisosOn", "avisosOff", "orgInvite", "orgUnlink", "orgRemove", "orgLeave", "orgCopy", "tLeave", "setLvl", "refreshLvq", "setCal", "setCalDay", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave", "welcomeGo"]);
+const OK_FN=new Set(["accountHome", "setPorra", "porraName", "porraVote", "setTeamReg", "regTeamSubmit", "setLang", "pubPlayer", "pubPlayerShare", "arbOn", "arbOff", "arbCopy", "arbQR", "setArbCourt", "arbName", "arbSend", "setSeason", "seasonOpen", "oavOn", "oavOff", "dcSave", "dcOff", "dcTest", "drawGo", "dfxEnd", "strAdd", "strDel", "askAccount", "askGo", "guestLater", "guestKeep", "guestDrop", "goBack", "modalX", "adminOpen", "setPlySort", "setBrandC", "brandClear", "brandLogo", "setMe", "waOpen", "waSend", "setSelfCk", "ckApply", "ckReset", "ckSend", "ckOther", "tvOpen", "tvClose", "tvFull", "tvNext", "dupT", "dupOk", "exportPdf", "openCode", "avisosOn", "avisosOff", "orgInvite", "orgUnlink", "orgRemove", "orgLeave", "orgCopy", "tLeave", "setLvl", "refreshLvq", "setCal", "setCalDay", "qrOpen", "qrDownload", "playersOpen", "playerShow", "playersFilter", "playersRender", "setFmt", "planSet", "planAdd", "planDel", "nextPhase", "phaseShow", "goHome", "homeStart", "homeStartOk", "homeResume", "homeSet", "homeFilter", "listaForm", "listaTog", "listaAll", "setDE", "setThird", "setK3", "copyEmbed", "setSelfRep", "resOk", "resNo", "resSend", "spLogo", "shareImg", "myTorneos", "tOpen", "tNew", "tDel", "tDelOk", "newsAdd", "newsDel", "spAdd", "spDel", "applyUpdate", "askDelete", "authSwitch", "autoForm", "autoRun", "autoSet", "buyPremium", "clearPreset", "clickEl", "closeModal", "closeNews", "copyLink", "delAccount", "delPrize", "dirMore", "dirSet", "doAuth", "draw", "exportData", "exportIcs", "genNext", "genRound", "ligaToKO", "loadRegs", "logout", "lvAll", "lvlForm", "mailForm", "modForm", "modSet", "moveTeam", "openAuth", "openPortal", "openPub", "pTpl", "paywall", "pfAdd", "pfSet", "pfTitle", "pickAv", "pickLogo", "pickMode", "pickModeVal", "profForm", "publishLink", "pwForm", "regDel", "regImport", "regSet", "regSubmit", "reportOpen", "reportSend", "reset", "resetPw", "rmAv", "runAsk", "saveDemoName", "saveLvl", "saveMail", "saveProf", "savePw", "saveTeam", "selectEl", "set", "setCalF", "setDrawMode", "setGame", "setInfo", "setKO", "setLiga", "setListed", "setName", "setNext", "setPremium", "setPrize", "setPv", "setReg", "setRule", "setScore", "setText", "share", "showNews", "swissToKO", "teamForm", "tfColor", "tfLogoClear", "tfPrev", "tutoOpen", "unpublishLink", "whenClear", "whenForm", "whenSave", "welcomeGo"]);
 function splitTop(t,sep){
   const out=[];let d=0,q=null,cur='';
   for(let k=0;k<t.length;k++){const c=t[k];
@@ -261,13 +261,14 @@ function pickMode(n){if(!S.premium&&!FREE.modes.includes(n))return paywall('Este
 function mkTeam(id,m,size,seed,lvs,old){
   const o=size==1&&old?old[m[0].toLowerCase()]:null,ls=(lvs||[]).filter(x=>x>0);
   return {id,members:m,seed:!!seed,lv:ls.length?Math.round(ls.reduce((x,y)=>x+y,0)/ls.length*10)/10:undefined,
-    name:o?o.name:size==1?m[0]:size==2?m.join(' & '):'Equipo '+(id+1),
+    name:o?o.name:S.tnames&&S.tnames[String(m[0]).toLowerCase()]?S.tnames[String(m[0]).toLowerCase()]:size==1?m[0]:size==2?m.join(' & '):'Equipo '+(id+1),
     color:o&&o.color?o.color:PAL[id%PAL.length],logo:o&&o.logo?o.logo:undefined};
 }
 function formTeams(list,size,old){
   const mid=Math.ceil(lvN()/2),L=p=>p.lv||mid;
   const mk=(id,ps)=>mkTeam(id,ps.map(p=>p.n),size,ps.some(p=>p.seed),ps.map(p=>p.lv),old);
   if(S.manual){const teams=[];for(let i=0;i<list.length;i+=size)teams.push(mk(teams.length,list.slice(i,i+size)));return teams}
+  if(S.teamReg&&size>1){const ch=[];for(let i=0;i<list.length;i+=size)ch.push(list.slice(i,i+size));return shuffle(ch).map((ps,i)=>mk(i,ps))}
   if(S.balance){
     const sorted=shuffle(list).sort((x,y)=>(+y.seed)-(+x.seed)||L(y)-L(x));
     if(size==1)return sorted.map((p,i)=>mk(i,[p]));
@@ -729,6 +730,7 @@ function viewSetup(){
   <div class="row" style="margin-bottom:6px"><button class="sec" id="tt-niveles" data-click="lvlForm()">Asignar niveles (${plist().filter(p=>p.lv).length} de ${names().length})</button></div><p class="small">Uno por línea (o separados por comas). ${S.premium?'Hasta 256.':`Gratis: hasta ${FREE.maxPlayers}.`} ${S.size>1?`Con ${modeName(S.size)} se forman equipos de ${S.size}.`:''}</p>
   <textarea data-input="setText(this.value)" data-change="refreshLvq()" placeholder="Baruc&#10;Javi&#10;Willy&#10;...">${esc(S.players)}</textarea>
   <p class="small" id="count">${countText()}</p>
+  ${S.teamReg&&+S.size>1?`<p class="small teamreg">Equipos inscritos: cada ${+S.size} nombres seguidos de la lista forman un equipo y el sorteo solo los reparte en grupos. <a href="#" data-click="setTeamReg(false);return false">Formar los equipos al azar</a></p>`:''}
   <div id="tt-lvq">${lvQuick()}</div>
   <div class="row" style="margin-bottom:6px"><button class="sec" id="tt-lista" data-click="listaForm()">Pasar lista${allP().length?` (${names().length} de ${allP().length})`:''}${S.selfCk&&cks.length?` · ${ckSet().size} por QR`:''}</button></div>
   <div class="row" id="tt-sorteo"><button data-click="drawGo()">Hacer sorteo</button><button class="sec" data-click="reset()">Nuevo torneo</button></div>
@@ -770,7 +772,7 @@ function viewMatches(){
   const hasRes=(S.matches||[]).length>0||!!S.liga;
   if(!hasRes)return guestCard()+phasesCard()+(RO?resSendCard():resPendCard())+viewCal();
   const seg=`<div class="chips seg"><div class="chip ${pv!='cal'?'on':''}" data-click="setPv('res')">Resultados</div><div class="chip ${pv=='cal'?'on':''}" data-click="setPv('cal')">Calendario</div></div>`;
-  return guestCard()+phasesCard()+nowCard()+(RO?avisosCard():'')+(RO?resSendCard():resPendCard())+seg+(pv=='cal'?viewCal():viewMatchesBody()+statsCard());
+  return guestCard()+phasesCard()+nowCard()+(RO?avisosCard():'')+(RO?resSendCard():resPendCard())+(RO?'':porraCard())+seg+(pv=='cal'?viewCal():viewMatchesBody()+statsCard());
 }
 function viewMatchesBody(){
   if(S.format=='suizo')return viewSwiss();
@@ -858,6 +860,7 @@ function viewResumenRO(){
   ${seasonCard()}
   ${streamersCard()}
   ${myCard()}
+  ${porraCard()}
   ${avisosCard()}
   <div class="card tvcta keepro"><div><b>Compártelo</b><p class="small" style="margin:2px 0 0">Manda los resultados al grupo o ponlo en grande en una tele o un proyector.</p></div><div class="row" style="width:auto;flex-wrap:nowrap"><button class="sec" data-click="waOpen()">Mandar por WhatsApp</button><button class="sec" data-click="tvOpen()">Ver en modo TV</button></div></div>
   ${phasesCard()}
@@ -1882,7 +1885,7 @@ function openCode(){
 
 
 /* ===== Duplicar torneo ===== */
-const DUP_KEYS=['game','preset','lvScheme','unit','rules','size','ent','format','groups','pairing','rivals','nextN','nextExtra','nextKind','koTop','swissRounds','swissCut','third','players','lvl','balance','manual','info','prizes','spons','cal','tz','selfRep','brand','streams','season'];
+const DUP_KEYS=['game','preset','lvScheme','unit','rules','size','ent','format','groups','pairing','rivals','nextN','nextExtra','nextKind','koTop','swissRounds','swissCut','third','players','lvl','balance','manual','info','prizes','spons','cal','tz','selfRep','brand','streams','season','tnames','teamReg','porra'];
 function dupData(src){
   const d=def(),J=x=>x==null?x:JSON.parse(JSON.stringify(x));
   DUP_KEYS.forEach(k=>{if(src[k]!==undefined)d[k]=J(src[k])});
@@ -2361,6 +2364,54 @@ async function pubPlayerShare(id){
   (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>notice('Enlace del perfil copiado.'),()=>prompt('Copia el enlace:',u));
 }
 
+/* ===== Porra del público: apuestas sin dinero sobre quién gana cada partido ===== */
+let porra={votes:[],at:0,busy:false,me:'',sending:false};
+function setPorra(v){S.porra=!!v;save();render();if(v)porraLoad(true)}
+function porraVoter(){let v=lsGet('torneazo_voter');if(!/^[a-z0-9]{20}$/.test(v||'')){const a=new Uint8Array(20);crypto.getRandomValues(a);v=Array.from(a,x=>'abcdefghijklmnopqrstuvwxyz0123456789'[x%36]).join('');lsSet('torneazo_voter',v)}return v}
+async function porraMe(){if(porra.me)return porra.me;try{const h=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(porraVoter()));porra.me=Array.from(new Uint8Array(h),b=>b.toString(16).padStart(2,'0')).join('').slice(0,12)}catch(e){}return porra.me}
+const porraCode=()=>RO?ROCODE:(S.pub&&S.pub.code)||'';
+async function porraLoad(force){
+  const code=porraCode();if(!sb||!code||!S.porra||porra.busy||(!force&&Date.now()-porra.at<25000))return;porra.busy=true;
+  try{await porraMe();const r=await sb.rpc('porra_datos',{p_code:code});porra.at=Date.now();
+    if(!r.error&&Array.isArray(r.data)){const ch=JSON.stringify(r.data)!==JSON.stringify(porra.votes);porra.votes=r.data;if(ch){const a=document.activeElement;if(!(a&&a.closest&&a.closest('#app')&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)))render();else if(TV)tvRender()}}}
+  catch(e){}finally{porra.busy=false}
+}
+setInterval(()=>{if(S.porra&&!document.hidden&&(RO||TV||(!DIR&&S.step>=2)))porraLoad()},15000);
+const porraOut=m=>{if(!played(m))return null;if(m.sa>m.sb)return 0;if(m.sb>m.sa)return 1;if(m.pa!=null&&m.pb!=null&&m.pa!==m.pb)return m.pa>m.pb?0:1;return 2};
+function porraTable(){
+  const M={};allMatches().forEach(x=>M[x.key]=x.m);const P={};
+  porra.votes.forEach(v=>{const m=M[v.k];const R=P[v.v]||(P[v.v]={v:v.v,n:v.n,pts:0,tot:0,done:0});R.n=v.n;R.tot++;const o=m?porraOut(m):null;if(o!=null){R.done++;if(o===+v.p)R.pts++}});
+  return Object.values(P).sort((a,b)=>b.pts-a.pts||b.done-a.done||a.n.localeCompare(b.n));
+}
+const porraDraw=x=>!rl().noDraw&&(x.key[0]=='m'||x.key[0]=='l')&&S.format!='eliminacion'&&S.format!='doble';
+function porraCard(){
+  if(!S.porra||!porraCode()||!allMatches().some(x=>x.m.a!=null&&x.m.b!=null&&x.m.a!==-1&&x.m.b!==-1))return '';
+  if(!porra.at)setTimeout(()=>porraLoad(true),0);
+  const L=allMatches().filter(x=>x.m.a!=null&&x.m.b!=null&&x.m.a!==-1&&x.m.b!==-1&&!played(x.m)).sort((a,b)=>okDT(a.m.t)&&okDT(b.m.t)?byTime(a,b):(+a.m.o||0)-(+b.m.o||0)).slice(0,8);
+  const mine={};porra.votes.filter(v=>v.v===porra.me).forEach(v=>mine[v.k]=+v.p);
+  const T=porraTable(),pos=T.findIndex(r=>r.v===porra.me);
+  const nm=lsGet('torneazo_porra_n')||'';
+  const opt=(x,p,lab)=>{const c=porra.votes.filter(v=>v.k===x.key),n=c.length,pc=n?Math.round(c.filter(v=>+v.p===p).length*100/n):0,on=mine[x.key]===p;
+    return `<button class="pq${on?' on':''}" aria-pressed="${on}" ${RO?`data-click="porraVote('${x.key}',${x.m.a},${x.m.b},${p})"`:'disabled'}><span>${lab}</span>${n&&(RO?x.key in mine:true)?`<i style="width:${pc}%"></i><b>${pc}%</b>`:''}</button>`};
+  return `<div class="card ${RO?'keepro':''} porracard" id="tt-porra"><h2>Porra</h2>
+  <p class="small">${RO?'¿Quién gana cada partido? Acierta y suma un punto. Es solo por diversión: sin dinero.':'El público apuesta desde la página del torneo quién gana cada partido. Sin dinero, solo puntos.'}</p>
+  ${RO?`<label for="pq-n">Tu nombre en la porra</label><input id="pq-n" maxlength="30" value="${esc(nm)}" data-change="porraName(this.value)" placeholder="Ej.: Fan de Baruc">`:''}
+  ${L.length?L.map(x=>`<div class="pqrow"><div class="small">${[x.lab,okDT(x.m.t)?fmtWhen(x.m.t):x.m.o?'Turno '+(+x.m.o):''].filter(Boolean).map(esc).join(' · ')}</div><div class="pqopts">${opt(x,0,esc(tnm(x.m.a)))}${porraDraw(x)?opt(x,2,'Empate'):''}${opt(x,1,esc(tnm(x.m.b)))}</div></div>`).join(''):'<p class="small">No quedan partidos por jugar.</p>'}
+  <h3 style="margin-top:14px">Clasificación de la porra</h3>
+  ${T.length?`<table class="sztab"><tr><th>#</th><th class="l">Nombre</th><th>Aciertos</th><th>Jugados</th></tr>${T.slice(0,10).map((r,i)=>`<tr class="${i<3?'q':''}${r.v===porra.me?' me':''}"><td>${i+1}</td><td class="l">${esc(r.n)}</td><td><b>${r.pts}</b></td><td>${r.done}</td></tr>`).join('')}</table>
+  ${RO&&pos>=10?`<p class="small">Tú vas ${pos+1}.º con ${T[pos].pts} aciertos.</p>`:''}`:'<p class="small">Todavía no ha apostado nadie.</p>'}</div>`;
+}
+function porraName(v){lsSet('torneazo_porra_n',String(v||'').trim().slice(0,30))}
+async function porraVote(key,a,b,p){
+  if(porra.sending||!sb)return;const n=(lsGet('torneazo_porra_n')||'').trim()||((($('pq-n')||{}).value||'').trim());
+  if(!n){const i=$('pq-n');if(i){i.focus();i.scrollIntoView({block:'center'})}return notice('Escribe tu nombre en la porra para apostar.')}
+  porraName(n);porra.sending=true;
+  try{const r=await sb.rpc('porra_votar',{p_code:ROCODE,p_voter:porraVoter(),p_name:n,p_key:key,p_a:+a,p_b:+b,p_pick:+p}),d=r.data||{};
+    if(r.error||!d.ok){notice(({cerrada:'El organizador ha cerrado la porra.',jugado:'Ese partido ya se ha jugado.',partido:'Ese partido ha cambiado. Recarga la página.',nombre:'Escribe un nombre de entre 1 y 30 caracteres.',limite:'Demasiadas apuestas seguidas. Espera un poco.'})[d.error]||'No se pudo guardar tu apuesta. Revisa la conexión.');return}
+    const me=await porraMe(),i=porra.votes.findIndex(v=>v.v===me&&v.k===key);if(i>=0)porra.votes[i].p=+p;else porra.votes.push({v:me,n,k:key,p:+p});render();porraLoad(true);
+  }catch(e){notice('No se pudo guardar tu apuesta. Revisa la conexión.')}finally{porra.sending=false}
+}
+
 /* ===== Modo TV: pantalla grande para la tele o el proyector ===== */
 const TVQ=(()=>{try{return new URLSearchParams(location.search).get('tv')==='1'}catch(e){return false}})();
 let TV=false,tvPage=0,tvRot=null,tvClk=null,tvQR='';
@@ -2399,6 +2450,7 @@ function tvPages(){
   if(S.de){const L=allMatches().filter(x=>x.key[0]=='d'),pend=L.filter(x=>!played(x.m)&&x.m.a!=null&&x.m.b!=null),last=L.filter(x=>played(x.m)).slice(-6).reverse();
     P.push(`<div class="tvgrid two"><div class="tvbox"><h3>Próximos · doble eliminación</h3>${pend.slice(0,6).map(x=>tvMatch(x.m,x.lab)).join('')||'<p class="tvmut">Sin partidos pendientes</p>'}</div><div class="tvbox"><h3>Últimos resultados</h3>${last.map(x=>tvMatch(x.m,x.lab)).join('')||'<p class="tvmut">Aún no hay resultados</p>'}</div></div>`)}
   if(S.season&&Array.isArray(S.seasonTable)&&S.seasonTable.length)P.push(`<div class="tvbox"><h3>${esc(S.season)} · temporada</h3><table class="tvt"><tr><th>#</th><th class="l">Jugador</th><th>Torneos</th><th>Títulos</th><th>Pts</th></tr>${S.seasonTable.slice(0,10).map((r,i)=>`<tr class="${i<3?'q':''}"><td>${i+1}</td><td class="l">${esc(r.n)}</td><td>${+r.t||0}</td><td>${+r.w||0}</td><td><b>${+r.p||0}</b></td></tr>`).join('')}</table></div>`);
+  if(S.porra&&porra.votes.length){const PT=porraTable().slice(0,10);if(PT.length)P.push(`<div class="tvbox"><h3>Porra · los que más aciertan</h3><table class="tvt"><tr><th>#</th><th class="l">Nombre</th><th>Aciertos</th><th>Jugados</th></tr>${PT.map((r,i)=>`<tr class="${i<3?'q':''}"><td>${i+1}</td><td class="l">${esc(r.n)}</td><td><b>${r.pts}</b></td><td>${r.done}</td></tr>`).join('')}</table></div>`)}
   const pr=prz();if(pr.length)P.push(`<div class="tvbox tvprz"><h3>Premios</h3>${pr.slice(0,8).map(p=>{const w=prizeWho(p),who=w.text?esc(w.text):(w.ids||[]).map(tvN).join(', ');return `<div class="tvp"><b>${esc(prizeTitle(p))}</b><span>${esc(p.text||'')}</span><i>${who||''}</i></div>`}).join('')}</div>`);
   const sp=spn();if(sp.length)P.push(`<div class="tvbox tvsp"><h3>Patrocinadores</h3><div class="tvspl">${sp.slice(0,8).map(s=>`<div>${s.i&&/^data:image\//.test(s.i)?`<img src="${esc(s.i)}" alt="">`:''}<span>${esc(s.n)}</span></div>`).join('')}</div></div>`);
   if(!P.length)P.push(`<div class="tvchamp"><span>${esc(estado().t)}</span><h1>${esc(S.name)}</h1><p>${(S.teams||[]).length||names().length} participantes · Escanea el QR para seguirlo en el móvil</p></div>`);
@@ -2581,17 +2633,17 @@ function exportIcs(tid){
 }
 /* ===== Inscripciones con enlace ===== */
 let regs=[],regAt=0,regBusy=false,regInfo=null,regLock=0;
-const rg=()=>Object.assign({open:false,deadline:'',max:0,contact:false,level:false,auto:false,msg:''},S.reg||{});
+const rg=()=>Object.assign({open:false,deadline:'',max:0,contact:false,level:false,auto:false,team:false,msg:''},S.reg||{});
 const okUuid=x=>/^[0-9a-f-]{36}$/i.test(String(x));
 function setReg(k,v){
   const r=rg();if(!(k in r))return;
-  r[k]=k=='max'?Math.max(0,Math.min(500,Math.floor(+v)||0)):(k=='open'||k=='contact'||k=='level'||k=='auto')?!!v:String(v).slice(0,k=='msg'?200:10);
+  r[k]=k=='max'?Math.max(0,Math.min(500,Math.floor(+v)||0)):(k=='open'||k=='contact'||k=='level'||k=='auto'||k=='team')?!!v:String(v).slice(0,k=='msg'?200:10);
   S.reg=r;save();render();
 }
 async function loadRegs(){
   if(!sb||!user||!S.pub||!S.pub.id||regBusy)return;regBusy=true;
   try{
-    const r=await sb.from('registrations').select('id,name,contact,level,status,imported,created_at').eq('tournament_id',S.pub.id).order('created_at',{ascending:true});
+    const r=await sb.from('registrations').select('id,name,contact,level,status,imported,created_at,members').eq('tournament_id',S.pub.id).order('created_at',{ascending:true});
     regAt=Date.now();
     if(!r.error){const nuevo=r.data||[],cambio=JSON.stringify(nuevo)!==JSON.stringify(regs);regs=nuevo;
       const a=document.activeElement;if(cambio&&!RO&&S.step==0&&!(a&&a.closest&&a.closest('#app')&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)))render()}
@@ -2607,14 +2659,19 @@ async function regImport(){
   if(!todo.length)return notice('No hay inscripciones aprobadas nuevas.');
   const have=new Set(allP().map(p=>p.n.toLowerCase())),lines=rawNames();let add=0;
   const marcados=[];
-  todo.forEach(r=>{const n=String(r.name).replace(/[:=*]/g,'').trim();if(!n)return;
+  const size=+S.size||1,bad=[];
+  if(todo.some(r=>Array.isArray(r.members))&&lines.length%size)return notice(`Para añadir equipos inscritos, la lista de participantes tiene que tener un número de jugadores múltiplo de ${size}. Ahora hay ${lines.length}.`);
+  todo.forEach(r=>{if(!Array.isArray(r.members))return;const M=r.members.map(x=>String(x).replace(/[:=*,]/g,'').trim()).filter(Boolean);
+    if(M.length!==size||M.some(x=>have.has(x.toLowerCase()))){bad.push(r.name);return}
+    M.forEach(x=>{lines.push(x);have.add(x.toLowerCase())});add+=M.length;S.tnames=S.tnames||{};S.tnames[M[0].toLowerCase()]=String(r.name).slice(0,30);S.teamReg=true;marcados.push(r.id)});
+  todo.forEach(r=>{if(Array.isArray(r.members))return;const n=String(r.name).replace(/[:=*]/g,'').trim();if(!n)return;
     if(!have.has(n.toLowerCase())){lines.push(n);have.add(n.toLowerCase());add++}
     if(r.level&&r.level<=lvN()){S.lvl=S.lvl||{};S.lvl[n.toLowerCase()]=r.level}
     marcados.push(r.id)});
   S.players=lines.join('\n');
   if(marcados.length)await sb.from('registrations').update({imported:true}).in('id',marcados);
   save();regAt=0;await loadRegs();render();
-  notice(`Añadidos ${add} participante${add==1?'':'s'} a la lista. Ya puedes hacer el sorteo.`);
+  notice(`Añadidos ${add} participante${add==1?'':'s'} a la lista. Ya puedes hacer el sorteo.`+(bad.length?` No se han añadido ${bad.length} equipo${bad.length==1?'':'s'} (${bad.join(', ')}): no tienen ${size} jugadores o alguno ya estaba en la lista.`:''));
 }
 const regSt={pending:['Pendiente',''],approved:['Aprobada','live'],rejected:['Rechazada','']};
 function regCard(){
@@ -2627,6 +2684,7 @@ function regCard(){
   <label>Inscripciones</label>${chips('open','Abiertas','Cerradas')}
   <div class="row"><div><label for="rg-d">Fecha límite</label><input id="rg-d" type="date" value="${esc(r.deadline)}" data-change="setReg('deadline',this.value)"></div>
   <div><label for="rg-m">Máximo (0 = sin límite)</label><input id="rg-m" type="number" min="0" max="500" value="${+r.max||0}" data-change="setReg('max',this.value)"></div></div>
+  ${+S.size>1?`<label>Se inscriben</label>${chips('team','Por equipos','Jugador a jugador')}<p class="small" style="margin-top:0">${r.team?`El capitán apunta el nombre del equipo y a sus ${+S.size} jugadores. Al pasarlos a participantes, cada equipo se queda junto.`:'Cada jugador se apunta solo y el sorteo forma los equipos.'}</p>`:''}
   <label>Pedir contacto (email, Discord…)</label>${chips('contact','Sí','No')}
   <label>Pedir nivel en ${esc(S.game||'el juego')}</label>${chips('level','Sí','No')}
   <label>Aprobación</label>${chips('auto','Automática','La reviso yo')}
@@ -2634,7 +2692,7 @@ function regCard(){
   <h3>Lista de inscritos</h3>
   <p class="small">${regs.length} en total · ${ap} aprobados · ${pe} pendientes</p>
   ${regs.length?regs.filter(x=>okUuid(x.id)).map(x=>`<div class="trow"><div style="min-width:0;flex:1"><b>${esc(x.name)}</b> <span class="st ${regSt[x.status]?regSt[x.status][1]:''}">${esc((regSt[x.status]||['?'])[0])}</span>${x.imported?' <span class="small">· ya en la lista</span>':''}
-    <div class="small" style="overflow-wrap:anywhere">${x.contact?esc(x.contact):''}${x.level?`${x.contact?' · ':''}Nivel: ${esc(lvLabel(x.level))}`:''}</div></div>
+    ${Array.isArray(x.members)&&x.members.length?`<div class="small">${x.members.map(esc).join(' · ')}</div>`:''}<div class="small" style="overflow-wrap:anywhere">${x.contact?esc(x.contact):''}${x.level?`${x.contact?' · ':''}Nivel: ${esc(lvLabel(x.level))}`:''}</div></div>
     ${x.status!='approved'?`<button class="sm" data-click="regSet('${x.id}','approved')">Aprobar</button>`:''}${x.status!='rejected'?`<button class="sec sm" data-click="regSet('${x.id}','rejected')">Rechazar</button>`:''}<button class="sec sm" aria-label="Quitar a ${esc(x.name)}" data-click="regDel('${x.id}')">Quitar</button></div>`).join(''):'<p class="small">Todavía no hay nadie apuntado.</p>'}
   <div class="row" style="margin-top:12px"><button ${nuevos?'':'disabled style="opacity:.5"'} data-click="regImport()">Añadir aprobados a los participantes${nuevos?' ('+nuevos+')':''}</button><button class="sec" data-click="loadRegs()">Actualizar lista</button></div></div>`;
 }
@@ -2648,6 +2706,11 @@ function regPublicCard(){
   if(done)return head+`<p><b>Ya te has apuntado.</b> ${esc(done)}</p></div>`;
   if(!r.open||late)return head+'<p class="small">Las inscripciones están cerradas.</p></div>';
   if(full)return head+'<p class="small">El torneo está completo.</p></div>';
+  if(r.team&&+S.size>1)return head+`<label for="rg-n">Nombre del equipo</label><input id="rg-n" maxlength="40">
+    ${Array.from({length:+S.size},(_,i)=>`<label for="rg-p${i}">${i?'Jugador '+(i+1):'Jugador 1 (capitán)'}</label><input id="rg-p${i}" maxlength="40">`).join('')}
+    ${r.contact?'<label for="rg-c">Contacto del capitán (email, Discord o teléfono)</label><input id="rg-c" maxlength="80">':''}
+    <div class="err" id="rg-m" role="alert"></div><button data-click="regTeamSubmit()">Apuntar al equipo</button>
+    <p class="small">El organizador verá estos datos para organizar el torneo.</p></div>`;
   return head+`<label for="rg-n">Tu nombre o apodo</label><input id="rg-n" maxlength="40" autocomplete="nickname">
     ${r.contact?'<label for="rg-c">Contacto (email, Discord o teléfono)</label><input id="rg-c" maxlength="80">':''}
     ${r.level?`<label for="rg-l">Tu nivel en ${esc(S.game)}</label><select id="rg-l"><option value="0">No lo sé</option>${lvList().map((x,i)=>`<option value="${i+1}">${esc(x)}</option>`).join('')}</select>`:''}
@@ -2665,6 +2728,22 @@ async function regSubmit(){
   const E={codigo:'Este enlace ya no es válido.',cerrado:'Las inscripciones están cerradas.',plazo:'El plazo de inscripción ha terminado.',nombre:'Escribe un nombre de entre 1 y 40 caracteres.',lleno:'El torneo está completo.',duplicado:'Ese nombre ya está inscrito. Usa otro.',limite:'Demasiados intentos. Prueba más tarde.'};
   if(r.error||!d.ok){const m2=$('rg-m');if(m2)m2.textContent=E[d.error]||'No se pudo completar. Inténtalo de nuevo.';return}
   lsSet('torneazo_reg_'+ROCODE,d.status=='approved'?'Tu plaza está confirmada.':'El organizador la revisará y te confirmará.');
+  await loadRegInfo();render();
+}
+
+function setTeamReg(v){S.teamReg=!!v;save();render()}
+async function regTeamSubmit(){
+  const g=id=>(($(id)||{}).value||'').trim(),n=g('rg-n'),c=g('rg-c'),m=$('rg-m'),size=+S.size||1;
+  const M=Array.from({length:size},(_,i)=>g('rg-p'+i));
+  if(!n){if(m)m.textContent='Escribe el nombre del equipo.';return}
+  if(M.some(x=>!x)){if(m)m.textContent=`Escribe los ${size} jugadores.`;return}
+  if(M.some(x=>/[:=*,]/.test(x))){if(m)m.textContent='Los nombres no pueden llevar «:», «=», «*» ni comas.';return}
+  if(new Set(M.map(x=>x.toLowerCase())).size!==M.length){if(m)m.textContent='Hay un jugador repetido.';return}
+  if(Date.now()<regLock)return;regLock=Date.now()+3000;
+  const r=await sb.rpc('inscribir_equipo',{p_code:ROCODE,p_team:n,p_members:M,p_contact:c||null}),d=r.data||{};
+  const E={codigo:'Este enlace ya no es válido.',cerrado:'Las inscripciones están cerradas.',plazo:'El plazo de inscripción ha terminado.',nombre:'Escribe un nombre de equipo de entre 1 y 40 caracteres.',jugadores:'Revisa los nombres de los jugadores.',lleno:'El torneo está completo.',duplicado:'Ya hay un equipo con ese nombre. Usa otro.',limite:'Demasiados intentos. Espera un poco y vuelve a probar.'};
+  if(r.error||!d.ok){if(m)m.textContent=E[d.error]||'No se pudo completar. Inténtalo de nuevo.';return}
+  lsSet('torneazo_reg_'+ROCODE,d.status=='approved'?'La plaza de tu equipo está confirmada.':'El organizador revisará la inscripción de tu equipo y os confirmará.');
   await loadRegInfo();render();
 }
 
@@ -2850,6 +2929,8 @@ function pubCard(){
     ${brandCard()}
     <label>Resultados de los jugadores</label><div class="chips"><div class="chip ${S.selfRep?'on':''}" data-click="setSelfRep(true)">Pueden enviarlos</div><div class="chip ${!S.selfRep?'on':''}" data-click="setSelfRep(false)">Solo yo</div></div>
     <p class="small">Si lo activas, desde la página pública cualquiera puede enviar el resultado de un partido. No cuenta hasta que tú lo aceptes en «Partidos».</p>
+    <label>Porra del público</label><div class="chips"><div class="chip ${S.porra?'on':''}" data-click="setPorra(true)">Sí</div><div class="chip ${!S.porra?'on':''}" data-click="setPorra(false)">No</div></div>
+    <p class="small">Si la activas, en la página del torneo el público apuesta quién gana cada partido (sin dinero) y hay una clasificación de acertantes.</p>
     ${arbCard()}
     ${S.pub.hidden?`<p class="small bad">Tu torneo está oculto porque ha recibido denuncias y está en revisión. Escribe a ${esc((window.APP_CONFIG||{}).contactEmail||'soporte')}.</p>`:''}
     <details style="margin:10px 0"><summary class="small" style="cursor:pointer">Insertar en tu web</summary>
@@ -3045,7 +3126,7 @@ function confetti(){
 }
 
 /* ===== Versiones, novedades y tutorial ===== */
-const APP_VERSION='1.41.1';
+const APP_VERSION='1.42.0';
 const vcmp=(a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);for(let i=0;i<3;i++){const d=(x[i]||0)-(y[i]||0);if(d)return d}return 0};
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};

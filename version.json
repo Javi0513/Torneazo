@@ -1,6 +1,14 @@
 {
-  "version": "1.41.1",
+  "version": "1.42.0",
   "historial": [
+    {
+      "version": "1.42.0",
+      "fecha": "20/11/2026",
+      "cambios": [
+        "Porra: el público apuesta desde la página del torneo quién gana cada partido (sin dinero) y hay una clasificación de los que más aciertan, también en el modo TV.",
+        "Inscripción por equipos: el capitán apunta el nombre del equipo y a sus jugadores, y el equipo se mantiene junto en el sorteo."
+      ]
+    },
     {
       "version": "1.41.1",
       "fecha": "15/11/2026",
